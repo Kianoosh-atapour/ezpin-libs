@@ -1,5 +1,5 @@
 {
-  "name": "ez-libs",
+  "name": "ezpin-libs",
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
@@ -39,5 +39,13 @@
     "ng-packagr": "^18.1.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kianoosh-atapour/ezpin-libs.git"
+  },
+  "keywords": [
+    "angular",
+    "library"
+  ]
 }
