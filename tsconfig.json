@@ -6,6 +6,9 @@
     "paths": {
       "activate": [
         "./dist/activate"
+      ],
+      "proxies": [
+        "./dist/proxies"
       ]
     },
     "outDir": "./dist/out-tsc",
