@@ -1,6 +1,14 @@
 {
-  "name": "proxies",
-  "version": "0.0.1",
+  "name": "@ezpin/proxies",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kianoosh-atapour/-ezpin-proxies.git"
+  },
+  "keywords": [
+    "angular",
+    "library"
+  ],
   "peerDependencies": {
     "@angular/common": "^18.1.0",
     "@angular/core": "^18.1.0"
