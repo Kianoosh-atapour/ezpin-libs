@@ -25,7 +25,7 @@ import {
   HttpResponseBase,
   HttpContext,
 } from "@angular/common/http";
-import { ProxiesService } from "proxies";
+import { ProxiesService } from "../index";
 
 const service = new ProxiesService();
 const API_BASE_URL = service.retailProxyBaseUrl;

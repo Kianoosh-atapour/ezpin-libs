@@ -26,7 +26,7 @@ import {
   HttpContext,
 } from "@angular/common/http";
 import { ApiException } from "./api-exception";
-import { ProxiesService } from "proxies";
+import { ProxiesService } from "../index";
 
 const service = new ProxiesService();
 const API_BASE_URL = service.shopProxyBaseUrl;
