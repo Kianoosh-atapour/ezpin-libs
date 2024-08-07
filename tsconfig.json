@@ -4,12 +4,8 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "activate": [
-        "./dist/activate"
-      ],
-      "proxies": [
-        "./dist/proxies"
-      ]
+      "activate": ["./dist/activate"],
+      "proxies": ["./dist/proxies"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,
@@ -26,10 +22,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["ES2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
