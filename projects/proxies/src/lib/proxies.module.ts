@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { NgModule } from "@angular/core";
-import { ProxiesService, RetailProxyService, ShopProxyService } from "proxies";
+import { ProxiesService, RetailProxyService, ShopProxyService } from "./index";
 
 @NgModule({
   declarations: [],
