@@ -11,23 +11,25 @@
 import {
   mergeMap as _observableMergeMap,
   catchError as _observableCatch,
-} from 'rxjs/operators';
+} from "rxjs/operators";
 import {
   Observable,
   throwError as _observableThrow,
   of as _observableOf,
-} from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
+} from "rxjs";
+import { Injectable, Inject, Optional, InjectionToken } from "@angular/core";
 import {
   HttpClient,
   HttpHeaders,
   HttpResponse,
   HttpResponseBase,
   HttpContext,
-} from '@angular/common/http';
-import { ApiException } from './api-exception';
+} from "@angular/common/http";
+import { ApiException } from "./api-exception";
+import { ProxiesService } from "proxies";
 
-export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+const service = new ProxiesService();
+const API_BASE_URL = service.shopProxyBaseUrl;
 
 @Injectable()
 export class BuyOrdersClient {
@@ -41,7 +43,7 @@ export class BuyOrdersClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   placeOrder(
@@ -50,28 +52,28 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<number> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/place-order';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/place-order";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPlaceOrder(response_);
@@ -111,7 +113,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -123,7 +125,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -146,51 +148,51 @@ export class BuyOrdersClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<BuyOrder[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/buys?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/buys?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (isPhysicalCardOrder === null)
       throw new Error("The parameter 'isPhysicalCardOrder' cannot be null.");
     else if (isPhysicalCardOrder !== undefined)
       url_ +=
-        'isPhysicalCardOrder=' +
-        encodeURIComponent('' + isPhysicalCardOrder) +
-        '&';
+        "isPhysicalCardOrder=" +
+        encodeURIComponent("" + isPhysicalCardOrder) +
+        "&";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (buyOrderStates !== undefined && buyOrderStates !== null)
-      url_ += 'buyOrderStates=' + encodeURIComponent('' + buyOrderStates) + '&';
+      url_ += "buyOrderStates=" + encodeURIComponent("" + buyOrderStates) + "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBuyOrders(response_);
@@ -232,7 +234,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -249,7 +251,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -267,38 +269,38 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<BuyOrder[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/completed-buys?';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/completed-buys?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (beginCompletedTime !== undefined && beginCompletedTime !== null)
       url_ +=
-        'beginCompletedTime=' +
+        "beginCompletedTime=" +
         encodeURIComponent(
-          beginCompletedTime ? '' + beginCompletedTime.toISOString() : ''
+          beginCompletedTime ? "" + beginCompletedTime.toISOString() : ""
         ) +
-        '&';
+        "&";
     if (endCompletedTime !== undefined && endCompletedTime !== null)
       url_ +=
-        'endCompletedTime=' +
+        "endCompletedTime=" +
         encodeURIComponent(
-          endCompletedTime ? '' + endCompletedTime.toISOString() : ''
+          endCompletedTime ? "" + endCompletedTime.toISOString() : ""
         ) +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCompletedBuyOrders(response_);
@@ -340,7 +342,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -357,7 +359,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -381,53 +383,53 @@ export class BuyOrdersClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<BuyOrder[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/sales?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/sales?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantIds !== undefined && subMerchantIds !== null)
-      url_ += 'subMerchantIds=' + encodeURIComponent('' + subMerchantIds) + '&';
+      url_ += "subMerchantIds=" + encodeURIComponent("" + subMerchantIds) + "&";
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (isPhysicalCardOrder === null)
       throw new Error("The parameter 'isPhysicalCardOrder' cannot be null.");
     else if (isPhysicalCardOrder !== undefined)
       url_ +=
-        'isPhysicalCardOrder=' +
-        encodeURIComponent('' + isPhysicalCardOrder) +
-        '&';
+        "isPhysicalCardOrder=" +
+        encodeURIComponent("" + isPhysicalCardOrder) +
+        "&";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (buyOrderStates !== undefined && buyOrderStates !== null)
-      url_ += 'buyOrderStates=' + encodeURIComponent('' + buyOrderStates) + '&';
+      url_ += "buyOrderStates=" + encodeURIComponent("" + buyOrderStates) + "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleOrders(response_);
@@ -469,7 +471,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -486,7 +488,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -503,27 +505,27 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<BuyOrder> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/buy/{orderId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/buy/{orderId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error("The parameter 'orderId' must be defined.");
-    url_ = url_.replace('{orderId}', encodeURIComponent('' + orderId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBuy(response_);
@@ -563,7 +565,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = BuyOrder.fromJS(resultData200);
@@ -574,7 +576,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -592,27 +594,27 @@ export class BuyOrdersClient {
   ): Observable<BuyOrderSummary> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/buy-summary/{orderId}';
+      "/api/v1/branches/{branchId}/buy-orders/buy-summary/{orderId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error("The parameter 'orderId' must be defined.");
-    url_ = url_.replace('{orderId}', encodeURIComponent('' + orderId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBuySummary(response_);
@@ -656,7 +658,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = BuyOrderSummary.fromJS(resultData200);
@@ -667,7 +669,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -684,27 +686,27 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<BuyOrder> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/sale/{orderId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/sale/{orderId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error("The parameter 'orderId' must be defined.");
-    url_ = url_.replace('{orderId}', encodeURIComponent('' + orderId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSale(response_);
@@ -744,7 +746,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = BuyOrder.fromJS(resultData200);
@@ -755,7 +757,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -773,27 +775,27 @@ export class BuyOrdersClient {
   ): Observable<ExchangeOrder[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/exchanges/{merchantId}';
+      "/api/v1/branches/{branchId}/buy-orders/exchanges/{merchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetExchanges(response_);
@@ -837,7 +839,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -854,7 +856,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -874,39 +876,39 @@ export class BuyOrdersClient {
   ): Observable<ExchangeCalc> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/exchange-calculator?';
+      "/api/v1/branches/{branchId}/buy-orders/exchange-calculator?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error(
         "The parameter 'merchantId' must be defined and cannot be null."
       );
-    else url_ += 'merchantId=' + encodeURIComponent('' + merchantId) + '&';
+    else url_ += "merchantId=" + encodeURIComponent("" + merchantId) + "&";
     if (currencyId === undefined || currencyId === null)
       throw new Error(
         "The parameter 'currencyId' must be defined and cannot be null."
       );
-    else url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+    else url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (amount === undefined || amount === null)
       throw new Error(
         "The parameter 'amount' must be defined and cannot be null."
       );
-    else url_ += 'amount=' + encodeURIComponent('' + amount) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "amount=" + encodeURIComponent("" + amount) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetExchangeCalc(response_);
@@ -950,7 +952,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ExchangeCalc.fromJS(resultData200);
@@ -961,7 +963,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -978,29 +980,29 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<ProductItemCode> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/product-codes?';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/product-codes?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error(
         "The parameter 'orderId' must be defined and cannot be null."
       );
-    else url_ += 'orderId=' + encodeURIComponent('' + orderId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "orderId=" + encodeURIComponent("" + orderId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetProductCodes(response_);
@@ -1044,7 +1046,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ProductItemCode.fromJS(resultData200);
@@ -1055,7 +1057,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1075,33 +1077,33 @@ export class BuyOrdersClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/{orderId}/resend-product-codes?';
+      "/api/v1/branches/{branchId}/buy-orders/{orderId}/resend-product-codes?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error("The parameter 'orderId' must be defined.");
-    url_ = url_.replace('{orderId}', encodeURIComponent('' + orderId));
+    url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
     if (deliveryType === undefined || deliveryType === null)
       throw new Error(
         "The parameter 'deliveryType' must be defined and cannot be null."
       );
-    else url_ += 'deliveryType=' + encodeURIComponent('' + deliveryType) + '&';
+    else url_ += "deliveryType=" + encodeURIComponent("" + deliveryType) + "&";
     if (deliveryTypeValue !== undefined && deliveryTypeValue !== null)
       url_ +=
-        'deliveryTypeValue=' + encodeURIComponent('' + deliveryTypeValue) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "deliveryTypeValue=" + encodeURIComponent("" + deliveryTypeValue) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processResendProductCodes(response_);
@@ -1147,7 +1149,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1164,29 +1166,29 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<BuyOrderStateLog[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/state-logs?';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/state-logs?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error(
         "The parameter 'orderId' must be defined and cannot be null."
       );
-    else url_ += 'orderId=' + encodeURIComponent('' + orderId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "orderId=" + encodeURIComponent("" + orderId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBuyOrderStateLogs(response_);
@@ -1232,7 +1234,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1249,7 +1251,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1273,25 +1275,25 @@ export class CurrenciesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getCurrencies(httpContext?: HttpContext): Observable<Currency[]> {
-    let url_ = this.baseUrl + '/api/v1/currencies';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/currencies";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCurrencies(response_);
@@ -1333,7 +1335,7 @@ export class CurrenciesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1350,7 +1352,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1364,21 +1366,21 @@ export class CurrenciesClient {
   getExchangeRates(
     httpContext?: HttpContext
   ): Observable<CurrencyExchangeRate[]> {
-    let url_ = this.baseUrl + '/api/v1/currencies/currency-exchange-rates';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/currencies/currency-exchange-rates";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetExchangeRates(response_);
@@ -1424,7 +1426,7 @@ export class CurrenciesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1441,7 +1443,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1465,7 +1467,7 @@ export class DigitalDeliveriesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getProductItemCodes(
@@ -1475,26 +1477,26 @@ export class DigitalDeliveriesClient {
   ): Observable<ProductItemCode> {
     let url_ =
       this.baseUrl +
-      '/api/v1/buy-orders/{buyOrderKey}/digital-deliveries/product-item-codes?';
+      "/api/v1/buy-orders/{buyOrderKey}/digital-deliveries/product-item-codes?";
     if (buyOrderKey === undefined || buyOrderKey === null)
       throw new Error("The parameter 'buyOrderKey' must be defined.");
-    url_ = url_.replace('{buyOrderKey}', encodeURIComponent('' + buyOrderKey));
+    url_ = url_.replace("{buyOrderKey}", encodeURIComponent("" + buyOrderKey));
     if (shareCode !== undefined && shareCode !== null)
-      url_ += 'shareCode=' + encodeURIComponent('' + shareCode) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "shareCode=" + encodeURIComponent("" + shareCode) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetProductItemCodes(response_);
@@ -1538,7 +1540,7 @@ export class DigitalDeliveriesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ProductItemCode.fromJS(resultData200);
@@ -1549,7 +1551,7 @@ export class DigitalDeliveriesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1573,7 +1575,7 @@ export class PhysicalCardsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   activate(
@@ -1582,28 +1584,28 @@ export class PhysicalCardsClient {
     httpContext?: HttpContext
   ): Observable<number> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/physical-cards/activate';
+      this.baseUrl + "/api/v1/branches/{branchId}/physical-cards/activate";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processActivate(response_);
@@ -1643,7 +1645,7 @@ export class PhysicalCardsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -1655,7 +1657,7 @@ export class PhysicalCardsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1673,29 +1675,29 @@ export class PhysicalCardsClient {
   ): Observable<PhysicalCardActivation> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/physical-cards/check-activation?';
+      "/api/v1/branches/{branchId}/physical-cards/check-activation?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (serialNumber === undefined || serialNumber === null)
       throw new Error(
         "The parameter 'serialNumber' must be defined and cannot be null."
       );
-    else url_ += 'serialNumber=' + encodeURIComponent('' + serialNumber) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "serialNumber=" + encodeURIComponent("" + serialNumber) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCheckActivation(response_);
@@ -1741,7 +1743,7 @@ export class PhysicalCardsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PhysicalCardActivation.fromJS(resultData200);
@@ -1752,7 +1754,7 @@ export class PhysicalCardsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1776,7 +1778,7 @@ export class ProductsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getProductInvoice(
@@ -1787,32 +1789,32 @@ export class ProductsClient {
   ): Observable<PriceInvoice> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/products/{productId}/pre-invoice?';
+      "/api/v1/branches/{branchId}/products/{productId}/pre-invoice?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
     if (productPrice === undefined || productPrice === null)
       throw new Error(
         "The parameter 'productPrice' must be defined and cannot be null."
       );
-    else url_ += 'productPrice=' + encodeURIComponent('' + productPrice) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "productPrice=" + encodeURIComponent("" + productPrice) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetProductInvoice(response_);
@@ -1856,7 +1858,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceInvoice.fromJS(resultData200);
@@ -1867,7 +1869,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1885,33 +1887,33 @@ export class ProductsClient {
     searchCriteria?: string | null | undefined,
     httpContext?: HttpContext
   ): Observable<CategoryProduct> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/products?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/products?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (onlyDigitalCards === null)
       throw new Error("The parameter 'onlyDigitalCards' cannot be null.");
     else if (onlyDigitalCards !== undefined)
       url_ +=
-        'onlyDigitalCards=' + encodeURIComponent('' + onlyDigitalCards) + '&';
+        "onlyDigitalCards=" + encodeURIComponent("" + onlyDigitalCards) + "&";
     if (regionId !== undefined && regionId !== null)
-      url_ += 'regionId=' + encodeURIComponent('' + regionId) + '&';
+      url_ += "regionId=" + encodeURIComponent("" + regionId) + "&";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetProducts(response_);
@@ -1955,7 +1957,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = CategoryProduct.fromJS(resultData200);
@@ -1966,7 +1968,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1983,27 +1985,27 @@ export class ProductsClient {
     httpContext?: HttpContext
   ): Observable<Product> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/products/{productId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/products/{productId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -2043,7 +2045,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Product.fromJS(resultData200);
@@ -2054,7 +2056,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2078,7 +2080,7 @@ export class RegionsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getRegions(
@@ -2086,25 +2088,25 @@ export class RegionsClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<Region[]> {
-    let url_ = this.baseUrl + '/api/v1/regions?';
+    let url_ = this.baseUrl + "/api/v1/regions?";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetRegions(response_);
@@ -2146,7 +2148,7 @@ export class RegionsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -2163,7 +2165,7 @@ export class RegionsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2187,23 +2189,23 @@ export class SyncClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   clearDb(httpContext?: HttpContext): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/clear-db';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/clear-db";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processClearDb(response_);
@@ -2247,7 +2249,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2262,24 +2264,24 @@ export class SyncClient {
     request: PutMerchantRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/merchants';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/merchants";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutMerchant(response_);
@@ -2323,7 +2325,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2338,24 +2340,24 @@ export class SyncClient {
     request: PutBranchRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/branches';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/branches";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutBranch(response_);
@@ -2399,7 +2401,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2414,24 +2416,24 @@ export class SyncClient {
     request: PutCurrencyRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/currencies';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/currencies";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutCurrency(response_);
@@ -2475,7 +2477,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2490,24 +2492,24 @@ export class SyncClient {
     request: PutCategoryRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/categories';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/categories";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutCategory(response_);
@@ -2551,7 +2553,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2566,24 +2568,24 @@ export class SyncClient {
     request: PutProductRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/products';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/products";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutProduct(response_);
@@ -2627,7 +2629,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2642,24 +2644,24 @@ export class SyncClient {
     request: PutRegionRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/regions';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/regions";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutRegion(response_);
@@ -2703,7 +2705,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2718,24 +2720,24 @@ export class SyncClient {
     request: PutProductRegionRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/product-region';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/product-region";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutProductRegion(response_);
@@ -2781,7 +2783,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2796,24 +2798,24 @@ export class SyncClient {
     request: PutCurrencyExchangeRateRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/currency-exchange-rate';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/currency-exchange-rate";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutCurrencyExchangeRate(response_);
@@ -2859,7 +2861,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2874,24 +2876,24 @@ export class SyncClient {
     request: PutMerchantCurrencyLimitRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/sync/merchant-currency-limit';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/sync/merchant-currency-limit";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPutMerchantCurrencyLimit(response_);
@@ -2937,7 +2939,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2954,7 +2956,7 @@ export class SyncClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/sync/merchant-currency-limit/{merchantCurrencyLimitId}';
+      "/api/v1/sync/merchant-currency-limit/{merchantCurrencyLimitId}";
     if (
       merchantCurrencyLimitId === undefined ||
       merchantCurrencyLimitId === null
@@ -2963,21 +2965,21 @@ export class SyncClient {
         "The parameter 'merchantCurrencyLimitId' must be defined."
       );
     url_ = url_.replace(
-      '{merchantCurrencyLimitId}',
-      encodeURIComponent('' + merchantCurrencyLimitId)
+      "{merchantCurrencyLimitId}",
+      encodeURIComponent("" + merchantCurrencyLimitId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processDeleteMerchantCurrencyLimit(response_);
@@ -3023,7 +3025,7 @@ export class SyncClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3047,25 +3049,25 @@ export class TeamClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   listCurrentUserResources(httpContext?: HttpContext): Observable<string[]> {
-    let url_ = this.baseUrl + '/api/v1/team/users/current/resources';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/team/users/current/resources";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListCurrentUserResources(response_);
@@ -3107,7 +3109,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3123,7 +3125,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3140,24 +3142,24 @@ export class TeamClient {
   ): Observable<string[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/users/current/resources/{resourceId}/permissions';
+      "/api/v1/team/users/current/resources/{resourceId}/permissions";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListCurrentUserPermissions(response_);
@@ -3199,7 +3201,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3215,7 +3217,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3230,24 +3232,24 @@ export class TeamClient {
     userId: string,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/team/users/{userId}/bot/reset-api-key';
+    let url_ = this.baseUrl + "/api/v1/team/users/{userId}/bot/reset-api-key";
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processResetBotApiKey(response_);
@@ -3289,7 +3291,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -3300,7 +3302,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3316,28 +3318,28 @@ export class TeamClient {
     updateParam: TeamUpdateBotParam,
     httpContext?: HttpContext
   ): Observable<User> {
-    let url_ = this.baseUrl + '/api/v1/team/users/{userId}/bot';
+    let url_ = this.baseUrl + "/api/v1/team/users/{userId}/bot";
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(updateParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdateBot(response_);
@@ -3376,7 +3378,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = User.fromJS(resultData200);
@@ -3387,7 +3389,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3399,24 +3401,24 @@ export class TeamClient {
   }
 
   listRoles(resourceId: string, httpContext?: HttpContext): Observable<Role[]> {
-    let url_ = this.baseUrl + '/api/v1/team/resources/{resourceId}/roles';
+    let url_ = this.baseUrl + "/api/v1/team/resources/{resourceId}/roles";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListRoles(response_);
@@ -3456,7 +3458,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3472,7 +3474,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3493,38 +3495,38 @@ export class TeamClient {
     recordCount?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<ListResultOfUserRole> {
-    let url_ = this.baseUrl + '/api/v1/team/resources/{resourceId}/user-roles?';
+    let url_ = this.baseUrl + "/api/v1/team/resources/{resourceId}/user-roles?";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId !== undefined && roleId !== null)
-      url_ += 'roleId=' + encodeURIComponent('' + roleId) + '&';
+      url_ += "roleId=" + encodeURIComponent("" + roleId) + "&";
     if (userId !== undefined && userId !== null)
-      url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
+      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
     if (search !== undefined && search !== null)
-      url_ += 'search=' + encodeURIComponent('' + search) + '&';
+      url_ += "search=" + encodeURIComponent("" + search) + "&";
     if (isBot !== undefined && isBot !== null)
-      url_ += 'isBot=' + encodeURIComponent('' + isBot) + '&';
+      url_ += "isBot=" + encodeURIComponent("" + isBot) + "&";
     if (recordIndex === null)
       throw new Error("The parameter 'recordIndex' cannot be null.");
     else if (recordIndex !== undefined)
-      url_ += 'recordIndex=' + encodeURIComponent('' + recordIndex) + '&';
+      url_ += "recordIndex=" + encodeURIComponent("" + recordIndex) + "&";
     if (recordCount !== undefined && recordCount !== null)
-      url_ += 'recordCount=' + encodeURIComponent('' + recordCount) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "recordCount=" + encodeURIComponent("" + recordCount) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListUserRoles(response_);
@@ -3570,7 +3572,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ListResultOfUserRole.fromJS(resultData200);
@@ -3581,7 +3583,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3599,31 +3601,31 @@ export class TeamClient {
     httpContext?: HttpContext
   ): Observable<ApiKey> {
     let url_ =
-      this.baseUrl + '/api/v1/team/resources/{resourceId}/roles/{roleId}/bots';
+      this.baseUrl + "/api/v1/team/resources/{resourceId}/roles/{roleId}/bots";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(addParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddNewBot(response_);
@@ -3663,7 +3665,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -3674,7 +3676,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3694,34 +3696,34 @@ export class TeamClient {
   ): Observable<UserRole> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/email:{email}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/email:{email}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (email === undefined || email === null)
       throw new Error("The parameter 'email' must be defined.");
-    url_ = url_.replace('{email}', encodeURIComponent('' + email));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{email}", encodeURIComponent("" + email));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(addParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddUserByEmail(response_);
@@ -3763,7 +3765,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = UserRole.fromJS(resultData200);
@@ -3774,7 +3776,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3793,30 +3795,30 @@ export class TeamClient {
   ): Observable<UserRole> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddUser(response_);
@@ -3856,7 +3858,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = UserRole.fromJS(resultData200);
@@ -3867,7 +3869,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3886,28 +3888,28 @@ export class TeamClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processRemoveUser(response_);
@@ -3951,7 +3953,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3966,27 +3968,27 @@ export class TeamClient {
     secret: string,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/team/system/api-key';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/team/system/api-key";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = new FormData();
     if (secret === null || secret === undefined)
       throw new Error("The parameter 'secret' cannot be null.");
-    else content_.append('secret', secret.toString());
+    else content_.append("secret", secret.toString());
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateSystemApiKey(response_);
@@ -4028,7 +4030,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -4039,7 +4041,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4063,25 +4065,25 @@ export class AuthenticationClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getCurrentUser(httpContext?: HttpContext): Observable<User> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCurrentUser(response_);
@@ -4122,7 +4124,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = User.fromJS(resultData200);
@@ -4133,7 +4135,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4145,19 +4147,19 @@ export class AuthenticationClient {
   }
 
   signOutAll(httpContext?: HttpContext): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current/signout-all';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current/signout-all";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignOutAll(response_);
@@ -4201,7 +4203,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4213,21 +4215,21 @@ export class AuthenticationClient {
   }
 
   resetCurrentUserApiKey(httpContext?: HttpContext): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current/reset-api-key';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current/reset-api-key";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processResetCurrentUserApiKey(response_);
@@ -4269,7 +4271,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -4280,7 +4282,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4295,25 +4297,25 @@ export class AuthenticationClient {
     request: SignInRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/signin';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/signin";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignIn(response_);
@@ -4353,7 +4355,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -4364,7 +4366,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4379,25 +4381,25 @@ export class AuthenticationClient {
     request: SignUpRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/signup';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/signup";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignUp(response_);
@@ -4437,7 +4439,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -4448,7 +4450,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4463,25 +4465,25 @@ export class AuthenticationClient {
     request: RefreshTokenRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/refresh-token';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/refresh-token";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processRefreshToken(response_);
@@ -4523,7 +4525,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -4534,7 +4536,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4549,21 +4551,21 @@ export class AuthenticationClient {
     httpContext?: HttpContext
   ): Observable<FileResponse | null> {
     let url_ =
-      this.baseUrl + '/api/v1/authentication/external/google/signin-handler';
-    url_ = url_.replace(/[?&]$/, '');
+      this.baseUrl + "/api/v1/authentication/external/google/signin-handler";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
+        Accept: "application/octet-stream",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGoogleSignInHandler(response_);
@@ -4606,7 +4608,7 @@ export class AuthenticationClient {
     }
     if (status === 200 || status === 206) {
       const contentDisposition = response.headers
-        ? response.headers.get('content-disposition')
+        ? response.headers.get("content-disposition")
         : undefined;
       let fileNameMatch = contentDisposition
         ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(
@@ -4638,7 +4640,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4655,28 +4657,28 @@ export class AuthenticationClient {
     httpContext?: HttpContext
   ): Observable<string> {
     let url_ =
-      this.baseUrl + '/api/v1/authentication/external/google/signin-url?';
+      this.baseUrl + "/api/v1/authentication/external/google/signin-url?";
     if (csrfToken === undefined || csrfToken === null)
       throw new Error(
         "The parameter 'csrfToken' must be defined and cannot be null."
       );
-    else url_ += 'csrfToken=' + encodeURIComponent('' + csrfToken) + '&';
+    else url_ += "csrfToken=" + encodeURIComponent("" + csrfToken) + "&";
     if (nonce !== undefined && nonce !== null)
-      url_ += 'nonce=' + encodeURIComponent('' + nonce) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "nonce=" + encodeURIComponent("" + nonce) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetGoogleSignInUrl(response_);
@@ -4718,7 +4720,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -4730,7 +4732,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4765,44 +4767,44 @@ export class PlaceDigitalCardOrderRequest
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productPrice =
-        _data['productPrice'] !== undefined ? _data['productPrice'] : <any>null;
+        _data["productPrice"] !== undefined ? _data["productPrice"] : <any>null;
       this.quantity =
-        _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+        _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
       this.buyPrice =
-        _data['buyPrice'] !== undefined ? _data['buyPrice'] : <any>null;
+        _data["buyPrice"] !== undefined ? _data["buyPrice"] : <any>null;
       this.deliveryType =
-        _data['deliveryType'] !== undefined ? _data['deliveryType'] : <any>null;
+        _data["deliveryType"] !== undefined ? _data["deliveryType"] : <any>null;
       this.deliveryTypeValue =
-        _data['deliveryTypeValue'] !== undefined
-          ? _data['deliveryTypeValue']
+        _data["deliveryTypeValue"] !== undefined
+          ? _data["deliveryTypeValue"]
           : <any>null;
       this.withExchange =
-        _data['withExchange'] !== undefined ? _data['withExchange'] : <any>null;
+        _data["withExchange"] !== undefined ? _data["withExchange"] : <any>null;
     }
   }
 
   static fromJS(data: any): PlaceDigitalCardOrderRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PlaceDigitalCardOrderRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productPrice'] =
+    data["productPrice"] =
       this.productPrice !== undefined ? this.productPrice : <any>null;
-    data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
-    data['buyPrice'] = this.buyPrice !== undefined ? this.buyPrice : <any>null;
-    data['deliveryType'] =
+    data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
+    data["buyPrice"] = this.buyPrice !== undefined ? this.buyPrice : <any>null;
+    data["deliveryType"] =
       this.deliveryType !== undefined ? this.deliveryType : <any>null;
-    data['deliveryTypeValue'] =
+    data["deliveryTypeValue"] =
       this.deliveryTypeValue !== undefined ? this.deliveryTypeValue : <any>null;
-    data['withExchange'] =
+    data["withExchange"] =
       this.withExchange !== undefined ? this.withExchange : <any>null;
     return data;
   }
@@ -4819,9 +4821,9 @@ export interface IPlaceDigitalCardOrderRequest {
 }
 
 export enum BuyOrderDeliveryType {
-  Email = 'Email',
-  Sms = 'Sms',
-  WhatsApp = 'WhatsApp',
+  Email = "Email",
+  Sms = "Sms",
+  WhatsApp = "WhatsApp",
 }
 
 export class BuyOrder implements IBuyOrder {
@@ -4864,122 +4866,122 @@ export class BuyOrder implements IBuyOrder {
   init(_data?: any) {
     if (_data) {
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
       this.buyOrderExternalId =
-        _data['buyOrderExternalId'] !== undefined
-          ? _data['buyOrderExternalId']
+        _data["buyOrderExternalId"] !== undefined
+          ? _data["buyOrderExternalId"]
           : <any>null;
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.isPhysicalProduct =
-        _data['isPhysicalProduct'] !== undefined
-          ? _data['isPhysicalProduct']
+        _data["isPhysicalProduct"] !== undefined
+          ? _data["isPhysicalProduct"]
           : <any>null;
       this.quantity =
-        _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+        _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
       this.faceValue =
-        _data['faceValue'] !== undefined ? _data['faceValue'] : <any>null;
+        _data["faceValue"] !== undefined ? _data["faceValue"] : <any>null;
       this.buyOrderState =
-        _data['buyOrderState'] !== undefined
-          ? _data['buyOrderState']
+        _data["buyOrderState"] !== undefined
+          ? _data["buyOrderState"]
           : <any>null;
-      this.sellerMerchant = _data['sellerMerchant']
-        ? MerchantSummary.fromJS(_data['sellerMerchant'])
+      this.sellerMerchant = _data["sellerMerchant"]
+        ? MerchantSummary.fromJS(_data["sellerMerchant"])
         : new MerchantSummary();
-      this.buyerMerchant = _data['buyerMerchant']
-        ? MerchantSummary.fromJS(_data['buyerMerchant'])
+      this.buyerMerchant = _data["buyerMerchant"]
+        ? MerchantSummary.fromJS(_data["buyerMerchant"])
         : new MerchantSummary();
-      this.buyOrderDelivery = _data['buyOrderDelivery']
-        ? BuyOrderDelivery.fromJS(_data['buyOrderDelivery'])
+      this.buyOrderDelivery = _data["buyOrderDelivery"]
+        ? BuyOrderDelivery.fromJS(_data["buyOrderDelivery"])
         : <any>null;
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
       this.totalBuyAmount =
-        _data['totalBuyAmount'] !== undefined
-          ? _data['totalBuyAmount']
+        _data["totalBuyAmount"] !== undefined
+          ? _data["totalBuyAmount"]
           : <any>null;
       this.unitBuyAmount =
-        _data['unitBuyAmount'] !== undefined
-          ? _data['unitBuyAmount']
+        _data["unitBuyAmount"] !== undefined
+          ? _data["unitBuyAmount"]
           : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
-      this.productCurrency = _data['productCurrency']
-        ? Currency.fromJS(_data['productCurrency'])
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
+      this.productCurrency = _data["productCurrency"]
+        ? Currency.fromJS(_data["productCurrency"])
         : new Currency();
-      this.buyCurrency = _data['buyCurrency']
-        ? Currency.fromJS(_data['buyCurrency'])
+      this.buyCurrency = _data["buyCurrency"]
+        ? Currency.fromJS(_data["buyCurrency"])
         : new Currency();
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
       this.canDownloadCodes =
-        _data['canDownloadCodes'] !== undefined
-          ? _data['canDownloadCodes']
+        _data["canDownloadCodes"] !== undefined
+          ? _data["canDownloadCodes"]
           : <any>null;
-      this.exchangeCalc = _data['exchangeCalc']
-        ? ExchangeCalc.fromJS(_data['exchangeCalc'])
+      this.exchangeCalc = _data["exchangeCalc"]
+        ? ExchangeCalc.fromJS(_data["exchangeCalc"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['buyOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['buyOrderExternalId'] =
+    data["buyOrderExternalId"] =
       this.buyOrderExternalId !== undefined
         ? this.buyOrderExternalId
         : <any>null;
-    data['productId'] =
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['isPhysicalProduct'] =
+    data["isPhysicalProduct"] =
       this.isPhysicalProduct !== undefined ? this.isPhysicalProduct : <any>null;
-    data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
-    data['faceValue'] =
+    data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
+    data["faceValue"] =
       this.faceValue !== undefined ? this.faceValue : <any>null;
-    data['buyOrderState'] =
+    data["buyOrderState"] =
       this.buyOrderState !== undefined ? this.buyOrderState : <any>null;
-    data['sellerMerchant'] = this.sellerMerchant
+    data["sellerMerchant"] = this.sellerMerchant
       ? this.sellerMerchant.toJSON()
       : <any>null;
-    data['buyerMerchant'] = this.buyerMerchant
+    data["buyerMerchant"] = this.buyerMerchant
       ? this.buyerMerchant.toJSON()
       : <any>null;
-    data['buyOrderDelivery'] = this.buyOrderDelivery
+    data["buyOrderDelivery"] = this.buyOrderDelivery
       ? this.buyOrderDelivery.toJSON()
       : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
-    data['totalBuyAmount'] =
+    data["totalBuyAmount"] =
       this.totalBuyAmount !== undefined ? this.totalBuyAmount : <any>null;
-    data['unitBuyAmount'] =
+    data["unitBuyAmount"] =
       this.unitBuyAmount !== undefined ? this.unitBuyAmount : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
-    data['productCurrency'] = this.productCurrency
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
+    data["productCurrency"] = this.productCurrency
       ? this.productCurrency.toJSON()
       : <any>null;
-    data['buyCurrency'] = this.buyCurrency
+    data["buyCurrency"] = this.buyCurrency
       ? this.buyCurrency.toJSON()
       : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['canDownloadCodes'] =
+    data["canDownloadCodes"] =
       this.canDownloadCodes !== undefined ? this.canDownloadCodes : <any>null;
-    data['exchangeCalc'] = this.exchangeCalc
+    data["exchangeCalc"] = this.exchangeCalc
       ? this.exchangeCalc.toJSON()
       : <any>null;
     return data;
@@ -5010,16 +5012,16 @@ export interface IBuyOrder {
 }
 
 export enum BuyOrderState {
-  Reserved = 'Reserved',
-  Created = 'Created',
-  CreateStockOrder = 'CreateStockOrder',
-  AuthWallet = 'AuthWallet',
-  Failed = 'Failed',
-  Complete = 'Complete',
-  CancelAuthWallet = 'CancelAuthWallet',
-  CompleteStockOrder = 'CompleteStockOrder',
-  CreateActivatePhysicalCardOrder = 'CreateActivatePhysicalCardOrder',
-  CompleteActivatePhysicalCardOrder = 'CompleteActivatePhysicalCardOrder',
+  Reserved = "Reserved",
+  Created = "Created",
+  CreateStockOrder = "CreateStockOrder",
+  AuthWallet = "AuthWallet",
+  Failed = "Failed",
+  Complete = "Complete",
+  CancelAuthWallet = "CancelAuthWallet",
+  CompleteStockOrder = "CompleteStockOrder",
+  CreateActivatePhysicalCardOrder = "CreateActivatePhysicalCardOrder",
+  CompleteActivatePhysicalCardOrder = "CompleteActivatePhysicalCardOrder",
 }
 
 export class MerchantSummary implements IMerchantSummary {
@@ -5039,29 +5041,29 @@ export class MerchantSummary implements IMerchantSummary {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
     return data;
@@ -5090,25 +5092,25 @@ export class SaleManagerSummary implements ISaleManagerSummary {
   init(_data?: any) {
     if (_data) {
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
     }
   }
 
   static fromJS(data: any): SaleManagerSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleManagerSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleManagerId'] =
+    data = typeof data === "object" ? data : {};
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     return data;
   }
 }
@@ -5135,31 +5137,31 @@ export class BuyOrderDelivery implements IBuyOrderDelivery {
   init(_data?: any) {
     if (_data) {
       this.deliveryType =
-        _data['deliveryType'] !== undefined ? _data['deliveryType'] : <any>null;
+        _data["deliveryType"] !== undefined ? _data["deliveryType"] : <any>null;
       this.deliveryTypeValue =
-        _data['deliveryTypeValue'] !== undefined
-          ? _data['deliveryTypeValue']
+        _data["deliveryTypeValue"] !== undefined
+          ? _data["deliveryTypeValue"]
           : <any>null;
-      this.deliveredTime = _data['deliveredTime']
-        ? new Date(_data['deliveredTime'].toString())
+      this.deliveredTime = _data["deliveredTime"]
+        ? new Date(_data["deliveredTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrderDelivery {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrderDelivery();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['deliveryType'] =
+    data = typeof data === "object" ? data : {};
+    data["deliveryType"] =
       this.deliveryType !== undefined ? this.deliveryType : <any>null;
-    data['deliveryTypeValue'] =
+    data["deliveryTypeValue"] =
       this.deliveryTypeValue !== undefined ? this.deliveryTypeValue : <any>null;
-    data['deliveredTime'] = this.deliveredTime
+    data["deliveredTime"] = this.deliveredTime
       ? this.deliveredTime.toISOString()
       : <any>null;
     return data;
@@ -5188,24 +5190,24 @@ export class Currency implements ICurrency {
   init(_data?: any) {
     if (_data) {
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.currencyName =
-        _data['currencyName'] !== undefined ? _data['currencyName'] : <any>null;
+        _data["currencyName"] !== undefined ? _data["currencyName"] : <any>null;
     }
   }
 
   static fromJS(data: any): Currency {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Currency();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currencyName'] =
+    data["currencyName"] =
       this.currencyName !== undefined ? this.currencyName : <any>null;
     return data;
   }
@@ -5238,41 +5240,41 @@ export class ExchangeCalc implements IExchangeCalc {
 
   init(_data?: any) {
     if (_data) {
-      this.baseCurrency = _data['baseCurrency']
-        ? Currency.fromJS(_data['baseCurrency'])
+      this.baseCurrency = _data["baseCurrency"]
+        ? Currency.fromJS(_data["baseCurrency"])
         : new Currency();
       this.baseAmount =
-        _data['baseAmount'] !== undefined ? _data['baseAmount'] : <any>null;
-      this.targetCurrency = _data['targetCurrency']
-        ? Currency.fromJS(_data['targetCurrency'])
+        _data["baseAmount"] !== undefined ? _data["baseAmount"] : <any>null;
+      this.targetCurrency = _data["targetCurrency"]
+        ? Currency.fromJS(_data["targetCurrency"])
         : new Currency();
       this.targetAmount =
-        _data['targetAmount'] !== undefined ? _data['targetAmount'] : <any>null;
+        _data["targetAmount"] !== undefined ? _data["targetAmount"] : <any>null;
       this.exchangeRate =
-        _data['exchangeRate'] !== undefined ? _data['exchangeRate'] : <any>null;
+        _data["exchangeRate"] !== undefined ? _data["exchangeRate"] : <any>null;
     }
   }
 
   static fromJS(data: any): ExchangeCalc {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ExchangeCalc();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['baseCurrency'] = this.baseCurrency
+    data = typeof data === "object" ? data : {};
+    data["baseCurrency"] = this.baseCurrency
       ? this.baseCurrency.toJSON()
       : <any>null;
-    data['baseAmount'] =
+    data["baseAmount"] =
       this.baseAmount !== undefined ? this.baseAmount : <any>null;
-    data['targetCurrency'] = this.targetCurrency
+    data["targetCurrency"] = this.targetCurrency
       ? this.targetCurrency.toJSON()
       : <any>null;
-    data['targetAmount'] =
+    data["targetAmount"] =
       this.targetAmount !== undefined ? this.targetAmount : <any>null;
-    data['exchangeRate'] =
+    data["exchangeRate"] =
       this.exchangeRate !== undefined ? this.exchangeRate : <any>null;
     return data;
   }
@@ -5304,38 +5306,38 @@ export class BuyOrderSummary implements IBuyOrderSummary {
   init(_data?: any) {
     if (_data) {
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.buyOrderExternalId =
-        _data['buyOrderExternalId'] !== undefined
-          ? _data['buyOrderExternalId']
+        _data["buyOrderExternalId"] !== undefined
+          ? _data["buyOrderExternalId"]
           : <any>null;
       this.buyOrderState =
-        _data['buyOrderState'] !== undefined
-          ? _data['buyOrderState']
+        _data["buyOrderState"] !== undefined
+          ? _data["buyOrderState"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrderSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrderSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['buyOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['buyOrderExternalId'] =
+    data["buyOrderExternalId"] =
       this.buyOrderExternalId !== undefined
         ? this.buyOrderExternalId
         : <any>null;
-    data['buyOrderState'] =
+    data["buyOrderState"] =
       this.buyOrderState !== undefined ? this.buyOrderState : <any>null;
     return data;
   }
@@ -5373,49 +5375,49 @@ export class ExchangeOrder implements IExchangeOrder {
   init(_data?: any) {
     if (_data) {
       this.exchangeId =
-        _data['exchangeId'] !== undefined ? _data['exchangeId'] : <any>null;
+        _data["exchangeId"] !== undefined ? _data["exchangeId"] : <any>null;
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
-      this.baseCurrency = _data['baseCurrency']
-        ? Currency.fromJS(_data['baseCurrency'])
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
+      this.baseCurrency = _data["baseCurrency"]
+        ? Currency.fromJS(_data["baseCurrency"])
         : new Currency();
       this.baseAmount =
-        _data['baseAmount'] !== undefined ? _data['baseAmount'] : <any>null;
-      this.targetCurrency = _data['targetCurrency']
-        ? Currency.fromJS(_data['targetCurrency'])
+        _data["baseAmount"] !== undefined ? _data["baseAmount"] : <any>null;
+      this.targetCurrency = _data["targetCurrency"]
+        ? Currency.fromJS(_data["targetCurrency"])
         : new Currency();
       this.targetAmount =
-        _data['targetAmount'] !== undefined ? _data['targetAmount'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["targetAmount"] !== undefined ? _data["targetAmount"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): ExchangeOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ExchangeOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['exchangeId'] =
+    data = typeof data === "object" ? data : {};
+    data["exchangeId"] =
       this.exchangeId !== undefined ? this.exchangeId : <any>null;
-    data['buyOrderId'] =
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['baseCurrency'] = this.baseCurrency
+    data["baseCurrency"] = this.baseCurrency
       ? this.baseCurrency.toJSON()
       : <any>null;
-    data['baseAmount'] =
+    data["baseAmount"] =
       this.baseAmount !== undefined ? this.baseAmount : <any>null;
-    data['targetCurrency'] = this.targetCurrency
+    data["targetCurrency"] = this.targetCurrency
       ? this.targetCurrency.toJSON()
       : <any>null;
-    data['targetAmount'] =
+    data["targetAmount"] =
       this.targetAmount !== undefined ? this.targetAmount : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
     return data;
@@ -5457,21 +5459,21 @@ export class ProductItemCode implements IProductItemCode {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.productPrice =
-        _data['productPrice'] !== undefined ? _data['productPrice'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["productPrice"] !== undefined ? _data["productPrice"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      if (Array.isArray(_data['codes'])) {
+      if (Array.isArray(_data["codes"])) {
         this.codes = [] as any;
-        for (let item of _data['codes'])
+        for (let item of _data["codes"])
           this.codes!.push(ProductCodeSummary.fromJS(item));
       } else {
         this.codes = <any>null;
@@ -5480,27 +5482,27 @@ export class ProductItemCode implements IProductItemCode {
   }
 
   static fromJS(data: any): ProductItemCode {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductItemCode();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['description'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['productPrice'] =
+    data["productPrice"] =
       this.productPrice !== undefined ? this.productPrice : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     if (Array.isArray(this.codes)) {
-      data['codes'] = [];
-      for (let item of this.codes) data['codes'].push(item.toJSON());
+      data["codes"] = [];
+      for (let item of this.codes) data["codes"].push(item.toJSON());
     }
     return data;
   }
@@ -5534,31 +5536,31 @@ export class ProductCodeSummary implements IProductCodeSummary {
   init(_data?: any) {
     if (_data) {
       this.cardNumber =
-        _data['cardNumber'] !== undefined ? _data['cardNumber'] : <any>null;
+        _data["cardNumber"] !== undefined ? _data["cardNumber"] : <any>null;
       this.shareCode =
-        _data['shareCode'] !== undefined ? _data['shareCode'] : <any>null;
-      this.pin = _data['pin'] !== undefined ? _data['pin'] : <any>null;
-      this.expirationTime = _data['expirationTime']
-        ? new Date(_data['expirationTime'].toString())
+        _data["shareCode"] !== undefined ? _data["shareCode"] : <any>null;
+      this.pin = _data["pin"] !== undefined ? _data["pin"] : <any>null;
+      this.expirationTime = _data["expirationTime"]
+        ? new Date(_data["expirationTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): ProductCodeSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductCodeSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['cardNumber'] =
+    data = typeof data === "object" ? data : {};
+    data["cardNumber"] =
       this.cardNumber !== undefined ? this.cardNumber : <any>null;
-    data['shareCode'] =
+    data["shareCode"] =
       this.shareCode !== undefined ? this.shareCode : <any>null;
-    data['pin'] = this.pin !== undefined ? this.pin : <any>null;
-    data['expirationTime'] = this.expirationTime
+    data["pin"] = this.pin !== undefined ? this.pin : <any>null;
+    data["expirationTime"] = this.expirationTime
       ? formatDate(this.expirationTime)
       : <any>null;
     return data;
@@ -5588,26 +5590,26 @@ export class BuyOrderStateLog implements IBuyOrderStateLog {
 
   init(_data?: any) {
     if (_data) {
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.reason = _data['reason'] !== undefined ? _data['reason'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.reason = _data["reason"] !== undefined ? _data["reason"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrderStateLog {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrderStateLog();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['reason'] = this.reason !== undefined ? this.reason : <any>null;
-    data['createdTime'] = this.createdTime
+    data = typeof data === "object" ? data : {};
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["reason"] = this.reason !== undefined ? this.reason : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
     return data;
@@ -5642,44 +5644,44 @@ export class CurrencyExchangeRate implements ICurrencyExchangeRate {
 
   init(_data?: any) {
     if (_data) {
-      this.baseCurrency = _data['baseCurrency']
-        ? Currency.fromJS(_data['baseCurrency'])
+      this.baseCurrency = _data["baseCurrency"]
+        ? Currency.fromJS(_data["baseCurrency"])
         : new Currency();
-      this.targetCurrency = _data['targetCurrency']
-        ? Currency.fromJS(_data['targetCurrency'])
+      this.targetCurrency = _data["targetCurrency"]
+        ? Currency.fromJS(_data["targetCurrency"])
         : new Currency();
       this.exchangeRate =
-        _data['exchangeRate'] !== undefined ? _data['exchangeRate'] : <any>null;
+        _data["exchangeRate"] !== undefined ? _data["exchangeRate"] : <any>null;
       this.exchangeRateFee =
-        _data['exchangeRateFee'] !== undefined
-          ? _data['exchangeRateFee']
+        _data["exchangeRateFee"] !== undefined
+          ? _data["exchangeRateFee"]
           : <any>null;
-      this.exchangeRateUpdateTime = _data['exchangeRateUpdateTime']
-        ? new Date(_data['exchangeRateUpdateTime'].toString())
+      this.exchangeRateUpdateTime = _data["exchangeRateUpdateTime"]
+        ? new Date(_data["exchangeRateUpdateTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): CurrencyExchangeRate {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CurrencyExchangeRate();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['baseCurrency'] = this.baseCurrency
+    data = typeof data === "object" ? data : {};
+    data["baseCurrency"] = this.baseCurrency
       ? this.baseCurrency.toJSON()
       : <any>null;
-    data['targetCurrency'] = this.targetCurrency
+    data["targetCurrency"] = this.targetCurrency
       ? this.targetCurrency.toJSON()
       : <any>null;
-    data['exchangeRate'] =
+    data["exchangeRate"] =
       this.exchangeRate !== undefined ? this.exchangeRate : <any>null;
-    data['exchangeRateFee'] =
+    data["exchangeRateFee"] =
       this.exchangeRateFee !== undefined ? this.exchangeRateFee : <any>null;
-    data['exchangeRateUpdateTime'] = this.exchangeRateUpdateTime
+    data["exchangeRateUpdateTime"] = this.exchangeRateUpdateTime
       ? this.exchangeRateUpdateTime.toISOString()
       : <any>null;
     return data;
@@ -5714,32 +5716,32 @@ export class PlaceActivatePhysicalCardOrderRequest
   init(_data?: any) {
     if (_data) {
       this.serialNumber =
-        _data['serialNumber'] !== undefined ? _data['serialNumber'] : <any>null;
+        _data["serialNumber"] !== undefined ? _data["serialNumber"] : <any>null;
       this.productPrice =
-        _data['productPrice'] !== undefined ? _data['productPrice'] : <any>null;
+        _data["productPrice"] !== undefined ? _data["productPrice"] : <any>null;
       this.withExchange =
-        _data['withExchange'] !== undefined ? _data['withExchange'] : <any>null;
+        _data["withExchange"] !== undefined ? _data["withExchange"] : <any>null;
       this.buyPrice =
-        _data['buyPrice'] !== undefined ? _data['buyPrice'] : <any>null;
+        _data["buyPrice"] !== undefined ? _data["buyPrice"] : <any>null;
     }
   }
 
   static fromJS(data: any): PlaceActivatePhysicalCardOrderRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PlaceActivatePhysicalCardOrderRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['serialNumber'] =
+    data = typeof data === "object" ? data : {};
+    data["serialNumber"] =
       this.serialNumber !== undefined ? this.serialNumber : <any>null;
-    data['productPrice'] =
+    data["productPrice"] =
       this.productPrice !== undefined ? this.productPrice : <any>null;
-    data['withExchange'] =
+    data["withExchange"] =
       this.withExchange !== undefined ? this.withExchange : <any>null;
-    data['buyPrice'] = this.buyPrice !== undefined ? this.buyPrice : <any>null;
+    data["buyPrice"] = this.buyPrice !== undefined ? this.buyPrice : <any>null;
     return data;
   }
 }
@@ -5769,24 +5771,24 @@ export class PhysicalCardActivation implements IPhysicalCardActivation {
 
   init(_data?: any) {
     if (_data) {
-      this.product = _data['product']
-        ? ProductSummary.fromJS(_data['product'])
+      this.product = _data["product"]
+        ? ProductSummary.fromJS(_data["product"])
         : new ProductSummary();
-      this.status = _data['status'] !== undefined ? _data['status'] : <any>null;
+      this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
     }
   }
 
   static fromJS(data: any): PhysicalCardActivation {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PhysicalCardActivation();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['product'] = this.product ? this.product.toJSON() : <any>null;
-    data['status'] = this.status !== undefined ? this.status : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["product"] = this.product ? this.product.toJSON() : <any>null;
+    data["status"] = this.status !== undefined ? this.status : <any>null;
     return data;
   }
 }
@@ -5822,52 +5824,52 @@ export class ProductSummary implements IProductSummary {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.providerSku =
-        _data['providerSku'] !== undefined ? _data['providerSku'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["providerSku"] !== undefined ? _data["providerSku"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.isPhysical =
-        _data['isPhysical'] !== undefined ? _data['isPhysical'] : <any>null;
+        _data["isPhysical"] !== undefined ? _data["isPhysical"] : <any>null;
       this.hasDescription =
-        _data['hasDescription'] !== undefined
-          ? _data['hasDescription']
+        _data["hasDescription"] !== undefined
+          ? _data["hasDescription"]
           : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): ProductSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['providerSku'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["providerSku"] =
       this.providerSku !== undefined ? this.providerSku : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['isPhysical'] =
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["isPhysical"] =
       this.isPhysical !== undefined ? this.isPhysical : <any>null;
-    data['hasDescription'] =
+    data["hasDescription"] =
       this.hasDescription !== undefined ? this.hasDescription : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -5885,10 +5887,10 @@ export interface IProductSummary {
 }
 
 export enum PhysicalCardActivationStatus {
-  ReadyToActivate = 'ReadyToActivate',
-  Activated = 'Activated',
-  FailedToActivate = 'FailedToActivate',
-  InProgress = 'InProgress',
+  ReadyToActivate = "ReadyToActivate",
+  Activated = "Activated",
+  FailedToActivate = "FailedToActivate",
+  InProgress = "InProgress",
 }
 
 export class PriceInvoice implements IPriceInvoice {
@@ -5917,24 +5919,24 @@ export class PriceInvoice implements IPriceInvoice {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.priceListId =
-        _data['priceListId'] !== undefined ? _data['priceListId'] : <any>null;
+        _data["priceListId"] !== undefined ? _data["priceListId"] : <any>null;
       this.buyAmount =
-        _data['buyAmount'] !== undefined ? _data['buyAmount'] : <any>null;
+        _data["buyAmount"] !== undefined ? _data["buyAmount"] : <any>null;
       this.benefit =
-        _data['benefit'] !== undefined ? _data['benefit'] : <any>null;
+        _data["benefit"] !== undefined ? _data["benefit"] : <any>null;
       this.consumerTax =
-        _data['consumerTax'] !== undefined ? _data['consumerTax'] : <any>null;
+        _data["consumerTax"] !== undefined ? _data["consumerTax"] : <any>null;
       this.consumerFee =
-        _data['consumerFee'] !== undefined ? _data['consumerFee'] : <any>null;
+        _data["consumerFee"] !== undefined ? _data["consumerFee"] : <any>null;
       this.sellAmount =
-        _data['sellAmount'] !== undefined ? _data['sellAmount'] : <any>null;
-      if (Array.isArray(_data['errors'])) {
+        _data["sellAmount"] !== undefined ? _data["sellAmount"] : <any>null;
+      if (Array.isArray(_data["errors"])) {
         this.errors = [] as any;
-        for (let item of _data['errors'])
+        for (let item of _data["errors"])
           this.errors!.push(PriceRuleError.fromJS(item));
       } else {
         this.errors = <any>null;
@@ -5943,31 +5945,31 @@ export class PriceInvoice implements IPriceInvoice {
   }
 
   static fromJS(data: any): PriceInvoice {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceInvoice();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['priceListId'] =
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["priceListId"] =
       this.priceListId !== undefined ? this.priceListId : <any>null;
-    data['buyAmount'] =
+    data["buyAmount"] =
       this.buyAmount !== undefined ? this.buyAmount : <any>null;
-    data['benefit'] = this.benefit !== undefined ? this.benefit : <any>null;
-    data['consumerTax'] =
+    data["benefit"] = this.benefit !== undefined ? this.benefit : <any>null;
+    data["consumerTax"] =
       this.consumerTax !== undefined ? this.consumerTax : <any>null;
-    data['consumerFee'] =
+    data["consumerFee"] =
       this.consumerFee !== undefined ? this.consumerFee : <any>null;
-    data['sellAmount'] =
+    data["sellAmount"] =
       this.sellAmount !== undefined ? this.sellAmount : <any>null;
     if (Array.isArray(this.errors)) {
-      data['errors'] = [];
-      for (let item of this.errors) data['errors'].push(item.toJSON());
+      data["errors"] = [];
+      for (let item of this.errors) data["errors"].push(item.toJSON());
     }
     return data;
   }
@@ -6002,27 +6004,27 @@ export class PriceRuleError implements IPriceRuleError {
   init(_data?: any) {
     if (_data) {
       this.propertyName =
-        _data['propertyName'] !== undefined ? _data['propertyName'] : <any>null;
+        _data["propertyName"] !== undefined ? _data["propertyName"] : <any>null;
       this.message =
-        _data['message'] !== undefined ? _data['message'] : <any>null;
+        _data["message"] !== undefined ? _data["message"] : <any>null;
       this.errorCode =
-        _data['errorCode'] !== undefined ? _data['errorCode'] : <any>null;
+        _data["errorCode"] !== undefined ? _data["errorCode"] : <any>null;
     }
   }
 
   static fromJS(data: any): PriceRuleError {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRuleError();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['propertyName'] =
+    data = typeof data === "object" ? data : {};
+    data["propertyName"] =
       this.propertyName !== undefined ? this.propertyName : <any>null;
-    data['message'] = this.message !== undefined ? this.message : <any>null;
-    data['errorCode'] =
+    data["message"] = this.message !== undefined ? this.message : <any>null;
+    data["errorCode"] =
       this.errorCode !== undefined ? this.errorCode : <any>null;
     return data;
   }
@@ -6035,8 +6037,8 @@ export interface IPriceRuleError {
 }
 
 export enum ErrorCode {
-  General = 'General',
-  ProductNotFound = 'ProductNotFound',
+  General = "General",
+  ProductNotFound = "ProductNotFound",
 }
 
 export class CategoryProduct implements ICategoryProduct {
@@ -6062,25 +6064,25 @@ export class CategoryProduct implements ICategoryProduct {
   init(_data?: any) {
     if (_data) {
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.categoryName =
-        _data['categoryName'] !== undefined ? _data['categoryName'] : <any>null;
+        _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.parentCategoryId =
-        _data['parentCategoryId'] !== undefined
-          ? _data['parentCategoryId']
+        _data["parentCategoryId"] !== undefined
+          ? _data["parentCategoryId"]
           : <any>null;
-      if (Array.isArray(_data['categories'])) {
+      if (Array.isArray(_data["categories"])) {
         this.categories = [] as any;
-        for (let item of _data['categories'])
+        for (let item of _data["categories"])
           this.categories!.push(CategoryProduct.fromJS(item));
       } else {
         this.categories = <any>null;
       }
-      if (Array.isArray(_data['productBuyPrices'])) {
+      if (Array.isArray(_data["productBuyPrices"])) {
         this.productBuyPrices = [] as any;
-        for (let item of _data['productBuyPrices'])
+        for (let item of _data["productBuyPrices"])
           this.productBuyPrices!.push(ProductBuyPrice.fromJS(item));
       } else {
         this.productBuyPrices = <any>null;
@@ -6089,29 +6091,29 @@ export class CategoryProduct implements ICategoryProduct {
   }
 
   static fromJS(data: any): CategoryProduct {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CategoryProduct();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['categoryId'] =
+    data = typeof data === "object" ? data : {};
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['categoryName'] =
+    data["categoryName"] =
       this.categoryName !== undefined ? this.categoryName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['parentCategoryId'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["parentCategoryId"] =
       this.parentCategoryId !== undefined ? this.parentCategoryId : <any>null;
     if (Array.isArray(this.categories)) {
-      data['categories'] = [];
-      for (let item of this.categories) data['categories'].push(item.toJSON());
+      data["categories"] = [];
+      for (let item of this.categories) data["categories"].push(item.toJSON());
     }
     if (Array.isArray(this.productBuyPrices)) {
-      data['productBuyPrices'] = [];
+      data["productBuyPrices"] = [];
       for (let item of this.productBuyPrices)
-        data['productBuyPrices'].push(item.toJSON());
+        data["productBuyPrices"].push(item.toJSON());
     }
     return data;
   }
@@ -6150,23 +6152,23 @@ export class ProductBuyPrice implements IProductBuyPrice {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.hasDescription =
-        _data['hasDescription'] !== undefined
-          ? _data['hasDescription']
+        _data["hasDescription"] !== undefined
+          ? _data["hasDescription"]
           : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      if (Array.isArray(_data['faceValues'])) {
+      if (Array.isArray(_data["faceValues"])) {
         this.faceValues = [] as any;
-        for (let item of _data['faceValues'])
+        for (let item of _data["faceValues"])
           this.faceValues!.push(PriceRangeDto.fromJS(item));
       } else {
         this.faceValues = <any>null;
@@ -6175,27 +6177,27 @@ export class ProductBuyPrice implements IProductBuyPrice {
   }
 
   static fromJS(data: any): ProductBuyPrice {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductBuyPrice();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['hasDescription'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["hasDescription"] =
       this.hasDescription !== undefined ? this.hasDescription : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     if (Array.isArray(this.faceValues)) {
-      data['faceValues'] = [];
-      for (let item of this.faceValues) data['faceValues'].push(item.toJSON());
+      data["faceValues"] = [];
+      for (let item of this.faceValues) data["faceValues"].push(item.toJSON());
     }
     return data;
   }
@@ -6229,32 +6231,32 @@ export class PriceRangeDto implements IPriceRangeDto {
 
   init(_data?: any) {
     if (_data) {
-      this.start = _data['start'] !== undefined ? _data['start'] : <any>null;
-      this.end = _data['end'] !== undefined ? _data['end'] : <any>null;
+      this.start = _data["start"] !== undefined ? _data["start"] : <any>null;
+      this.end = _data["end"] !== undefined ? _data["end"] : <any>null;
       this.endValue =
-        _data['endValue'] !== undefined ? _data['endValue'] : <any>null;
+        _data["endValue"] !== undefined ? _data["endValue"] : <any>null;
       this.isEndless =
-        _data['isEndless'] !== undefined ? _data['isEndless'] : <any>null;
+        _data["isEndless"] !== undefined ? _data["isEndless"] : <any>null;
       this.faceValue =
-        _data['faceValue'] !== undefined ? _data['faceValue'] : <any>null;
+        _data["faceValue"] !== undefined ? _data["faceValue"] : <any>null;
     }
   }
 
   static fromJS(data: any): PriceRangeDto {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRangeDto();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['start'] = this.start !== undefined ? this.start : <any>null;
-    data['end'] = this.end !== undefined ? this.end : <any>null;
-    data['endValue'] = this.endValue !== undefined ? this.endValue : <any>null;
-    data['isEndless'] =
+    data = typeof data === "object" ? data : {};
+    data["start"] = this.start !== undefined ? this.start : <any>null;
+    data["end"] = this.end !== undefined ? this.end : <any>null;
+    data["endValue"] = this.endValue !== undefined ? this.endValue : <any>null;
+    data["isEndless"] =
       this.isEndless !== undefined ? this.isEndless : <any>null;
-    data['faceValue'] =
+    data["faceValue"] =
       this.faceValue !== undefined ? this.faceValue : <any>null;
     return data;
   }
@@ -6298,72 +6300,72 @@ export class Product implements IProduct {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
-      if (Array.isArray(_data['regions'])) {
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
+      if (Array.isArray(_data["regions"])) {
         this.regions = [] as any;
-        for (let item of _data['regions'])
+        for (let item of _data["regions"])
           this.regions!.push(Region.fromJS(item));
       } else {
         this.regions = <any>null;
       }
       this.providerSku =
-        _data['providerSku'] !== undefined ? _data['providerSku'] : <any>null;
+        _data["providerSku"] !== undefined ? _data["providerSku"] : <any>null;
       this.canPreOrder =
-        _data['canPreOrder'] !== undefined ? _data['canPreOrder'] : <any>null;
+        _data["canPreOrder"] !== undefined ? _data["canPreOrder"] : <any>null;
       this.canImmediate =
-        _data['canImmediate'] !== undefined ? _data['canImmediate'] : <any>null;
+        _data["canImmediate"] !== undefined ? _data["canImmediate"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.isPhysical =
-        _data['isPhysical'] !== undefined ? _data['isPhysical'] : <any>null;
+        _data["isPhysical"] !== undefined ? _data["isPhysical"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): Product {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Product();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
     if (Array.isArray(this.regions)) {
-      data['regions'] = [];
-      for (let item of this.regions) data['regions'].push(item.toJSON());
+      data["regions"] = [];
+      for (let item of this.regions) data["regions"].push(item.toJSON());
     }
-    data['providerSku'] =
+    data["providerSku"] =
       this.providerSku !== undefined ? this.providerSku : <any>null;
-    data['canPreOrder'] =
+    data["canPreOrder"] =
       this.canPreOrder !== undefined ? this.canPreOrder : <any>null;
-    data['canImmediate'] =
+    data["canImmediate"] =
       this.canImmediate !== undefined ? this.canImmediate : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['isPhysical'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["isPhysical"] =
       this.isPhysical !== undefined ? this.isPhysical : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -6402,27 +6404,27 @@ export class Region implements IRegion {
   init(_data?: any) {
     if (_data) {
       this.regionId =
-        _data['regionId'] !== undefined ? _data['regionId'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.code = _data['code'] !== undefined ? _data['code'] : <any>null;
+        _data["regionId"] !== undefined ? _data["regionId"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.code = _data["code"] !== undefined ? _data["code"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
     }
   }
 
   static fromJS(data: any): Region {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Region();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['regionId'] = this.regionId !== undefined ? this.regionId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['code'] = this.code !== undefined ? this.code : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["regionId"] = this.regionId !== undefined ? this.regionId : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["code"] = this.code !== undefined ? this.code : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
     return data;
   }
 }
@@ -6464,77 +6466,77 @@ export class PutMerchantRequest implements IPutMerchantRequest {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.phoneNumber =
-        _data['phoneNumber'] !== undefined ? _data['phoneNumber'] : <any>null;
+        _data["phoneNumber"] !== undefined ? _data["phoneNumber"] : <any>null;
       this.whatsappNumber =
-        _data['whatsappNumber'] !== undefined
-          ? _data['whatsappNumber']
+        _data["whatsappNumber"] !== undefined
+          ? _data["whatsappNumber"]
           : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.walletId =
-        _data['walletId'] !== undefined ? _data['walletId'] : <any>null;
+        _data["walletId"] !== undefined ? _data["walletId"] : <any>null;
       this.exchangeTargetCurrencyId =
-        _data['exchangeTargetCurrencyId'] !== undefined
-          ? _data['exchangeTargetCurrencyId']
+        _data["exchangeTargetCurrencyId"] !== undefined
+          ? _data["exchangeTargetCurrencyId"]
           : <any>null;
-      this.rootBranch = _data['rootBranch']
-        ? PutBranchRequest.fromJS(_data['rootBranch'])
+      this.rootBranch = _data["rootBranch"]
+        ? PutBranchRequest.fromJS(_data["rootBranch"])
         : new PutBranchRequest();
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutMerchantRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutMerchantRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['saleManagerId'] =
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['phoneNumber'] =
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["phoneNumber"] =
       this.phoneNumber !== undefined ? this.phoneNumber : <any>null;
-    data['whatsappNumber'] =
+    data["whatsappNumber"] =
       this.whatsappNumber !== undefined ? this.whatsappNumber : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['walletId'] = this.walletId !== undefined ? this.walletId : <any>null;
-    data['exchangeTargetCurrencyId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["walletId"] = this.walletId !== undefined ? this.walletId : <any>null;
+    data["exchangeTargetCurrencyId"] =
       this.exchangeTargetCurrencyId !== undefined
         ? this.exchangeTargetCurrencyId
         : <any>null;
-    data['rootBranch'] = this.rootBranch ? this.rootBranch.toJSON() : <any>null;
-    data['createdTime'] = this.createdTime
+    data["rootBranch"] = this.rootBranch ? this.rootBranch.toJSON() : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -6579,58 +6581,58 @@ export class PutBranchRequest implements IPutBranchRequest {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.rootPriceListId =
-        _data['rootPriceListId'] !== undefined
-          ? _data['rootPriceListId']
+        _data["rootPriceListId"] !== undefined
+          ? _data["rootPriceListId"]
           : <any>null;
       this.canPlaceOrder =
-        _data['canPlaceOrder'] !== undefined
-          ? _data['canPlaceOrder']
+        _data["canPlaceOrder"] !== undefined
+          ? _data["canPlaceOrder"]
           : <any>null;
       this.calculateProfitByStockTotalBuyPrice =
-        _data['calculateProfitByStockTotalBuyPrice'] !== undefined
-          ? _data['calculateProfitByStockTotalBuyPrice']
+        _data["calculateProfitByStockTotalBuyPrice"] !== undefined
+          ? _data["calculateProfitByStockTotalBuyPrice"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutBranchRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutBranchRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['branchName'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['rootPriceListId'] =
+    data["rootPriceListId"] =
       this.rootPriceListId !== undefined ? this.rootPriceListId : <any>null;
-    data['canPlaceOrder'] =
+    data["canPlaceOrder"] =
       this.canPlaceOrder !== undefined ? this.canPlaceOrder : <any>null;
-    data['calculateProfitByStockTotalBuyPrice'] =
+    data["calculateProfitByStockTotalBuyPrice"] =
       this.calculateProfitByStockTotalBuyPrice !== undefined
         ? this.calculateProfitByStockTotalBuyPrice
         : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -6664,24 +6666,24 @@ export class PutCurrencyRequest implements IPutCurrencyRequest {
   init(_data?: any) {
     if (_data) {
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.currencyName =
-        _data['currencyName'] !== undefined ? _data['currencyName'] : <any>null;
+        _data["currencyName"] !== undefined ? _data["currencyName"] : <any>null;
     }
   }
 
   static fromJS(data: any): PutCurrencyRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutCurrencyRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currencyName'] =
+    data["currencyName"] =
       this.currencyName !== undefined ? this.currencyName : <any>null;
     return data;
   }
@@ -6712,44 +6714,44 @@ export class PutCategoryRequest implements IPutCategoryRequest {
   init(_data?: any) {
     if (_data) {
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.categoryName =
-        _data['categoryName'] !== undefined ? _data['categoryName'] : <any>null;
+        _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.parentCategoryId =
-        _data['parentCategoryId'] !== undefined
-          ? _data['parentCategoryId']
+        _data["parentCategoryId"] !== undefined
+          ? _data["parentCategoryId"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutCategoryRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutCategoryRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['categoryId'] =
+    data = typeof data === "object" ? data : {};
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['categoryName'] =
+    data["categoryName"] =
       this.categoryName !== undefined ? this.categoryName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['parentCategoryId'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["parentCategoryId"] =
       this.parentCategoryId !== undefined ? this.parentCategoryId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -6793,69 +6795,69 @@ export class PutProductRequest implements IPutProductRequest {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.sku = _data['sku'] !== undefined ? _data['sku'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.sku = _data["sku"] !== undefined ? _data["sku"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.canPreOrder =
-        _data['canPreOrder'] !== undefined ? _data['canPreOrder'] : <any>null;
+        _data["canPreOrder"] !== undefined ? _data["canPreOrder"] : <any>null;
       this.canImmediate =
-        _data['canImmediate'] !== undefined ? _data['canImmediate'] : <any>null;
+        _data["canImmediate"] !== undefined ? _data["canImmediate"] : <any>null;
       this.isPhysical =
-        _data['isPhysical'] !== undefined ? _data['isPhysical'] : <any>null;
+        _data["isPhysical"] !== undefined ? _data["isPhysical"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutProductRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutProductRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['currencyId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['sku'] = this.sku !== undefined ? this.sku : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['canPreOrder'] =
+    data["sku"] = this.sku !== undefined ? this.sku : <any>null;
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["canPreOrder"] =
       this.canPreOrder !== undefined ? this.canPreOrder : <any>null;
-    data['canImmediate'] =
+    data["canImmediate"] =
       this.canImmediate !== undefined ? this.canImmediate : <any>null;
-    data['isPhysical'] =
+    data["isPhysical"] =
       this.isPhysical !== undefined ? this.isPhysical : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['description'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -6899,37 +6901,37 @@ export class PutRegionRequest implements IPutRegionRequest {
   init(_data?: any) {
     if (_data) {
       this.regionId =
-        _data['regionId'] !== undefined ? _data['regionId'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.code = _data['code'] !== undefined ? _data['code'] : <any>null;
+        _data["regionId"] !== undefined ? _data["regionId"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.code = _data["code"] !== undefined ? _data["code"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutRegionRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutRegionRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['regionId'] = this.regionId !== undefined ? this.regionId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['code'] = this.code !== undefined ? this.code : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['createdTime'] = this.createdTime
+    data = typeof data === "object" ? data : {};
+    data["regionId"] = this.regionId !== undefined ? this.regionId : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["code"] = this.code !== undefined ? this.code : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -6964,10 +6966,10 @@ export class PutProductRegionRequest implements IPutProductRegionRequest {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
-      if (Array.isArray(_data['regionIds'])) {
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
+      if (Array.isArray(_data["regionIds"])) {
         this.regionIds = [] as any;
-        for (let item of _data['regionIds']) this.regionIds!.push(item);
+        for (let item of _data["regionIds"]) this.regionIds!.push(item);
       } else {
         this.regionIds = <any>null;
       }
@@ -6975,19 +6977,19 @@ export class PutProductRegionRequest implements IPutProductRegionRequest {
   }
 
   static fromJS(data: any): PutProductRegionRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutProductRegionRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
     if (Array.isArray(this.regionIds)) {
-      data['regionIds'] = [];
-      for (let item of this.regionIds) data['regionIds'].push(item);
+      data["regionIds"] = [];
+      for (let item of this.regionIds) data["regionIds"].push(item);
     }
     return data;
   }
@@ -7020,49 +7022,49 @@ export class PutCurrencyExchangeRateRequest
   init(_data?: any) {
     if (_data) {
       this.baseCurrencyId =
-        _data['baseCurrencyId'] !== undefined
-          ? _data['baseCurrencyId']
+        _data["baseCurrencyId"] !== undefined
+          ? _data["baseCurrencyId"]
           : <any>null;
       this.targetCurrencyId =
-        _data['targetCurrencyId'] !== undefined
-          ? _data['targetCurrencyId']
+        _data["targetCurrencyId"] !== undefined
+          ? _data["targetCurrencyId"]
           : <any>null;
       this.exchangeRate =
-        _data['exchangeRate'] !== undefined ? _data['exchangeRate'] : <any>null;
+        _data["exchangeRate"] !== undefined ? _data["exchangeRate"] : <any>null;
       this.exchangeRateFee =
-        _data['exchangeRateFee'] !== undefined
-          ? _data['exchangeRateFee']
+        _data["exchangeRateFee"] !== undefined
+          ? _data["exchangeRateFee"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutCurrencyExchangeRateRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutCurrencyExchangeRateRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['baseCurrencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["baseCurrencyId"] =
       this.baseCurrencyId !== undefined ? this.baseCurrencyId : <any>null;
-    data['targetCurrencyId'] =
+    data["targetCurrencyId"] =
       this.targetCurrencyId !== undefined ? this.targetCurrencyId : <any>null;
-    data['exchangeRate'] =
+    data["exchangeRate"] =
       this.exchangeRate !== undefined ? this.exchangeRate : <any>null;
-    data['exchangeRateFee'] =
+    data["exchangeRateFee"] =
       this.exchangeRateFee !== undefined ? this.exchangeRateFee : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -7100,45 +7102,45 @@ export class PutMerchantCurrencyLimitRequest
   init(_data?: any) {
     if (_data) {
       this.merchantCurrencyLimitId =
-        _data['merchantCurrencyLimitId'] !== undefined
-          ? _data['merchantCurrencyLimitId']
+        _data["merchantCurrencyLimitId"] !== undefined
+          ? _data["merchantCurrencyLimitId"]
           : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PutMerchantCurrencyLimitRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutMerchantCurrencyLimitRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantCurrencyLimitId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantCurrencyLimitId"] =
       this.merchantCurrencyLimitId !== undefined
         ? this.merchantCurrencyLimitId
         : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currencyId'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -7173,32 +7175,32 @@ export class ApiKey implements IApiKey {
 
   init(_data?: any) {
     if (_data) {
-      this.accessToken = _data['accessToken']
-        ? Token.fromJS(_data['accessToken'])
+      this.accessToken = _data["accessToken"]
+        ? Token.fromJS(_data["accessToken"])
         : new Token();
-      this.refreshToken = _data['refreshToken']
-        ? Token.fromJS(_data['refreshToken'])
+      this.refreshToken = _data["refreshToken"]
+        ? Token.fromJS(_data["refreshToken"])
         : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
     }
   }
 
   static fromJS(data: any): ApiKey {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ApiKey();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['accessToken'] = this.accessToken
+    data = typeof data === "object" ? data : {};
+    data["accessToken"] = this.accessToken
       ? this.accessToken.toJSON()
       : <any>null;
-    data['refreshToken'] = this.refreshToken
+    data["refreshToken"] = this.refreshToken
       ? this.refreshToken.toJSON()
       : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
     return data;
   }
 }
@@ -7226,32 +7228,32 @@ export class Token implements IToken {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
-      this.expirationTime = _data['expirationTime']
-        ? new Date(_data['expirationTime'].toString())
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
+      this.expirationTime = _data["expirationTime"]
+        ? new Date(_data["expirationTime"].toString())
         : <any>null;
-      this.scheme = _data['scheme'] !== undefined ? _data['scheme'] : <any>null;
-      this.issuedTime = _data['issuedTime']
-        ? new Date(_data['issuedTime'].toString())
+      this.scheme = _data["scheme"] !== undefined ? _data["scheme"] : <any>null;
+      this.issuedTime = _data["issuedTime"]
+        ? new Date(_data["issuedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): Token {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Token();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
-    data['expirationTime'] = this.expirationTime
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
+    data["expirationTime"] = this.expirationTime
       ? this.expirationTime.toISOString()
       : <any>null;
-    data['scheme'] = this.scheme !== undefined ? this.scheme : <any>null;
-    data['issuedTime'] = this.issuedTime
+    data["scheme"] = this.scheme !== undefined ? this.scheme : <any>null;
+    data["issuedTime"] = this.issuedTime
       ? this.issuedTime.toISOString()
       : <any>null;
     return data;
@@ -7294,79 +7296,79 @@ export class User implements IUser {
 
   init(_data?: any) {
     if (_data) {
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
       this.firstName =
-        _data['firstName'] !== undefined ? _data['firstName'] : <any>null;
+        _data["firstName"] !== undefined ? _data["firstName"] : <any>null;
       this.lastName =
-        _data['lastName'] !== undefined ? _data['lastName'] : <any>null;
+        _data["lastName"] !== undefined ? _data["lastName"] : <any>null;
       this.pictureUrl =
-        _data['pictureUrl'] !== undefined ? _data['pictureUrl'] : <any>null;
-      this.phone = _data['phone'] !== undefined ? _data['phone'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["pictureUrl"] !== undefined ? _data["pictureUrl"] : <any>null;
+      this.phone = _data["phone"] !== undefined ? _data["phone"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.accessedTime = _data['accessedTime']
-        ? new Date(_data['accessedTime'].toString())
+      this.accessedTime = _data["accessedTime"]
+        ? new Date(_data["accessedTime"].toString())
         : <any>null;
       this.authorizationCode =
-        _data['authorizationCode'] !== undefined
-          ? _data['authorizationCode']
+        _data["authorizationCode"] !== undefined
+          ? _data["authorizationCode"]
           : <any>null;
       this.isDisabled =
-        _data['isDisabled'] !== undefined ? _data['isDisabled'] : <any>null;
+        _data["isDisabled"] !== undefined ? _data["isDisabled"] : <any>null;
       this.isEmailVerified =
-        _data['isEmailVerified'] !== undefined
-          ? _data['isEmailVerified']
+        _data["isEmailVerified"] !== undefined
+          ? _data["isEmailVerified"]
           : <any>null;
       this.isPhoneVerified =
-        _data['isPhoneVerified'] !== undefined
-          ? _data['isPhoneVerified']
+        _data["isPhoneVerified"] !== undefined
+          ? _data["isPhoneVerified"]
           : <any>null;
-      this.isBot = _data['isBot'] !== undefined ? _data['isBot'] : <any>null;
+      this.isBot = _data["isBot"] !== undefined ? _data["isBot"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.exData = _data['exData'] !== undefined ? _data['exData'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.exData = _data["exData"] !== undefined ? _data["exData"] : <any>null;
     }
   }
 
   static fromJS(data: any): User {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new User();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['firstName'] =
+    data = typeof data === "object" ? data : {};
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["firstName"] =
       this.firstName !== undefined ? this.firstName : <any>null;
-    data['lastName'] = this.lastName !== undefined ? this.lastName : <any>null;
-    data['pictureUrl'] =
+    data["lastName"] = this.lastName !== undefined ? this.lastName : <any>null;
+    data["pictureUrl"] =
       this.pictureUrl !== undefined ? this.pictureUrl : <any>null;
-    data['phone'] = this.phone !== undefined ? this.phone : <any>null;
-    data['createdTime'] = this.createdTime
+    data["phone"] = this.phone !== undefined ? this.phone : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['accessedTime'] = this.accessedTime
+    data["accessedTime"] = this.accessedTime
       ? this.accessedTime.toISOString()
       : <any>null;
-    data['authorizationCode'] =
+    data["authorizationCode"] =
       this.authorizationCode !== undefined ? this.authorizationCode : <any>null;
-    data['isDisabled'] =
+    data["isDisabled"] =
       this.isDisabled !== undefined ? this.isDisabled : <any>null;
-    data['isEmailVerified'] =
+    data["isEmailVerified"] =
       this.isEmailVerified !== undefined ? this.isEmailVerified : <any>null;
-    data['isPhoneVerified'] =
+    data["isPhoneVerified"] =
       this.isPhoneVerified !== undefined ? this.isPhoneVerified : <any>null;
-    data['isBot'] = this.isBot !== undefined ? this.isBot : <any>null;
-    data['description'] =
+    data["isBot"] = this.isBot !== undefined ? this.isBot : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['exData'] = this.exData !== undefined ? this.exData : <any>null;
+    data["exData"] = this.exData !== undefined ? this.exData : <any>null;
     return data;
   }
 }
@@ -7404,22 +7406,22 @@ export class TeamUpdateBotParam implements ITeamUpdateBotParam {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name']
-        ? PatchOfString.fromJS(_data['name'])
+      this.name = _data["name"]
+        ? PatchOfString.fromJS(_data["name"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): TeamUpdateBotParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamUpdateBotParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name ? this.name.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name ? this.name.toJSON() : <any>null;
     return data;
   }
 }
@@ -7442,20 +7444,20 @@ export class PatchOfString implements IPatchOfString {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfString {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfString();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -7480,26 +7482,26 @@ export class Role implements IRole {
 
   init(_data?: any) {
     if (_data) {
-      this.roleId = _data['roleId'] !== undefined ? _data['roleId'] : <any>null;
+      this.roleId = _data["roleId"] !== undefined ? _data["roleId"] : <any>null;
       this.roleName =
-        _data['roleName'] !== undefined ? _data['roleName'] : <any>null;
+        _data["roleName"] !== undefined ? _data["roleName"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
     }
   }
 
   static fromJS(data: any): Role {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Role();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['roleId'] = this.roleId !== undefined ? this.roleId : <any>null;
-    data['roleName'] = this.roleName !== undefined ? this.roleName : <any>null;
-    data['description'] =
+    data = typeof data === "object" ? data : {};
+    data["roleId"] = this.roleId !== undefined ? this.roleId : <any>null;
+    data["roleName"] = this.roleName !== undefined ? this.roleName : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
     return data;
   }
@@ -7530,10 +7532,10 @@ export class ListResultOfUserRole implements IListResultOfUserRole {
   init(_data?: any) {
     if (_data) {
       this.totalCount =
-        _data['totalCount'] !== undefined ? _data['totalCount'] : <any>null;
-      if (Array.isArray(_data['items'])) {
+        _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+      if (Array.isArray(_data["items"])) {
         this.items = [] as any;
-        for (let item of _data['items'])
+        for (let item of _data["items"])
           this.items!.push(UserRole.fromJS(item));
       } else {
         this.items = <any>null;
@@ -7542,19 +7544,19 @@ export class ListResultOfUserRole implements IListResultOfUserRole {
   }
 
   static fromJS(data: any): ListResultOfUserRole {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ListResultOfUserRole();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['totalCount'] =
+    data = typeof data === "object" ? data : {};
+    data["totalCount"] =
       this.totalCount !== undefined ? this.totalCount : <any>null;
     if (Array.isArray(this.items)) {
-      data['items'] = [];
-      for (let item of this.items) data['items'].push(item.toJSON());
+      data["items"] = [];
+      for (let item of this.items) data["items"].push(item.toJSON());
     }
     return data;
   }
@@ -7585,25 +7587,25 @@ export class UserRole2 implements IUserRole2 {
   init(_data?: any) {
     if (_data) {
       this.resourceId =
-        _data['resourceId'] !== undefined ? _data['resourceId'] : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
-      this.role = _data['role'] ? Role.fromJS(_data['role']) : new Role();
+        _data["resourceId"] !== undefined ? _data["resourceId"] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
+      this.role = _data["role"] ? Role.fromJS(_data["role"]) : new Role();
     }
   }
 
   static fromJS(data: any): UserRole2 {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UserRole2();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['resourceId'] =
+    data = typeof data === "object" ? data : {};
+    data["resourceId"] =
       this.resourceId !== undefined ? this.resourceId : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['role'] = this.role ? this.role.toJSON() : <any>null;
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["role"] = this.role ? this.role.toJSON() : <any>null;
     return data;
   }
 }
@@ -7624,20 +7626,20 @@ export class UserRole extends UserRole2 implements IUserRole {
   override init(_data?: any) {
     super.init(_data);
     if (_data) {
-      this.user = _data['user'] ? User.fromJS(_data['user']) : <any>null;
+      this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>null;
     }
   }
 
   static override fromJS(data: any): UserRole {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UserRole();
     result.init(data);
     return result;
   }
 
   override toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['user'] = this.user ? this.user.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["user"] = this.user ? this.user.toJSON() : <any>null;
     super.toJSON(data);
     return data;
   }
@@ -7661,20 +7663,20 @@ export class TeamAddBotParam implements ITeamAddBotParam {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
     }
   }
 
   static fromJS(data: any): TeamAddBotParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamAddBotParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     return data;
   }
 }
@@ -7696,14 +7698,14 @@ export class TeamAddEmailParam implements ITeamAddEmailParam {
   init(_data?: any) {}
 
   static fromJS(data: any): TeamAddEmailParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamAddEmailParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     return data;
   }
 }
@@ -7726,25 +7728,25 @@ export class SignInRequest implements ISignInRequest {
   init(_data?: any) {
     if (_data) {
       this.idToken =
-        _data['idToken'] !== undefined ? _data['idToken'] : <any>null;
+        _data["idToken"] !== undefined ? _data["idToken"] : <any>null;
       this.refreshTokenType =
-        _data['refreshTokenType'] !== undefined
-          ? _data['refreshTokenType']
+        _data["refreshTokenType"] !== undefined
+          ? _data["refreshTokenType"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): SignInRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SignInRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['idToken'] = this.idToken !== undefined ? this.idToken : <any>null;
-    data['refreshTokenType'] =
+    data = typeof data === "object" ? data : {};
+    data["idToken"] = this.idToken !== undefined ? this.idToken : <any>null;
+    data["refreshTokenType"] =
       this.refreshTokenType !== undefined ? this.refreshTokenType : <any>null;
     return data;
   }
@@ -7756,9 +7758,9 @@ export interface ISignInRequest {
 }
 
 export enum RefreshTokenType {
-  None = 'None',
-  Web = 'Web',
-  App = 'App',
+  None = "None",
+  Web = "Web",
+  App = "App",
 }
 
 export class SignUpRequest implements ISignUpRequest {
@@ -7777,25 +7779,25 @@ export class SignUpRequest implements ISignUpRequest {
   init(_data?: any) {
     if (_data) {
       this.idToken =
-        _data['idToken'] !== undefined ? _data['idToken'] : <any>null;
+        _data["idToken"] !== undefined ? _data["idToken"] : <any>null;
       this.refreshTokenType =
-        _data['refreshTokenType'] !== undefined
-          ? _data['refreshTokenType']
+        _data["refreshTokenType"] !== undefined
+          ? _data["refreshTokenType"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): SignUpRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SignUpRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['idToken'] = this.idToken !== undefined ? this.idToken : <any>null;
-    data['refreshTokenType'] =
+    data = typeof data === "object" ? data : {};
+    data["idToken"] = this.idToken !== undefined ? this.idToken : <any>null;
+    data["refreshTokenType"] =
       this.refreshTokenType !== undefined ? this.refreshTokenType : <any>null;
     return data;
   }
@@ -7821,20 +7823,20 @@ export class RefreshTokenRequest implements IRefreshTokenRequest {
   init(_data?: any) {
     if (_data) {
       this.refreshToken =
-        _data['refreshToken'] !== undefined ? _data['refreshToken'] : <any>null;
+        _data["refreshToken"] !== undefined ? _data["refreshToken"] : <any>null;
     }
   }
 
   static fromJS(data: any): RefreshTokenRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new RefreshTokenRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['refreshToken'] =
+    data = typeof data === "object" ? data : {};
+    data["refreshToken"] =
       this.refreshToken !== undefined ? this.refreshToken : <any>null;
     return data;
   }
@@ -7847,10 +7849,10 @@ export interface IRefreshTokenRequest {
 function formatDate(d: Date) {
   return (
     d.getFullYear() +
-    '-' +
-    (d.getMonth() < 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) +
-    '-' +
-    (d.getDate() < 10 ? '0' + d.getDate() : d.getDate())
+    "-" +
+    (d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : d.getMonth() + 1) +
+    "-" +
+    (d.getDate() < 10 ? "0" + d.getDate() : d.getDate())
   );
 }
 
@@ -7878,7 +7880,7 @@ function throwException(
 function blobToText(blob: any): Observable<string> {
   return new Observable<string>((observer: any) => {
     if (!blob) {
-      observer.next('');
+      observer.next("");
       observer.complete();
     } else {
       let reader = new FileReader();

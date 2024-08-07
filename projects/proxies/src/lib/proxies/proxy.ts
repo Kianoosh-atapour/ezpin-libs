@@ -11,22 +11,24 @@
 import {
   mergeMap as _observableMergeMap,
   catchError as _observableCatch,
-} from 'rxjs/operators';
+} from "rxjs/operators";
 import {
   Observable,
   throwError as _observableThrow,
   of as _observableOf,
-} from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
+} from "rxjs";
+import { Injectable, Inject, Optional, InjectionToken } from "@angular/core";
 import {
   HttpClient,
   HttpHeaders,
   HttpResponse,
   HttpResponseBase,
   HttpContext,
-} from '@angular/common/http';
+} from "@angular/common/http";
+import { ProxiesService } from "proxies";
 
-const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+const service = new ProxiesService();
+const API_BASE_URL = service.retailProxyBaseUrl;
 
 @Injectable()
 export class BanksClient {
@@ -40,30 +42,30 @@ export class BanksClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(bankName: string, httpContext?: HttpContext): Observable<Bank> {
-    let url_ = this.baseUrl + '/api/v1/banks?';
+    let url_ = this.baseUrl + "/api/v1/banks?";
     if (bankName === undefined || bankName === null)
       throw new Error(
         "The parameter 'bankName' must be defined and cannot be null."
       );
-    else url_ += 'bankName=' + encodeURIComponent('' + bankName) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "bankName=" + encodeURIComponent("" + bankName) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -102,7 +104,7 @@ export class BanksClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Bank.fromJS(resultData200);
@@ -113,7 +115,7 @@ export class BanksClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -129,25 +131,25 @@ export class BanksClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<Bank[]> {
-    let url_ = this.baseUrl + '/api/v1/banks?';
+    let url_ = this.baseUrl + "/api/v1/banks?";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBanks(response_);
@@ -187,7 +189,7 @@ export class BanksClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -203,7 +205,7 @@ export class BanksClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -215,24 +217,24 @@ export class BanksClient {
   }
 
   get(bankId: number, httpContext?: HttpContext): Observable<Bank> {
-    let url_ = this.baseUrl + '/api/v1/banks/{bankId}';
+    let url_ = this.baseUrl + "/api/v1/banks/{bankId}";
     if (bankId === undefined || bankId === null)
       throw new Error("The parameter 'bankId' must be defined.");
-    url_ = url_.replace('{bankId}', encodeURIComponent('' + bankId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{bankId}", encodeURIComponent("" + bankId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -271,7 +273,7 @@ export class BanksClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Bank.fromJS(resultData200);
@@ -282,7 +284,7 @@ export class BanksClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -298,29 +300,29 @@ export class BanksClient {
     bankName: string,
     httpContext?: HttpContext
   ): Observable<Bank> {
-    let url_ = this.baseUrl + '/api/v1/banks/{bankId}?';
+    let url_ = this.baseUrl + "/api/v1/banks/{bankId}?";
     if (bankId === undefined || bankId === null)
       throw new Error("The parameter 'bankId' must be defined.");
-    url_ = url_.replace('{bankId}', encodeURIComponent('' + bankId));
+    url_ = url_.replace("{bankId}", encodeURIComponent("" + bankId));
     if (bankName === undefined || bankName === null)
       throw new Error(
         "The parameter 'bankName' must be defined and cannot be null."
       );
-    else url_ += 'bankName=' + encodeURIComponent('' + bankName) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "bankName=" + encodeURIComponent("" + bankName) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -359,7 +361,7 @@ export class BanksClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Bank.fromJS(resultData200);
@@ -370,7 +372,7 @@ export class BanksClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -394,7 +396,7 @@ export class BranchesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -403,33 +405,33 @@ export class BranchesClient {
     description?: string | null | undefined,
     httpContext?: HttpContext
   ): Observable<BranchLight> {
-    let url_ = this.baseUrl + '/api/v1/branches?';
+    let url_ = this.baseUrl + "/api/v1/branches?";
     if (branchId === undefined || branchId === null)
       throw new Error(
         "The parameter 'branchId' must be defined and cannot be null."
       );
-    else url_ += 'branchId=' + encodeURIComponent('' + branchId) + '&';
+    else url_ += "branchId=" + encodeURIComponent("" + branchId) + "&";
     if (branchName === undefined || branchName === null)
       throw new Error(
         "The parameter 'branchName' must be defined and cannot be null."
       );
-    else url_ += 'branchName=' + encodeURIComponent('' + branchName) + '&';
+    else url_ += "branchName=" + encodeURIComponent("" + branchName) + "&";
     if (description !== undefined && description !== null)
-      url_ += 'description=' + encodeURIComponent('' + description) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "description=" + encodeURIComponent("" + description) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -471,7 +473,7 @@ export class BranchesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = BranchLight.fromJS(resultData200);
@@ -482,7 +484,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -497,24 +499,24 @@ export class BranchesClient {
     branchId: number,
     httpContext?: HttpContext
   ): Observable<Branch[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/sub-branches';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/sub-branches";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSubBranches(response_);
@@ -556,7 +558,7 @@ export class BranchesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -573,7 +575,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -590,25 +592,25 @@ export class BranchesClient {
     httpContext?: HttpContext
   ): Observable<void> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/assign-merchant/{merchantId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/assign-merchant/{merchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAssignMerchant(response_);
@@ -654,7 +656,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -673,31 +675,31 @@ export class BranchesClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/assign-price-list/{priceListId}/targetBranchId/{targetBranchId}';
+      "/api/v1/branches/{branchId}/assign-price-list/{priceListId}/targetBranchId/{targetBranchId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (targetBranchId === undefined || targetBranchId === null)
       throw new Error("The parameter 'targetBranchId' must be defined.");
     url_ = url_.replace(
-      '{targetBranchId}',
-      encodeURIComponent('' + targetBranchId)
+      "{targetBranchId}",
+      encodeURIComponent("" + targetBranchId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAssignPriceList(response_);
@@ -743,7 +745,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -765,46 +767,46 @@ export class BranchesClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<Branch[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/sub-merchants?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/sub-merchants?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId !== undefined && saleManagerId !== null)
-      url_ += 'saleManagerId=' + encodeURIComponent('' + saleManagerId) + '&';
+      url_ += "saleManagerId=" + encodeURIComponent("" + saleManagerId) + "&";
     if (
       isAssignedToSaleManager !== undefined &&
       isAssignedToSaleManager !== null
     )
       url_ +=
-        'isAssignedToSaleManager=' +
-        encodeURIComponent('' + isAssignedToSaleManager) +
-        '&';
+        "isAssignedToSaleManager=" +
+        encodeURIComponent("" + isAssignedToSaleManager) +
+        "&";
     if (isRecursive === null)
       throw new Error("The parameter 'isRecursive' cannot be null.");
     else if (isRecursive !== undefined)
-      url_ += 'isRecursive=' + encodeURIComponent('' + isRecursive) + '&';
+      url_ += "isRecursive=" + encodeURIComponent("" + isRecursive) + "&";
     if (priceListId !== undefined && priceListId !== null)
-      url_ += 'priceListId=' + encodeURIComponent('' + priceListId) + '&';
+      url_ += "priceListId=" + encodeURIComponent("" + priceListId) + "&";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSubMerchants(response_);
@@ -846,7 +848,7 @@ export class BranchesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -863,7 +865,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -880,27 +882,27 @@ export class BranchesClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<Branch[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/all-merchants-branch?';
+    let url_ = this.baseUrl + "/api/v1/branches/all-merchants-branch?";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetAllMerchantsBranch(response_);
@@ -942,7 +944,7 @@ export class BranchesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -959,7 +961,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -975,31 +977,31 @@ export class BranchesClient {
     includeSubBranches?: boolean | undefined,
     httpContext?: HttpContext
   ): Observable<Branch> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (includeSubBranches === null)
       throw new Error("The parameter 'includeSubBranches' cannot be null.");
     else if (includeSubBranches !== undefined)
       url_ +=
-        'includeSubBranches=' +
-        encodeURIComponent('' + includeSubBranches) +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "includeSubBranches=" +
+        encodeURIComponent("" + includeSubBranches) +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -1039,7 +1041,7 @@ export class BranchesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Branch.fromJS(resultData200);
@@ -1050,7 +1052,7 @@ export class BranchesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1074,7 +1076,7 @@ export class BuyOrdersClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getSaleOrders(
@@ -1090,53 +1092,53 @@ export class BuyOrdersClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<BuyOrder[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/sales?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/sales?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantId !== undefined && subMerchantId !== null)
-      url_ += 'subMerchantId=' + encodeURIComponent('' + subMerchantId) + '&';
+      url_ += "subMerchantId=" + encodeURIComponent("" + subMerchantId) + "&";
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (isPhysicalCardOrder === null)
       throw new Error("The parameter 'isPhysicalCardOrder' cannot be null.");
     else if (isPhysicalCardOrder !== undefined)
       url_ +=
-        'isPhysicalCardOrder=' +
-        encodeURIComponent('' + isPhysicalCardOrder) +
-        '&';
+        "isPhysicalCardOrder=" +
+        encodeURIComponent("" + isPhysicalCardOrder) +
+        "&";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (buyOrderStates !== undefined && buyOrderStates !== null)
-      url_ += 'buyOrderStates=' + encodeURIComponent('' + buyOrderStates) + '&';
+      url_ += "buyOrderStates=" + encodeURIComponent("" + buyOrderStates) + "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleOrders(response_);
@@ -1178,7 +1180,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1195,7 +1197,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1213,34 +1215,34 @@ export class BuyOrdersClient {
     httpContext?: HttpContext
   ): Observable<SaleBranches[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/buy-orders/root-sales?';
+      this.baseUrl + "/api/v1/branches/{branchId}/buy-orders/root-sales?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleDashboardOrders(response_);
@@ -1284,7 +1286,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1301,7 +1303,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1319,27 +1321,27 @@ export class BuyOrdersClient {
   ): Observable<number> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/{orderId}/roll-back-order';
+      "/api/v1/branches/{branchId}/buy-orders/{orderId}/roll-back-order";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (orderId === undefined || orderId === null)
       throw new Error("The parameter 'orderId' must be defined.");
-    url_ = url_.replace('{orderId}', encodeURIComponent('' + orderId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSaleReturnOrder(response_);
@@ -1381,7 +1383,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -1393,7 +1395,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1411,30 +1413,30 @@ export class BuyOrdersClient {
   ): Observable<SaleReturnOrder> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/sale-return-orders/{saleReturnOrderId}';
+      "/api/v1/branches/{branchId}/buy-orders/sale-return-orders/{saleReturnOrderId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleReturnOrderId === undefined || saleReturnOrderId === null)
       throw new Error("The parameter 'saleReturnOrderId' must be defined.");
     url_ = url_.replace(
-      '{saleReturnOrderId}',
-      encodeURIComponent('' + saleReturnOrderId)
+      "{saleReturnOrderId}",
+      encodeURIComponent("" + saleReturnOrderId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleReturnOrder(response_);
@@ -1478,7 +1480,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = SaleReturnOrder.fromJS(resultData200);
@@ -1489,7 +1491,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1511,40 +1513,40 @@ export class BuyOrdersClient {
   ): Observable<SaleReturnOrder[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/buy-orders/sale-return-orders?';
+      "/api/v1/branches/{branchId}/buy-orders/sale-return-orders?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (buyOrderId !== undefined && buyOrderId !== null)
-      url_ += 'buyOrderId=' + encodeURIComponent('' + buyOrderId) + '&';
+      url_ += "buyOrderId=" + encodeURIComponent("" + buyOrderId) + "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleReturnOrders(response_);
@@ -1590,7 +1592,7 @@ export class BuyOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -1607,7 +1609,7 @@ export class BuyOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1631,32 +1633,32 @@ export class CategoriesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
     request: CreateCategoryRequest,
     httpContext?: HttpContext
   ): Observable<Category> {
-    let url_ = this.baseUrl + '/api/v1/categories';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/categories";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -1696,7 +1698,7 @@ export class CategoriesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Category.fromJS(resultData200);
@@ -1707,7 +1709,7 @@ export class CategoriesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1719,21 +1721,21 @@ export class CategoriesClient {
   }
 
   createRoot(httpContext?: HttpContext): Observable<Category> {
-    let url_ = this.baseUrl + '/api/v1/categories/root-category';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/categories/root-category";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateRoot(response_);
@@ -1775,7 +1777,7 @@ export class CategoriesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Category.fromJS(resultData200);
@@ -1786,7 +1788,7 @@ export class CategoriesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1798,21 +1800,21 @@ export class CategoriesClient {
   }
 
   getRootCategory(httpContext?: HttpContext): Observable<Category> {
-    let url_ = this.baseUrl + '/api/v1/categories/root';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/categories/root";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetRootCategory(response_);
@@ -1854,7 +1856,7 @@ export class CategoriesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Category.fromJS(resultData200);
@@ -1865,7 +1867,7 @@ export class CategoriesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1881,28 +1883,28 @@ export class CategoriesClient {
     request: UpdateCategoryRequest,
     httpContext?: HttpContext
   ): Observable<Category> {
-    let url_ = this.baseUrl + '/api/v1/categories/{categoryId}';
+    let url_ = this.baseUrl + "/api/v1/categories/{categoryId}";
     if (categoryId === undefined || categoryId === null)
       throw new Error("The parameter 'categoryId' must be defined.");
-    url_ = url_.replace('{categoryId}', encodeURIComponent('' + categoryId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{categoryId}", encodeURIComponent("" + categoryId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -1942,7 +1944,7 @@ export class CategoriesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Category.fromJS(resultData200);
@@ -1953,7 +1955,7 @@ export class CategoriesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -1977,7 +1979,7 @@ export class CreditClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getCustomerCredits(
@@ -1988,36 +1990,36 @@ export class CreditClient {
   ): Observable<Wallet> {
     let url_ =
       this.baseUrl +
-      '/api/v1/merchants/{merchantId}/branches/{branchId}/customer-credit?';
+      "/api/v1/merchants/{merchantId}/branches/{branchId}/customer-credit?";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (customerMerchantId === undefined || customerMerchantId === null)
       throw new Error(
         "The parameter 'customerMerchantId' must be defined and cannot be null."
       );
     else
       url_ +=
-        'customerMerchantId=' +
-        encodeURIComponent('' + customerMerchantId) +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "customerMerchantId=" +
+        encodeURIComponent("" + customerMerchantId) +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCustomerCredits(response_);
@@ -2059,7 +2061,7 @@ export class CreditClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Wallet.fromJS(resultData200);
@@ -2070,7 +2072,7 @@ export class CreditClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2088,27 +2090,27 @@ export class CreditClient {
   ): Observable<Wallet> {
     let url_ =
       this.baseUrl +
-      '/api/v1/merchants/{merchantId}/branches/{branchId}/credit';
+      "/api/v1/merchants/{merchantId}/branches/{branchId}/credit";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetMyCredit(response_);
@@ -2148,7 +2150,7 @@ export class CreditClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Wallet.fromJS(resultData200);
@@ -2159,7 +2161,7 @@ export class CreditClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2183,55 +2185,55 @@ export class CreditClient {
   ): Observable<WalletTransaction[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/merchants/{merchantId}/branches/{branchId}/credit-transactions?';
+      "/api/v1/merchants/{merchantId}/branches/{branchId}/credit-transactions?";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (receiverMerchantId === undefined || receiverMerchantId === null)
       throw new Error(
         "The parameter 'receiverMerchantId' must be defined and cannot be null."
       );
     else
       url_ +=
-        'receiverMerchantId=' +
-        encodeURIComponent('' + receiverMerchantId) +
-        '&';
+        "receiverMerchantId=" +
+        encodeURIComponent("" + receiverMerchantId) +
+        "&";
     if (creditTransactionType !== undefined && creditTransactionType !== null)
       url_ +=
-        'creditTransactionType=' +
-        encodeURIComponent('' + creditTransactionType) +
-        '&';
+        "creditTransactionType=" +
+        encodeURIComponent("" + creditTransactionType) +
+        "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCreditTransactions(response_);
@@ -2277,7 +2279,7 @@ export class CreditClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -2294,7 +2296,7 @@ export class CreditClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2318,33 +2320,33 @@ export class CurrenciesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
     currencyName: string,
     httpContext?: HttpContext
   ): Observable<Currency> {
-    let url_ = this.baseUrl + '/api/v1/currencies?';
+    let url_ = this.baseUrl + "/api/v1/currencies?";
     if (currencyName === undefined || currencyName === null)
       throw new Error(
         "The parameter 'currencyName' must be defined and cannot be null."
       );
-    else url_ += 'currencyName=' + encodeURIComponent('' + currencyName) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "currencyName=" + encodeURIComponent("" + currencyName) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -2384,7 +2386,7 @@ export class CurrenciesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Currency.fromJS(resultData200);
@@ -2395,7 +2397,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2407,21 +2409,21 @@ export class CurrenciesClient {
   }
 
   getCurrencies(httpContext?: HttpContext): Observable<Currency[]> {
-    let url_ = this.baseUrl + '/api/v1/currencies';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/currencies";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCurrencies(response_);
@@ -2463,7 +2465,7 @@ export class CurrenciesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -2480,7 +2482,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2496,29 +2498,29 @@ export class CurrenciesClient {
     currencyName: string,
     httpContext?: HttpContext
   ): Observable<Currency> {
-    let url_ = this.baseUrl + '/api/v1/currencies/{currencyId}?';
+    let url_ = this.baseUrl + "/api/v1/currencies/{currencyId}?";
     if (currencyId === undefined || currencyId === null)
       throw new Error("The parameter 'currencyId' must be defined.");
-    url_ = url_.replace('{currencyId}', encodeURIComponent('' + currencyId));
+    url_ = url_.replace("{currencyId}", encodeURIComponent("" + currencyId));
     if (currencyName === undefined || currencyName === null)
       throw new Error(
         "The parameter 'currencyName' must be defined and cannot be null."
       );
-    else url_ += 'currencyName=' + encodeURIComponent('' + currencyName) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "currencyName=" + encodeURIComponent("" + currencyName) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -2558,7 +2560,7 @@ export class CurrenciesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Currency.fromJS(resultData200);
@@ -2569,7 +2571,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2582,19 +2584,19 @@ export class CurrenciesClient {
 
   refreshCurrencyExchangeRates(httpContext?: HttpContext): Observable<void> {
     let url_ =
-      this.baseUrl + '/api/v1/currencies/refresh-currency-exchange-rates';
-    url_ = url_.replace(/[?&]$/, '');
+      this.baseUrl + "/api/v1/currencies/refresh-currency-exchange-rates";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processRefreshCurrencyExchangeRates(response_);
@@ -2640,7 +2642,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2655,24 +2657,24 @@ export class CurrenciesClient {
     request: PutCurrencyExchangeRateRequest,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/currencies/currency-exchange-rates';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/currencies/currency-exchange-rates";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateCurrencyExchangeRate(response_);
@@ -2718,7 +2720,7 @@ export class CurrenciesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2742,7 +2744,7 @@ export class FinancialClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -2751,34 +2753,34 @@ export class FinancialClient {
     financialRequest: FinancialRequest,
     httpContext?: HttpContext
   ): Observable<number> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/financial-order?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/financial-order?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (financialType === undefined || financialType === null)
       throw new Error(
         "The parameter 'financialType' must be defined and cannot be null."
       );
     else
-      url_ += 'financialType=' + encodeURIComponent('' + financialType) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "financialType=" + encodeURIComponent("" + financialType) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(financialRequest);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -2818,7 +2820,7 @@ export class FinancialClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -2830,7 +2832,7 @@ export class FinancialClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2852,50 +2854,50 @@ export class FinancialClient {
     pageNumber?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<FinancialOrder[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/financial-order?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/financial-order?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (customerMerchantId !== undefined && customerMerchantId !== null)
       url_ +=
-        'customerMerchantId=' +
-        encodeURIComponent('' + customerMerchantId) +
-        '&';
+        "customerMerchantId=" +
+        encodeURIComponent("" + customerMerchantId) +
+        "&";
     if (financialType !== undefined && financialType !== null)
-      url_ += 'financialType=' + encodeURIComponent('' + financialType) + '&';
+      url_ += "financialType=" + encodeURIComponent("" + financialType) + "&";
     if (financialOrderState !== undefined && financialOrderState !== null)
       url_ +=
-        'financialOrderState=' +
-        encodeURIComponent('' + financialOrderState) +
-        '&';
+        "financialOrderState=" +
+        encodeURIComponent("" + financialOrderState) +
+        "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetFinancialOrders(response_);
@@ -2939,7 +2941,7 @@ export class FinancialClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -2956,7 +2958,7 @@ export class FinancialClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -2975,34 +2977,34 @@ export class FinancialClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/financial-order/{financialOrderId}/verify?';
+      "/api/v1/branches/{branchId}/financial-order/{financialOrderId}/verify?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (financialOrderId === undefined || financialOrderId === null)
       throw new Error("The parameter 'financialOrderId' must be defined.");
     url_ = url_.replace(
-      '{financialOrderId}',
-      encodeURIComponent('' + financialOrderId)
+      "{financialOrderId}",
+      encodeURIComponent("" + financialOrderId)
     );
     if (financialType === undefined || financialType === null)
       throw new Error(
         "The parameter 'financialType' must be defined and cannot be null."
       );
     else
-      url_ += 'financialType=' + encodeURIComponent('' + financialType) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "financialType=" + encodeURIComponent("" + financialType) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processVerify(response_);
@@ -3046,7 +3048,7 @@ export class FinancialClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3065,34 +3067,34 @@ export class FinancialClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/financial-order/{financialOrderId}/reject?';
+      "/api/v1/branches/{branchId}/financial-order/{financialOrderId}/reject?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (financialOrderId === undefined || financialOrderId === null)
       throw new Error("The parameter 'financialOrderId' must be defined.");
     url_ = url_.replace(
-      '{financialOrderId}',
-      encodeURIComponent('' + financialOrderId)
+      "{financialOrderId}",
+      encodeURIComponent("" + financialOrderId)
     );
     if (financialType === undefined || financialType === null)
       throw new Error(
         "The parameter 'financialType' must be defined and cannot be null."
       );
     else
-      url_ += 'financialType=' + encodeURIComponent('' + financialType) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "financialType=" + encodeURIComponent("" + financialType) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processReject(response_);
@@ -3136,7 +3138,7 @@ export class FinancialClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3160,7 +3162,7 @@ export class GatewayListsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -3168,28 +3170,28 @@ export class GatewayListsClient {
     request: CreateGatewayListRequest,
     httpContext?: HttpContext
   ): Observable<GatewayList> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/gateway-lists';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/gateway-lists";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -3231,7 +3233,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = GatewayList.fromJS(resultData200);
@@ -3242,7 +3244,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3259,30 +3261,30 @@ export class GatewayListsClient {
     forceDelete?: boolean | null | undefined,
     httpContext?: HttpContext
   ): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/gateway-lists?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/gateway-lists?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error(
         "The parameter 'gatewayListId' must be defined and cannot be null."
       );
     else
-      url_ += 'gatewayListId=' + encodeURIComponent('' + gatewayListId) + '&';
+      url_ += "gatewayListId=" + encodeURIComponent("" + gatewayListId) + "&";
     if (forceDelete !== undefined && forceDelete !== null)
-      url_ += 'forceDelete=' + encodeURIComponent('' + forceDelete) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "forceDelete=" + encodeURIComponent("" + forceDelete) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processDelete(response_);
@@ -3326,7 +3328,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3341,24 +3343,24 @@ export class GatewayListsClient {
     branchId: number,
     httpContext?: HttpContext
   ): Observable<GatewayList[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/gateway-lists';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/gateway-lists";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetGatewayLists(response_);
@@ -3402,7 +3404,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3419,7 +3421,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3437,30 +3439,30 @@ export class GatewayListsClient {
   ): Observable<GatewayList> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}';
+      "/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error("The parameter 'gatewayListId' must be defined.");
     url_ = url_.replace(
-      '{gatewayListId}',
-      encodeURIComponent('' + gatewayListId)
+      "{gatewayListId}",
+      encodeURIComponent("" + gatewayListId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -3502,7 +3504,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = GatewayList.fromJS(resultData200);
@@ -3513,7 +3515,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3532,34 +3534,34 @@ export class GatewayListsClient {
   ): Observable<GatewayList> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}';
+      "/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error("The parameter 'gatewayListId' must be defined.");
     url_ = url_.replace(
-      '{gatewayListId}',
-      encodeURIComponent('' + gatewayListId)
+      "{gatewayListId}",
+      encodeURIComponent("" + gatewayListId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPut(response_);
@@ -3601,7 +3603,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = GatewayList.fromJS(resultData200);
@@ -3612,7 +3614,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3630,30 +3632,30 @@ export class GatewayListsClient {
   ): Observable<MerchantSummary[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/assigned-merchants';
+      "/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/assigned-merchants";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error("The parameter 'gatewayListId' must be defined.");
     url_ = url_.replace(
-      '{gatewayListId}',
-      encodeURIComponent('' + gatewayListId)
+      "{gatewayListId}",
+      encodeURIComponent("" + gatewayListId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetAssignedMerchantsByGatewayListId(response_);
@@ -3701,7 +3703,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3718,7 +3720,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3735,24 +3737,24 @@ export class GatewayListsClient {
   ): Observable<PaymentProfile[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/payment-profiles';
+      "/api/v1/branches/{branchId}/gateway-lists/payment-profiles";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPaymentProfiles(response_);
@@ -3796,7 +3798,7 @@ export class GatewayListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -3813,7 +3815,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3832,34 +3834,34 @@ export class GatewayListsClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/assign-merchant/{subMerchantId}';
+      "/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/assign-merchant/{subMerchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error("The parameter 'gatewayListId' must be defined.");
     url_ = url_.replace(
-      '{gatewayListId}',
-      encodeURIComponent('' + gatewayListId)
+      "{gatewayListId}",
+      encodeURIComponent("" + gatewayListId)
     );
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAssignToMerchant(response_);
@@ -3905,7 +3907,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -3924,34 +3926,34 @@ export class GatewayListsClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/unassign-merchant/{subMerchantId}';
+      "/api/v1/branches/{branchId}/gateway-lists/{gatewayListId}/unassign-merchant/{subMerchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (gatewayListId === undefined || gatewayListId === null)
       throw new Error("The parameter 'gatewayListId' must be defined.");
     url_ = url_.replace(
-      '{gatewayListId}',
-      encodeURIComponent('' + gatewayListId)
+      "{gatewayListId}",
+      encodeURIComponent("" + gatewayListId)
     );
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUnAssignFromMerchant(response_);
@@ -3997,7 +3999,7 @@ export class GatewayListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4021,7 +4023,7 @@ export class InvoicesClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getInvoices(
@@ -4032,42 +4034,42 @@ export class InvoicesClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<InvoiceSummary[]> {
-    let url_ = this.baseUrl + '/api/v1/merchants/{merchantId}/Invoices?';
+    let url_ = this.baseUrl + "/api/v1/merchants/{merchantId}/Invoices?";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (beginCreatedTime !== undefined && beginCreatedTime !== null)
       url_ +=
-        'beginCreatedTime=' +
+        "beginCreatedTime=" +
         encodeURIComponent(
-          beginCreatedTime ? '' + beginCreatedTime.toISOString() : ''
+          beginCreatedTime ? "" + beginCreatedTime.toISOString() : ""
         ) +
-        '&';
+        "&";
     if (endCreatedTime !== undefined && endCreatedTime !== null)
       url_ +=
-        'endCreatedTime=' +
+        "endCreatedTime=" +
         encodeURIComponent(
-          endCreatedTime ? '' + endCreatedTime.toISOString() : ''
+          endCreatedTime ? "" + endCreatedTime.toISOString() : ""
         ) +
-        '&';
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetInvoices(response_);
@@ -4111,7 +4113,7 @@ export class InvoicesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -4128,7 +4130,7 @@ export class InvoicesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4145,27 +4147,27 @@ export class InvoicesClient {
     httpContext?: HttpContext
   ): Observable<Invoice> {
     let url_ =
-      this.baseUrl + '/api/v1/merchants/{merchantId}/Invoices/{invoiceId}';
+      this.baseUrl + "/api/v1/merchants/{merchantId}/Invoices/{invoiceId}";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (invoiceId === undefined || invoiceId === null)
       throw new Error("The parameter 'invoiceId' must be defined.");
-    url_ = url_.replace('{invoiceId}', encodeURIComponent('' + invoiceId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{invoiceId}", encodeURIComponent("" + invoiceId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetInvoice(response_);
@@ -4205,7 +4207,7 @@ export class InvoicesClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Invoice.fromJS(resultData200);
@@ -4216,7 +4218,7 @@ export class InvoicesClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4240,7 +4242,7 @@ export class MerchantCurrencyLimitsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   put(
@@ -4251,34 +4253,34 @@ export class MerchantCurrencyLimitsClient {
   ): Observable<MerchantCurrencyLimit> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits';
+      "/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processPut(response_);
@@ -4324,7 +4326,7 @@ export class MerchantCurrencyLimitsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = MerchantCurrencyLimit.fromJS(resultData200);
@@ -4335,7 +4337,7 @@ export class MerchantCurrencyLimitsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4353,30 +4355,30 @@ export class MerchantCurrencyLimitsClient {
   ): Observable<MerchantCurrencyLimit[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits';
+      "/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetMerchantCurrencyLimits(response_);
@@ -4422,7 +4424,7 @@ export class MerchantCurrencyLimitsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -4439,7 +4441,7 @@ export class MerchantCurrencyLimitsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4456,28 +4458,28 @@ export class MerchantCurrencyLimitsClient {
     httpContext?: HttpContext
   ): Observable<MerchantCurrencyLimit> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/root-currency-limits';
+      this.baseUrl + "/api/v1/branches/{branchId}/root-currency-limits";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateRootMerchantCurrencyLimit(response_);
@@ -4525,7 +4527,7 @@ export class MerchantCurrencyLimitsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = MerchantCurrencyLimit.fromJS(resultData200);
@@ -4536,7 +4538,7 @@ export class MerchantCurrencyLimitsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4556,41 +4558,41 @@ export class MerchantCurrencyLimitsClient {
   ): Observable<MerchantCurrencyLimit> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits/{currencyLimitId}?';
+      "/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits/{currencyLimitId}?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
     if (currencyLimitId === undefined || currencyLimitId === null)
       throw new Error("The parameter 'currencyLimitId' must be defined.");
     url_ = url_.replace(
-      '{currencyLimitId}',
-      encodeURIComponent('' + currencyLimitId)
+      "{currencyLimitId}",
+      encodeURIComponent("" + currencyLimitId)
     );
     if (amount === undefined || amount === null)
       throw new Error(
         "The parameter 'amount' must be defined and cannot be null."
       );
-    else url_ += 'amount=' + encodeURIComponent('' + amount) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "amount=" + encodeURIComponent("" + amount) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -4636,7 +4638,7 @@ export class MerchantCurrencyLimitsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = MerchantCurrencyLimit.fromJS(resultData200);
@@ -4647,7 +4649,7 @@ export class MerchantCurrencyLimitsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4666,34 +4668,34 @@ export class MerchantCurrencyLimitsClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits/{currencyLimitId}';
+      "/api/v1/branches/{branchId}/sub-merchants/{subMerchantId}/currency-limits/{currencyLimitId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (subMerchantId === undefined || subMerchantId === null)
       throw new Error("The parameter 'subMerchantId' must be defined.");
     url_ = url_.replace(
-      '{subMerchantId}',
-      encodeURIComponent('' + subMerchantId)
+      "{subMerchantId}",
+      encodeURIComponent("" + subMerchantId)
     );
     if (currencyLimitId === undefined || currencyLimitId === null)
       throw new Error("The parameter 'currencyLimitId' must be defined.");
     url_ = url_.replace(
-      '{currencyLimitId}',
-      encodeURIComponent('' + currencyLimitId)
+      "{currencyLimitId}",
+      encodeURIComponent("" + currencyLimitId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processDelete(response_);
@@ -4737,7 +4739,7 @@ export class MerchantCurrencyLimitsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4761,7 +4763,7 @@ export class MerchantsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -4769,28 +4771,28 @@ export class MerchantsClient {
     request: CreateMerchantRequest,
     httpContext?: HttpContext
   ): Observable<MerchantLight> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/merchants';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/merchants";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -4834,7 +4836,7 @@ export class MerchantsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = MerchantLight.fromJS(resultData200);
@@ -4845,7 +4847,7 @@ export class MerchantsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4863,34 +4865,34 @@ export class MerchantsClient {
     httpContext?: HttpContext
   ): Observable<Merchant> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/merchants/{merchantId}?';
+      this.baseUrl + "/api/v1/branches/{branchId}/merchants/{merchantId}?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (includeSubBranches === null)
       throw new Error("The parameter 'includeSubBranches' cannot be null.");
     else if (includeSubBranches !== undefined)
       url_ +=
-        'includeSubBranches=' +
-        encodeURIComponent('' + includeSubBranches) +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "includeSubBranches=" +
+        encodeURIComponent("" + includeSubBranches) +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -4930,7 +4932,7 @@ export class MerchantsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Merchant.fromJS(resultData200);
@@ -4941,7 +4943,7 @@ export class MerchantsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -4959,31 +4961,31 @@ export class MerchantsClient {
     httpContext?: HttpContext
   ): Observable<Merchant> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/merchants/{merchantId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/merchants/{merchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -5023,7 +5025,7 @@ export class MerchantsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Merchant.fromJS(resultData200);
@@ -5034,7 +5036,7 @@ export class MerchantsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5053,31 +5055,31 @@ export class MerchantsClient {
   ): Observable<Merchant> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/merchants/{merchantId}/setting';
+      "/api/v1/branches/{branchId}/merchants/{merchantId}/setting";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdateMerchantSetting(response_);
@@ -5119,7 +5121,7 @@ export class MerchantsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Merchant.fromJS(resultData200);
@@ -5130,7 +5132,7 @@ export class MerchantsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5148,27 +5150,27 @@ export class MerchantsClient {
   ): Observable<PaymentProfile[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/merchants/{merchantId}/payment-profiles';
+      "/api/v1/branches/{branchId}/merchants/{merchantId}/payment-profiles";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPaymentProfiles(response_);
@@ -5212,7 +5214,7 @@ export class MerchantsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -5229,7 +5231,7 @@ export class MerchantsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5253,7 +5255,7 @@ export class PaymentOrdersClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -5261,28 +5263,28 @@ export class PaymentOrdersClient {
     request: CreatePaymentOrderRequest,
     httpContext?: HttpContext
   ): Observable<PaymentOrder> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/paymentOrders';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/paymentOrders";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -5326,7 +5328,7 @@ export class PaymentOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PaymentOrder.fromJS(resultData200);
@@ -5337,7 +5339,7 @@ export class PaymentOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5357,43 +5359,43 @@ export class PaymentOrdersClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<PaymentOrderSummary[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/paymentOrders?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/paymentOrders?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (paymentOrderStates !== undefined && paymentOrderStates !== null)
       url_ +=
-        'paymentOrderStates=' +
-        encodeURIComponent('' + paymentOrderStates) +
-        '&';
+        "paymentOrderStates=" +
+        encodeURIComponent("" + paymentOrderStates) +
+        "&";
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPaymentOrders(response_);
@@ -5439,7 +5441,7 @@ export class PaymentOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -5456,7 +5458,7 @@ export class PaymentOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5474,30 +5476,30 @@ export class PaymentOrdersClient {
   ): Observable<PaymentOrder> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/paymentOrders/{paymentOrderId}';
+      "/api/v1/branches/{branchId}/paymentOrders/{paymentOrderId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (paymentOrderId === undefined || paymentOrderId === null)
       throw new Error("The parameter 'paymentOrderId' must be defined.");
     url_ = url_.replace(
-      '{paymentOrderId}',
-      encodeURIComponent('' + paymentOrderId)
+      "{paymentOrderId}",
+      encodeURIComponent("" + paymentOrderId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -5539,7 +5541,7 @@ export class PaymentOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PaymentOrder.fromJS(resultData200);
@@ -5550,7 +5552,7 @@ export class PaymentOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5568,30 +5570,30 @@ export class PaymentOrdersClient {
   ): Observable<PaymentOrderStateLog[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/paymentOrders/{paymentOrderId}/state-logs';
+      "/api/v1/branches/{branchId}/paymentOrders/{paymentOrderId}/state-logs";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (paymentOrderId === undefined || paymentOrderId === null)
       throw new Error("The parameter 'paymentOrderId' must be defined.");
     url_ = url_.replace(
-      '{paymentOrderId}',
-      encodeURIComponent('' + paymentOrderId)
+      "{paymentOrderId}",
+      encodeURIComponent("" + paymentOrderId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processStateLogs(response_);
@@ -5637,7 +5639,7 @@ export class PaymentOrdersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -5654,7 +5656,7 @@ export class PaymentOrdersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5678,7 +5680,7 @@ export class PriceListsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -5686,28 +5688,28 @@ export class PriceListsClient {
     request: CreatePriceListRequest,
     httpContext?: HttpContext
   ): Observable<PriceList> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/price-lists';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/price-lists";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -5747,7 +5749,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceList.fromJS(resultData200);
@@ -5758,7 +5760,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5773,24 +5775,24 @@ export class PriceListsClient {
     branchId: number,
     httpContext?: HttpContext
   ): Observable<PriceList> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/price-lists';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/price-lists";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetByBranch(response_);
@@ -5832,7 +5834,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceList.fromJS(resultData200);
@@ -5843,7 +5845,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5866,39 +5868,39 @@ export class PriceListsClient {
     httpContext?: HttpContext
   ): Observable<BuyPrice[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/price-lists/buy-prices?';
+      this.baseUrl + "/api/v1/branches/{branchId}/price-lists/buy-prices?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (productId !== undefined && productId !== null)
-      url_ += 'productId=' + encodeURIComponent('' + productId) + '&';
+      url_ += "productId=" + encodeURIComponent("" + productId) + "&";
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (categoryId !== undefined && categoryId !== null)
-      url_ += 'categoryId=' + encodeURIComponent('' + categoryId) + '&';
+      url_ += "categoryId=" + encodeURIComponent("" + categoryId) + "&";
     if (isPhysicalProduct !== undefined && isPhysicalProduct !== null)
       url_ +=
-        'isPhysicalProduct=' + encodeURIComponent('' + isPhysicalProduct) + '&';
+        "isPhysicalProduct=" + encodeURIComponent("" + isPhysicalProduct) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetBuyPrices(response_);
@@ -5940,7 +5942,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -5957,7 +5959,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -5974,27 +5976,27 @@ export class PriceListsClient {
     httpContext?: HttpContext
   ): Observable<PriceList> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/price-lists/{priceListId}';
+      this.baseUrl + "/api/v1/branches/{branchId}/price-lists/{priceListId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -6034,7 +6036,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceList.fromJS(resultData200);
@@ -6045,7 +6047,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6069,42 +6071,42 @@ export class PriceListsClient {
   ): Observable<PriceView[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/price-views?';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/price-views?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (filterCurrencyId !== undefined && filterCurrencyId !== null)
       url_ +=
-        'filterCurrencyId=' + encodeURIComponent('' + filterCurrencyId) + '&';
+        "filterCurrencyId=" + encodeURIComponent("" + filterCurrencyId) + "&";
     if (filterCategoryId !== undefined && filterCategoryId !== null)
       url_ +=
-        'filterCategoryId=' + encodeURIComponent('' + filterCategoryId) + '&';
+        "filterCategoryId=" + encodeURIComponent("" + filterCategoryId) + "&";
     if (isPhysicalProduct !== undefined && isPhysicalProduct !== null)
       url_ +=
-        'isPhysicalProduct=' + encodeURIComponent('' + isPhysicalProduct) + '&';
+        "isPhysicalProduct=" + encodeURIComponent("" + isPhysicalProduct) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPriceViews(response_);
@@ -6148,7 +6150,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -6165,7 +6167,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6188,39 +6190,39 @@ export class PriceListsClient {
   ): Observable<PriceView[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/prices?';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/prices?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (filterCurrencyId !== undefined && filterCurrencyId !== null)
       url_ +=
-        'filterCurrencyId=' + encodeURIComponent('' + filterCurrencyId) + '&';
+        "filterCurrencyId=" + encodeURIComponent("" + filterCurrencyId) + "&";
     if (filterCategoryId !== undefined && filterCategoryId !== null)
       url_ +=
-        'filterCategoryId=' + encodeURIComponent('' + filterCategoryId) + '&';
+        "filterCategoryId=" + encodeURIComponent("" + filterCategoryId) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPrices(response_);
@@ -6264,7 +6266,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -6281,7 +6283,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6300,30 +6302,30 @@ export class PriceListsClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/prices';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/prices";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(priceRules);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSetPrices(response_);
@@ -6367,7 +6369,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6386,30 +6388,30 @@ export class PriceListsClient {
   ): Observable<Price> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPriceRulesByProduct(response_);
@@ -6450,7 +6452,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Price.fromJS(resultData200);
@@ -6461,7 +6463,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6480,28 +6482,28 @@ export class PriceListsClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processDeletePriceRulesByProduct(response_);
@@ -6547,7 +6549,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6568,38 +6570,38 @@ export class PriceListsClient {
   ): Observable<PriceView> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}?';
+      "/api/v1/branches/{branchId}/price-lists/{priceListId}/prices/productId:{productId}?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (priceListId === undefined || priceListId === null)
       throw new Error("The parameter 'priceListId' must be defined.");
-    url_ = url_.replace('{priceListId}', encodeURIComponent('' + priceListId));
+    url_ = url_.replace("{priceListId}", encodeURIComponent("" + priceListId));
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
     if (preview === null)
       throw new Error("The parameter 'preview' cannot be null.");
     else if (preview !== undefined)
-      url_ += 'preview=' + encodeURIComponent('' + preview) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "preview=" + encodeURIComponent("" + preview) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(priceRules);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('put', url_, options_)
+      .request("put", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSetPriceRulesByProduct(response_);
@@ -6641,7 +6643,7 @@ export class PriceListsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceView.fromJS(resultData200);
@@ -6652,7 +6654,7 @@ export class PriceListsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6676,32 +6678,32 @@ export class ProductsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
     request: CreateProductRequest,
     httpContext?: HttpContext
   ): Observable<Product> {
-    let url_ = this.baseUrl + '/api/v1/products';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/products";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -6741,7 +6743,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Product.fromJS(resultData200);
@@ -6752,7 +6754,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6771,33 +6773,33 @@ export class ProductsClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<ProductSummary[]> {
-    let url_ = this.baseUrl + '/api/v1/products?';
+    let url_ = this.baseUrl + "/api/v1/products?";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (filterCurrencyId !== undefined && filterCurrencyId !== null)
       url_ +=
-        'filterCurrencyId=' + encodeURIComponent('' + filterCurrencyId) + '&';
+        "filterCurrencyId=" + encodeURIComponent("" + filterCurrencyId) + "&";
     if (filterCategoryId !== undefined && filterCategoryId !== null)
       url_ +=
-        'filterCategoryId=' + encodeURIComponent('' + filterCategoryId) + '&';
+        "filterCategoryId=" + encodeURIComponent("" + filterCategoryId) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetProducts(response_);
@@ -6841,7 +6843,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -6858,7 +6860,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6870,19 +6872,19 @@ export class ProductsClient {
   }
 
   sync(httpContext?: HttpContext): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/products/sync';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/products/sync";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSync(response_);
@@ -6926,7 +6928,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -6942,28 +6944,28 @@ export class ProductsClient {
     request: UpdateProductRequest,
     httpContext?: HttpContext
   ): Observable<Product> {
-    let url_ = this.baseUrl + '/api/v1/products/{productId}';
+    let url_ = this.baseUrl + "/api/v1/products/{productId}";
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -7003,7 +7005,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Product.fromJS(resultData200);
@@ -7014,7 +7016,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7026,24 +7028,24 @@ export class ProductsClient {
   }
 
   get(productId: number, httpContext?: HttpContext): Observable<Product> {
-    let url_ = this.baseUrl + '/api/v1/products/{productId}';
+    let url_ = this.baseUrl + "/api/v1/products/{productId}";
     if (productId === undefined || productId === null)
       throw new Error("The parameter 'productId' must be defined.");
-    url_ = url_.replace('{productId}', encodeURIComponent('' + productId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -7083,7 +7085,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Product.fromJS(resultData200);
@@ -7094,7 +7096,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7112,29 +7114,29 @@ export class ProductsClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<ProductItem[]> {
-    let url_ = this.baseUrl + '/api/v1/products/available-items?';
+    let url_ = this.baseUrl + "/api/v1/products/available-items?";
     if (productId !== undefined && productId !== null)
-      url_ += 'productId=' + encodeURIComponent('' + productId) + '&';
+      url_ += "productId=" + encodeURIComponent("" + productId) + "&";
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetAvailableProductItems(response_);
@@ -7178,7 +7180,7 @@ export class ProductsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -7195,7 +7197,7 @@ export class ProductsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7219,32 +7221,32 @@ export class RegionsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
     request: CreateRegionRequest,
     httpContext?: HttpContext
   ): Observable<Region> {
-    let url_ = this.baseUrl + '/api/v1/regions';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/regions";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -7284,7 +7286,7 @@ export class RegionsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Region.fromJS(resultData200);
@@ -7295,7 +7297,7 @@ export class RegionsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7311,25 +7313,25 @@ export class RegionsClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<Region[]> {
-    let url_ = this.baseUrl + '/api/v1/regions?';
+    let url_ = this.baseUrl + "/api/v1/regions?";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetRegions(response_);
@@ -7371,7 +7373,7 @@ export class RegionsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -7388,7 +7390,7 @@ export class RegionsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7400,24 +7402,24 @@ export class RegionsClient {
   }
 
   get(regionId: number, httpContext?: HttpContext): Observable<Region> {
-    let url_ = this.baseUrl + '/api/v1/regions/{regionId}';
+    let url_ = this.baseUrl + "/api/v1/regions/{regionId}";
     if (regionId === undefined || regionId === null)
       throw new Error("The parameter 'regionId' must be defined.");
-    url_ = url_.replace('{regionId}', encodeURIComponent('' + regionId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{regionId}", encodeURIComponent("" + regionId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -7457,7 +7459,7 @@ export class RegionsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Region.fromJS(resultData200);
@@ -7468,7 +7470,7 @@ export class RegionsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7484,28 +7486,28 @@ export class RegionsClient {
     request: UpdateRegionRequest,
     httpContext?: HttpContext
   ): Observable<Region> {
-    let url_ = this.baseUrl + '/api/v1/regions/{regionId}';
+    let url_ = this.baseUrl + "/api/v1/regions/{regionId}";
     if (regionId === undefined || regionId === null)
       throw new Error("The parameter 'regionId' must be defined.");
-    url_ = url_.replace('{regionId}', encodeURIComponent('' + regionId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{regionId}", encodeURIComponent("" + regionId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -7545,7 +7547,7 @@ export class RegionsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Region.fromJS(resultData200);
@@ -7556,7 +7558,7 @@ export class RegionsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7580,7 +7582,7 @@ export class ReportsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   report(
@@ -7589,42 +7591,42 @@ export class ReportsClient {
     endTime: Date,
     httpContext?: HttpContext
   ): Observable<Report> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/reports/report?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/reports/report?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (beginTime === undefined || beginTime === null)
       throw new Error(
         "The parameter 'beginTime' must be defined and cannot be null."
       );
     else
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime === undefined || endTime === null)
       throw new Error(
         "The parameter 'endTime' must be defined and cannot be null."
       );
     else
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processReport(response_);
@@ -7664,7 +7666,7 @@ export class ReportsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Report.fromJS(resultData200);
@@ -7675,7 +7677,7 @@ export class ReportsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7693,42 +7695,42 @@ export class ReportsClient {
     httpContext?: HttpContext
   ): Observable<ReportSummary[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/reports/report-summary?';
+      this.baseUrl + "/api/v1/branches/{branchId}/reports/report-summary?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (beginTime === undefined || beginTime === null)
       throw new Error(
         "The parameter 'beginTime' must be defined and cannot be null."
       );
     else
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime === undefined || endTime === null)
       throw new Error(
         "The parameter 'endTime' must be defined and cannot be null."
       );
     else
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processReportSummary(response_);
@@ -7772,7 +7774,7 @@ export class ReportsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -7789,7 +7791,7 @@ export class ReportsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7813,7 +7815,7 @@ export class SaleManagersClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   create(
@@ -7821,28 +7823,28 @@ export class SaleManagersClient {
     request: CreateSaleManagerRequest,
     httpContext?: HttpContext
   ): Observable<SaleManager> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/sale-managers';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/sale-managers";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreate(response_);
@@ -7884,7 +7886,7 @@ export class SaleManagersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = SaleManager.fromJS(resultData200);
@@ -7895,7 +7897,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -7913,30 +7915,30 @@ export class SaleManagersClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<SaleManager[]> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/sale-managers?';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/sale-managers?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (isActive !== undefined && isActive !== null)
-      url_ += 'isActive=' + encodeURIComponent('' + isActive) + '&';
+      url_ += "isActive=" + encodeURIComponent("" + isActive) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleManagers(response_);
@@ -7980,7 +7982,7 @@ export class SaleManagersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -7997,7 +7999,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8015,30 +8017,30 @@ export class SaleManagersClient {
   ): Observable<SaleManager> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sale-managers/{saleManagerId}';
+      "/api/v1/branches/{branchId}/sale-managers/{saleManagerId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId === undefined || saleManagerId === null)
       throw new Error("The parameter 'saleManagerId' must be defined.");
     url_ = url_.replace(
-      '{saleManagerId}',
-      encodeURIComponent('' + saleManagerId)
+      "{saleManagerId}",
+      encodeURIComponent("" + saleManagerId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGet(response_);
@@ -8080,7 +8082,7 @@ export class SaleManagersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = SaleManager.fromJS(resultData200);
@@ -8091,7 +8093,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8110,34 +8112,34 @@ export class SaleManagersClient {
   ): Observable<SaleManager> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sale-managers/{saleManagerId}';
+      "/api/v1/branches/{branchId}/sale-managers/{saleManagerId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId === undefined || saleManagerId === null)
       throw new Error("The parameter 'saleManagerId' must be defined.");
     url_ = url_.replace(
-      '{saleManagerId}',
-      encodeURIComponent('' + saleManagerId)
+      "{saleManagerId}",
+      encodeURIComponent("" + saleManagerId)
     );
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdate(response_);
@@ -8179,7 +8181,7 @@ export class SaleManagersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = SaleManager.fromJS(resultData200);
@@ -8190,7 +8192,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8210,37 +8212,37 @@ export class SaleManagersClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/assign-merchants?';
+      "/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/assign-merchants?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId === undefined || saleManagerId === null)
       throw new Error("The parameter 'saleManagerId' must be defined.");
     url_ = url_.replace(
-      '{saleManagerId}',
-      encodeURIComponent('' + saleManagerId)
+      "{saleManagerId}",
+      encodeURIComponent("" + saleManagerId)
     );
     if (forceAssign === null)
       throw new Error("The parameter 'forceAssign' cannot be null.");
     else if (forceAssign !== undefined)
-      url_ += 'forceAssign=' + encodeURIComponent('' + forceAssign) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "forceAssign=" + encodeURIComponent("" + forceAssign) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(merchantIds);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAssignMerchants(response_);
@@ -8286,7 +8288,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8305,31 +8307,31 @@ export class SaleManagersClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/unAssign-merchant/{merchantId}';
+      "/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/unAssign-merchant/{merchantId}";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId === undefined || saleManagerId === null)
       throw new Error("The parameter 'saleManagerId' must be defined.");
     url_ = url_.replace(
-      '{saleManagerId}',
-      encodeURIComponent('' + saleManagerId)
+      "{saleManagerId}",
+      encodeURIComponent("" + saleManagerId)
     );
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUnAssignMerchant(response_);
@@ -8375,7 +8377,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8395,15 +8397,15 @@ export class SaleManagersClient {
   ): Observable<SaleManagerAccountingReport[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/sale-report?';
+      "/api/v1/branches/{branchId}/sale-managers/{saleManagerId}/sale-report?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (saleManagerId === undefined || saleManagerId === null)
       throw new Error("The parameter 'saleManagerId' must be defined.");
     url_ = url_.replace(
-      '{saleManagerId}',
-      encodeURIComponent('' + saleManagerId)
+      "{saleManagerId}",
+      encodeURIComponent("" + saleManagerId)
     );
     if (beginTime === undefined || beginTime === null)
       throw new Error(
@@ -8411,32 +8413,32 @@ export class SaleManagersClient {
       );
     else
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime === undefined || endTime === null)
       throw new Error(
         "The parameter 'endTime' must be defined and cannot be null."
       );
     else
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSaleReport(response_);
@@ -8482,7 +8484,7 @@ export class SaleManagersClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -8499,7 +8501,7 @@ export class SaleManagersClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8523,7 +8525,7 @@ export class SystemClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   assignMerchantToMerchant(
@@ -8535,39 +8537,39 @@ export class SystemClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/system/merchants/{merchantId}/assign-to-merchant/{targetMerchantId}?';
+      "/api/v1/system/merchants/{merchantId}/assign-to-merchant/{targetMerchantId}?";
     if (merchantId === undefined || merchantId === null)
       throw new Error("The parameter 'merchantId' must be defined.");
-    url_ = url_.replace('{merchantId}', encodeURIComponent('' + merchantId));
+    url_ = url_.replace("{merchantId}", encodeURIComponent("" + merchantId));
     if (targetMerchantId === undefined || targetMerchantId === null)
       throw new Error("The parameter 'targetMerchantId' must be defined.");
     url_ = url_.replace(
-      '{targetMerchantId}',
-      encodeURIComponent('' + targetMerchantId)
+      "{targetMerchantId}",
+      encodeURIComponent("" + targetMerchantId)
     );
     if (branchId === undefined || branchId === null)
       throw new Error(
         "The parameter 'branchId' must be defined and cannot be null."
       );
-    else url_ += 'branchId=' + encodeURIComponent('' + branchId) + '&';
+    else url_ += "branchId=" + encodeURIComponent("" + branchId) + "&";
     if (targetBranchId === undefined || targetBranchId === null)
       throw new Error(
         "The parameter 'targetBranchId' must be defined and cannot be null."
       );
     else
-      url_ += 'targetBranchId=' + encodeURIComponent('' + targetBranchId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "targetBranchId=" + encodeURIComponent("" + targetBranchId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAssignMerchantToMerchant(response_);
@@ -8613,7 +8615,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8628,25 +8630,25 @@ export class SystemClient {
     request: UpdateSettingRequest,
     httpContext?: HttpContext
   ): Observable<SettingModel> {
-    let url_ = this.baseUrl + '/api/v1/system';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdateSetting(response_);
@@ -8690,7 +8692,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = SettingModel.fromJS(resultData200);
@@ -8701,7 +8703,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8716,32 +8718,32 @@ export class SystemClient {
     image: FileParameter,
     httpContext?: HttpContext
   ): Observable<string> {
-    let url_ = this.baseUrl + '/api/v1/system/upload-image';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/upload-image";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = new FormData();
     if (image === null || image === undefined)
       throw new Error("The parameter 'image' cannot be null.");
     else
       content_.append(
-        'Image',
+        "Image",
         image.data,
-        image.fileName ? image.fileName : 'Image'
+        image.fileName ? image.fileName : "Image"
       );
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUploadImage(response_);
@@ -8781,7 +8783,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -8793,7 +8795,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8805,21 +8807,21 @@ export class SystemClient {
   }
 
   getSystemRootPriceList(httpContext?: HttpContext): Observable<PriceList> {
-    let url_ = this.baseUrl + '/api/v1/system/system-root-price-list';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/system-root-price-list";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetSystemRootPriceList(response_);
@@ -8861,7 +8863,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PriceList.fromJS(resultData200);
@@ -8872,7 +8874,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8884,19 +8886,19 @@ export class SystemClient {
   }
 
   clearAll(httpContext?: HttpContext): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/system/clear-all';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/clear-all";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processClearAll(response_);
@@ -8940,7 +8942,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -8952,21 +8954,21 @@ export class SystemClient {
   }
 
   createRootMerchant(httpContext?: HttpContext): Observable<MerchantLight> {
-    let url_ = this.baseUrl + '/api/v1/system/root-merchant';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/root-merchant";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateRootMerchant(response_);
@@ -9010,7 +9012,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = MerchantLight.fromJS(resultData200);
@@ -9021,7 +9023,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9033,21 +9035,21 @@ export class SystemClient {
   }
 
   getPaymentProfiles(httpContext?: HttpContext): Observable<PaymentProfile[]> {
-    let url_ = this.baseUrl + '/api/v1/system/payment-profiles';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/payment-profiles";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetPaymentProfiles(response_);
@@ -9091,7 +9093,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9108,7 +9110,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9123,25 +9125,25 @@ export class SystemClient {
     request: CreatePaymentProfileRequest,
     httpContext?: HttpContext
   ): Observable<PaymentProfile> {
-    let url_ = this.baseUrl + '/api/v1/system/payment-profiles';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/system/payment-profiles";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreatePaymentProfile(response_);
@@ -9185,7 +9187,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PaymentProfile.fromJS(resultData200);
@@ -9196,7 +9198,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9212,32 +9214,32 @@ export class SystemClient {
     request: UpdatePaymentProfileRequest,
     httpContext?: HttpContext
   ): Observable<PaymentProfile> {
-    let url_ = this.baseUrl + '/api/v1/system/payment-profiles?';
+    let url_ = this.baseUrl + "/api/v1/system/payment-profiles?";
     if (paymentProfileId === undefined || paymentProfileId === null)
       throw new Error(
         "The parameter 'paymentProfileId' must be defined and cannot be null."
       );
     else
       url_ +=
-        'paymentProfileId=' + encodeURIComponent('' + paymentProfileId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "paymentProfileId=" + encodeURIComponent("" + paymentProfileId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdatePaymentProfile(response_);
@@ -9281,7 +9283,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = PaymentProfile.fromJS(resultData200);
@@ -9292,7 +9294,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9309,27 +9311,27 @@ export class SystemClient {
     pageSize?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<BranchLight[]> {
-    let url_ = this.baseUrl + '/api/v1/system/merchants?';
+    let url_ = this.baseUrl + "/api/v1/system/merchants?";
     if (searchCriteria !== undefined && searchCriteria !== null)
-      url_ += 'searchCriteria=' + encodeURIComponent('' + searchCriteria) + '&';
+      url_ += "searchCriteria=" + encodeURIComponent("" + searchCriteria) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetRootBranches(response_);
@@ -9373,7 +9375,7 @@ export class SystemClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9390,7 +9392,7 @@ export class SystemClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9414,25 +9416,25 @@ export class TeamClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getMerchantsBranch(httpContext?: HttpContext): Observable<Branch[]> {
-    let url_ = this.baseUrl + '/api/v1/team/users/current/branches';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/team/users/current/branches";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetMerchantsBranch(response_);
@@ -9474,7 +9476,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9491,7 +9493,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9503,21 +9505,21 @@ export class TeamClient {
   }
 
   listCurrentUserResources(httpContext?: HttpContext): Observable<string[]> {
-    let url_ = this.baseUrl + '/api/v1/team/users/current/resources';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/team/users/current/resources";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListCurrentUserResources(response_);
@@ -9559,7 +9561,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9575,7 +9577,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9592,24 +9594,24 @@ export class TeamClient {
   ): Observable<string[]> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/users/current/resources/{resourceId}/permissions';
+      "/api/v1/team/users/current/resources/{resourceId}/permissions";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListCurrentUserPermissions(response_);
@@ -9651,7 +9653,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9667,7 +9669,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9682,24 +9684,24 @@ export class TeamClient {
     userId: string,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/team/users/{userId}/bot/reset-api-key';
+    let url_ = this.baseUrl + "/api/v1/team/users/{userId}/bot/reset-api-key";
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processResetBotApiKey(response_);
@@ -9741,7 +9743,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -9752,7 +9754,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9768,28 +9770,28 @@ export class TeamClient {
     updateParam: TeamUpdateBotParam,
     httpContext?: HttpContext
   ): Observable<User> {
-    let url_ = this.baseUrl + '/api/v1/team/users/{userId}/bot';
+    let url_ = this.baseUrl + "/api/v1/team/users/{userId}/bot";
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(updateParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('patch', url_, options_)
+      .request("patch", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processUpdateBot(response_);
@@ -9828,7 +9830,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = User.fromJS(resultData200);
@@ -9839,7 +9841,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9851,24 +9853,24 @@ export class TeamClient {
   }
 
   listRoles(resourceId: string, httpContext?: HttpContext): Observable<Role[]> {
-    let url_ = this.baseUrl + '/api/v1/team/resources/{resourceId}/roles';
+    let url_ = this.baseUrl + "/api/v1/team/resources/{resourceId}/roles";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListRoles(response_);
@@ -9908,7 +9910,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -9924,7 +9926,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -9945,38 +9947,38 @@ export class TeamClient {
     recordCount?: number | null | undefined,
     httpContext?: HttpContext
   ): Observable<ListResultOfUserRole> {
-    let url_ = this.baseUrl + '/api/v1/team/resources/{resourceId}/user-roles?';
+    let url_ = this.baseUrl + "/api/v1/team/resources/{resourceId}/user-roles?";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId !== undefined && roleId !== null)
-      url_ += 'roleId=' + encodeURIComponent('' + roleId) + '&';
+      url_ += "roleId=" + encodeURIComponent("" + roleId) + "&";
     if (userId !== undefined && userId !== null)
-      url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
+      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
     if (search !== undefined && search !== null)
-      url_ += 'search=' + encodeURIComponent('' + search) + '&';
+      url_ += "search=" + encodeURIComponent("" + search) + "&";
     if (isBot !== undefined && isBot !== null)
-      url_ += 'isBot=' + encodeURIComponent('' + isBot) + '&';
+      url_ += "isBot=" + encodeURIComponent("" + isBot) + "&";
     if (recordIndex === null)
       throw new Error("The parameter 'recordIndex' cannot be null.");
     else if (recordIndex !== undefined)
-      url_ += 'recordIndex=' + encodeURIComponent('' + recordIndex) + '&';
+      url_ += "recordIndex=" + encodeURIComponent("" + recordIndex) + "&";
     if (recordCount !== undefined && recordCount !== null)
-      url_ += 'recordCount=' + encodeURIComponent('' + recordCount) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "recordCount=" + encodeURIComponent("" + recordCount) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processListUserRoles(response_);
@@ -10022,7 +10024,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ListResultOfUserRole.fromJS(resultData200);
@@ -10033,7 +10035,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10051,31 +10053,31 @@ export class TeamClient {
     httpContext?: HttpContext
   ): Observable<ApiKey> {
     let url_ =
-      this.baseUrl + '/api/v1/team/resources/{resourceId}/roles/{roleId}/bots';
+      this.baseUrl + "/api/v1/team/resources/{resourceId}/roles/{roleId}/bots";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(addParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddNewBot(response_);
@@ -10115,7 +10117,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -10126,7 +10128,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10146,34 +10148,34 @@ export class TeamClient {
   ): Observable<UserRole> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/email:{email}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/email:{email}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (email === undefined || email === null)
       throw new Error("The parameter 'email' must be defined.");
-    url_ = url_.replace('{email}', encodeURIComponent('' + email));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{email}", encodeURIComponent("" + email));
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(addParam);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddUserByEmail(response_);
@@ -10215,7 +10217,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = UserRole.fromJS(resultData200);
@@ -10226,7 +10228,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10245,30 +10247,30 @@ export class TeamClient {
   ): Observable<UserRole> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processAddUser(response_);
@@ -10308,7 +10310,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = UserRole.fromJS(resultData200);
@@ -10319,7 +10321,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10338,28 +10340,28 @@ export class TeamClient {
   ): Observable<void> {
     let url_ =
       this.baseUrl +
-      '/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}';
+      "/api/v1/team/resources/{resourceId}/roles/{roleId}/users/{userId}";
     if (resourceId === undefined || resourceId === null)
       throw new Error("The parameter 'resourceId' must be defined.");
-    url_ = url_.replace('{resourceId}', encodeURIComponent('' + resourceId));
+    url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
     if (roleId === undefined || roleId === null)
       throw new Error("The parameter 'roleId' must be defined.");
-    url_ = url_.replace('{roleId}', encodeURIComponent('' + roleId));
+    url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
     if (userId === undefined || userId === null)
       throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace('{userId}', encodeURIComponent('' + userId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('delete', url_, options_)
+      .request("delete", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processRemoveUser(response_);
@@ -10403,7 +10405,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10418,27 +10420,27 @@ export class TeamClient {
     secret: string,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/team/system/api-key';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/team/system/api-key";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = new FormData();
     if (secret === null || secret === undefined)
       throw new Error("The parameter 'secret' cannot be null.");
-    else content_.append('secret', secret.toString());
+    else content_.append("secret", secret.toString());
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCreateSystemApiKey(response_);
@@ -10480,7 +10482,7 @@ export class TeamClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -10491,7 +10493,7 @@ export class TeamClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10515,28 +10517,28 @@ export class WalletsClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getWallet(branchId: number, httpContext?: HttpContext): Observable<Wallet> {
-    let url_ = this.baseUrl + '/api/v1/branches/{branchId}/wallets/wallet';
+    let url_ = this.baseUrl + "/api/v1/branches/{branchId}/wallets/wallet";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
-    url_ = url_.replace(/[?&]$/, '');
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetWallet(response_);
@@ -10576,7 +10578,7 @@ export class WalletsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Wallet.fromJS(resultData200);
@@ -10587,7 +10589,7 @@ export class WalletsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10604,33 +10606,33 @@ export class WalletsClient {
     httpContext?: HttpContext
   ): Observable<Wallet> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/wallets/customer-wallet?';
+      this.baseUrl + "/api/v1/branches/{branchId}/wallets/customer-wallet?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (customerMerchantId === undefined || customerMerchantId === null)
       throw new Error(
         "The parameter 'customerMerchantId' must be defined and cannot be null."
       );
     else
       url_ +=
-        'customerMerchantId=' +
-        encodeURIComponent('' + customerMerchantId) +
-        '&';
-    url_ = url_.replace(/[?&]$/, '');
+        "customerMerchantId=" +
+        encodeURIComponent("" + customerMerchantId) +
+        "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCustomerWallet(response_);
@@ -10672,7 +10674,7 @@ export class WalletsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = Wallet.fromJS(resultData200);
@@ -10683,7 +10685,7 @@ export class WalletsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10706,47 +10708,47 @@ export class WalletsClient {
     httpContext?: HttpContext
   ): Observable<WalletTransaction[]> {
     let url_ =
-      this.baseUrl + '/api/v1/branches/{branchId}/wallets/transactions?';
+      this.baseUrl + "/api/v1/branches/{branchId}/wallets/transactions?";
     if (branchId === undefined || branchId === null)
       throw new Error("The parameter 'branchId' must be defined.");
-    url_ = url_.replace('{branchId}', encodeURIComponent('' + branchId));
+    url_ = url_.replace("{branchId}", encodeURIComponent("" + branchId));
     if (beginTime !== undefined && beginTime !== null)
       url_ +=
-        'beginTime=' +
-        encodeURIComponent(beginTime ? '' + beginTime.toISOString() : '') +
-        '&';
+        "beginTime=" +
+        encodeURIComponent(beginTime ? "" + beginTime.toISOString() : "") +
+        "&";
     if (endTime !== undefined && endTime !== null)
       url_ +=
-        'endTime=' +
-        encodeURIComponent(endTime ? '' + endTime.toISOString() : '') +
-        '&';
+        "endTime=" +
+        encodeURIComponent(endTime ? "" + endTime.toISOString() : "") +
+        "&";
     if (subMerchantId !== undefined && subMerchantId !== null)
-      url_ += 'subMerchantId=' + encodeURIComponent('' + subMerchantId) + '&';
+      url_ += "subMerchantId=" + encodeURIComponent("" + subMerchantId) + "&";
     if (transferWalletType !== undefined && transferWalletType !== null)
       url_ +=
-        'transferWalletType=' +
-        encodeURIComponent('' + transferWalletType) +
-        '&';
+        "transferWalletType=" +
+        encodeURIComponent("" + transferWalletType) +
+        "&";
     if (currencyId !== undefined && currencyId !== null)
-      url_ += 'currencyId=' + encodeURIComponent('' + currencyId) + '&';
+      url_ += "currencyId=" + encodeURIComponent("" + currencyId) + "&";
     if (pageSize !== undefined && pageSize !== null)
-      url_ += 'pageSize=' + encodeURIComponent('' + pageSize) + '&';
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
     if (pageNumber !== undefined && pageNumber !== null)
-      url_ += 'pageNumber=' + encodeURIComponent('' + pageNumber) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetWalletTransactions(response_);
@@ -10792,7 +10794,7 @@ export class WalletsClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
@@ -10809,7 +10811,7 @@ export class WalletsClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10833,33 +10835,33 @@ export class WebhookClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   catchPaymentProviderWebhook(
     webhookKey: string,
     httpContext?: HttpContext
   ): Observable<FileResponse | null> {
-    let url_ = this.baseUrl + '/api/v1/webhooks/payment-provider-webhook?';
+    let url_ = this.baseUrl + "/api/v1/webhooks/payment-provider-webhook?";
     if (webhookKey === undefined || webhookKey === null)
       throw new Error(
         "The parameter 'webhookKey' must be defined and cannot be null."
       );
-    else url_ += 'webhookKey=' + encodeURIComponent('' + webhookKey) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+    else url_ += "webhookKey=" + encodeURIComponent("" + webhookKey) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
+        Accept: "application/octet-stream",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processCatchPaymentProviderWebhook(response_);
@@ -10902,7 +10904,7 @@ export class WebhookClient {
     }
     if (status === 200 || status === 206) {
       const contentDisposition = response.headers
-        ? response.headers.get('content-disposition')
+        ? response.headers.get("content-disposition")
         : undefined;
       let fileNameMatch = contentDisposition
         ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(
@@ -10934,7 +10936,7 @@ export class WebhookClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -10958,25 +10960,25 @@ export class AuthenticationClient {
     @Optional() @Inject(API_BASE_URL) baseUrl?: string
   ) {
     this.http = http;
-    this.baseUrl = baseUrl ?? '';
+    this.baseUrl = baseUrl ?? "";
   }
 
   getCurrentUser(httpContext?: HttpContext): Observable<User> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetCurrentUser(response_);
@@ -11017,7 +11019,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = User.fromJS(resultData200);
@@ -11028,7 +11030,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11040,19 +11042,19 @@ export class AuthenticationClient {
   }
 
   signOutAll(httpContext?: HttpContext): Observable<void> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current/signout-all';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current/signout-all";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({}),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignOutAll(response_);
@@ -11096,7 +11098,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11108,21 +11110,21 @@ export class AuthenticationClient {
   }
 
   resetCurrentUserApiKey(httpContext?: HttpContext): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/current/reset-api-key';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/current/reset-api-key";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processResetCurrentUserApiKey(response_);
@@ -11164,7 +11166,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -11175,7 +11177,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11190,25 +11192,25 @@ export class AuthenticationClient {
     request: SignInRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/signin';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/signin";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignIn(response_);
@@ -11248,7 +11250,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -11259,7 +11261,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11274,25 +11276,25 @@ export class AuthenticationClient {
     request: SignUpRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/signup';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/signup";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processSignUp(response_);
@@ -11332,7 +11334,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -11343,7 +11345,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11358,25 +11360,25 @@ export class AuthenticationClient {
     request: RefreshTokenRequest,
     httpContext?: HttpContext
   ): Observable<ApiKey> {
-    let url_ = this.baseUrl + '/api/v1/authentication/refresh-token';
-    url_ = url_.replace(/[?&]$/, '');
+    let url_ = this.baseUrl + "/api/v1/authentication/refresh-token";
+    url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processRefreshToken(response_);
@@ -11418,7 +11420,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ApiKey.fromJS(resultData200);
@@ -11429,7 +11431,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11444,21 +11446,21 @@ export class AuthenticationClient {
     httpContext?: HttpContext
   ): Observable<FileResponse | null> {
     let url_ =
-      this.baseUrl + '/api/v1/authentication/external/google/signin-handler';
-    url_ = url_.replace(/[?&]$/, '');
+      this.baseUrl + "/api/v1/authentication/external/google/signin-handler";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
+        Accept: "application/octet-stream",
       }),
     };
 
     return this.http
-      .request('post', url_, options_)
+      .request("post", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGoogleSignInHandler(response_);
@@ -11501,7 +11503,7 @@ export class AuthenticationClient {
     }
     if (status === 200 || status === 206) {
       const contentDisposition = response.headers
-        ? response.headers.get('content-disposition')
+        ? response.headers.get("content-disposition")
         : undefined;
       let fileNameMatch = contentDisposition
         ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(
@@ -11533,7 +11535,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11550,28 +11552,28 @@ export class AuthenticationClient {
     httpContext?: HttpContext
   ): Observable<string> {
     let url_ =
-      this.baseUrl + '/api/v1/authentication/external/google/signin-url?';
+      this.baseUrl + "/api/v1/authentication/external/google/signin-url?";
     if (csrfToken === undefined || csrfToken === null)
       throw new Error(
         "The parameter 'csrfToken' must be defined and cannot be null."
       );
-    else url_ += 'csrfToken=' + encodeURIComponent('' + csrfToken) + '&';
+    else url_ += "csrfToken=" + encodeURIComponent("" + csrfToken) + "&";
     if (nonce !== undefined && nonce !== null)
-      url_ += 'nonce=' + encodeURIComponent('' + nonce) + '&';
-    url_ = url_.replace(/[?&]$/, '');
+      url_ += "nonce=" + encodeURIComponent("" + nonce) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
     let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
+      observe: "response",
+      responseType: "blob",
       withCredentials: false,
       context: httpContext,
       headers: new HttpHeaders({
-        Accept: 'application/json',
+        Accept: "application/json",
       }),
     };
 
     return this.http
-      .request('get', url_, options_)
+      .request("get", url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
           return this.processGetGoogleSignInUrl(response_);
@@ -11613,7 +11615,7 @@ export class AuthenticationClient {
         _observableMergeMap((_responseText: string) => {
           let result200: any = null;
           let resultData200 =
-            _responseText === ''
+            _responseText === ""
               ? null
               : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -11625,7 +11627,7 @@ export class AuthenticationClient {
       return blobToText(responseBlob).pipe(
         _observableMergeMap((_responseText: string) => {
           return throwException(
-            'An unexpected server error occurred.',
+            "An unexpected server error occurred.",
             status,
             _responseText,
             _headers
@@ -11652,23 +11654,23 @@ export class Bank implements IBank {
 
   init(_data?: any) {
     if (_data) {
-      this.bankId = _data['bankId'] !== undefined ? _data['bankId'] : <any>null;
+      this.bankId = _data["bankId"] !== undefined ? _data["bankId"] : <any>null;
       this.bankName =
-        _data['bankName'] !== undefined ? _data['bankName'] : <any>null;
+        _data["bankName"] !== undefined ? _data["bankName"] : <any>null;
     }
   }
 
   static fromJS(data: any): Bank {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Bank();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['bankId'] = this.bankId !== undefined ? this.bankId : <any>null;
-    data['bankName'] = this.bankName !== undefined ? this.bankName : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["bankId"] = this.bankId !== undefined ? this.bankId : <any>null;
+    data["bankName"] = this.bankName !== undefined ? this.bankName : <any>null;
     return data;
   }
 }
@@ -11707,93 +11709,93 @@ export class BranchLight implements IBranchLight {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.rootPriceListId =
-        _data['rootPriceListId'] !== undefined
-          ? _data['rootPriceListId']
+        _data["rootPriceListId"] !== undefined
+          ? _data["rootPriceListId"]
           : <any>null;
       this.canSetFaceValue =
-        _data['canSetFaceValue'] !== undefined
-          ? _data['canSetFaceValue']
+        _data["canSetFaceValue"] !== undefined
+          ? _data["canSetFaceValue"]
           : <any>null;
       this.canSetBuyValue =
-        _data['canSetBuyValue'] !== undefined
-          ? _data['canSetBuyValue']
+        _data["canSetBuyValue"] !== undefined
+          ? _data["canSetBuyValue"]
           : <any>null;
       this.canCreatePaymentOrder =
-        _data['canCreatePaymentOrder'] !== undefined
-          ? _data['canCreatePaymentOrder']
+        _data["canCreatePaymentOrder"] !== undefined
+          ? _data["canCreatePaymentOrder"]
           : <any>null;
       this.canPlaceOrder =
-        _data['canPlaceOrder'] !== undefined
-          ? _data['canPlaceOrder']
+        _data["canPlaceOrder"] !== undefined
+          ? _data["canPlaceOrder"]
           : <any>null;
-      this.middlePriceList = _data['middlePriceList']
-        ? PriceListSummary.fromJS(_data['middlePriceList'])
+      this.middlePriceList = _data["middlePriceList"]
+        ? PriceListSummary.fromJS(_data["middlePriceList"])
         : <any>null;
-      this.assignedPriceList = _data['assignedPriceList']
-        ? PriceListSummary.fromJS(_data['assignedPriceList'])
+      this.assignedPriceList = _data["assignedPriceList"]
+        ? PriceListSummary.fromJS(_data["assignedPriceList"])
         : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantLight.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantLight.fromJS(_data["merchant"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): BranchLight {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BranchLight();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['branchName'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['rootPriceListId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["rootPriceListId"] =
       this.rootPriceListId !== undefined ? this.rootPriceListId : <any>null;
-    data['canSetFaceValue'] =
+    data["canSetFaceValue"] =
       this.canSetFaceValue !== undefined ? this.canSetFaceValue : <any>null;
-    data['canSetBuyValue'] =
+    data["canSetBuyValue"] =
       this.canSetBuyValue !== undefined ? this.canSetBuyValue : <any>null;
-    data['canCreatePaymentOrder'] =
+    data["canCreatePaymentOrder"] =
       this.canCreatePaymentOrder !== undefined
         ? this.canCreatePaymentOrder
         : <any>null;
-    data['canPlaceOrder'] =
+    data["canPlaceOrder"] =
       this.canPlaceOrder !== undefined ? this.canPlaceOrder : <any>null;
-    data['middlePriceList'] = this.middlePriceList
+    data["middlePriceList"] = this.middlePriceList
       ? this.middlePriceList.toJSON()
       : <any>null;
-    data['assignedPriceList'] = this.assignedPriceList
+    data["assignedPriceList"] = this.assignedPriceList
       ? this.assignedPriceList.toJSON()
       : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
     return data;
   }
 }
@@ -11832,26 +11834,26 @@ export class PriceListSummary implements IPriceListSummary {
   init(_data?: any) {
     if (_data) {
       this.priceListId =
-        _data['priceListId'] !== undefined ? _data['priceListId'] : <any>null;
+        _data["priceListId"] !== undefined ? _data["priceListId"] : <any>null;
       this.priceListName =
-        _data['priceListName'] !== undefined
-          ? _data['priceListName']
+        _data["priceListName"] !== undefined
+          ? _data["priceListName"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): PriceListSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceListSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['priceListId'] =
+    data = typeof data === "object" ? data : {};
+    data["priceListId"] =
       this.priceListId !== undefined ? this.priceListId : <any>null;
-    data['priceListName'] =
+    data["priceListName"] =
       this.priceListName !== undefined ? this.priceListName : <any>null;
     return data;
   }
@@ -11892,76 +11894,76 @@ export class MerchantLight implements IMerchantLight {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.rootBranchId =
-        _data['rootBranchId'] !== undefined ? _data['rootBranchId'] : <any>null;
+        _data["rootBranchId"] !== undefined ? _data["rootBranchId"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.walletId =
-        _data['walletId'] !== undefined ? _data['walletId'] : <any>null;
+        _data["walletId"] !== undefined ? _data["walletId"] : <any>null;
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
       this.externalReference =
-        _data['externalReference'] !== undefined
-          ? _data['externalReference']
+        _data["externalReference"] !== undefined
+          ? _data["externalReference"]
           : <any>null;
-      this.exchangeTargetCurrency = _data['exchangeTargetCurrency']
-        ? Currency.fromJS(_data['exchangeTargetCurrency'])
+      this.exchangeTargetCurrency = _data["exchangeTargetCurrency"]
+        ? Currency.fromJS(_data["exchangeTargetCurrency"])
         : new Currency();
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
       this.invoiceThresholdDay =
-        _data['invoiceThresholdDay'] !== undefined
-          ? _data['invoiceThresholdDay']
+        _data["invoiceThresholdDay"] !== undefined
+          ? _data["invoiceThresholdDay"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantLight {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantLight();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['rootBranchId'] =
+    data["rootBranchId"] =
       this.rootBranchId !== undefined ? this.rootBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['walletId'] = this.walletId !== undefined ? this.walletId : <any>null;
-    data['creditWalletId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["walletId"] = this.walletId !== undefined ? this.walletId : <any>null;
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['externalReference'] =
+    data["externalReference"] =
       this.externalReference !== undefined ? this.externalReference : <any>null;
-    data['exchangeTargetCurrency'] = this.exchangeTargetCurrency
+    data["exchangeTargetCurrency"] = this.exchangeTargetCurrency
       ? this.exchangeTargetCurrency.toJSON()
       : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
-    data['invoiceThresholdDay'] =
+    data["invoiceThresholdDay"] =
       this.invoiceThresholdDay !== undefined
         ? this.invoiceThresholdDay
         : <any>null;
@@ -12002,28 +12004,28 @@ export class Currency implements ICurrency {
   init(_data?: any) {
     if (_data) {
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.currencyName =
-        _data['currencyName'] !== undefined ? _data['currencyName'] : <any>null;
+        _data["currencyName"] !== undefined ? _data["currencyName"] : <any>null;
       this.isForTest =
-        _data['isForTest'] !== undefined ? _data['isForTest'] : <any>null;
+        _data["isForTest"] !== undefined ? _data["isForTest"] : <any>null;
     }
   }
 
   static fromJS(data: any): Currency {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Currency();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currencyName'] =
+    data["currencyName"] =
       this.currencyName !== undefined ? this.currencyName : <any>null;
-    data['isForTest'] =
+    data["isForTest"] =
       this.isForTest !== undefined ? this.isForTest : <any>null;
     return data;
   }
@@ -12051,25 +12053,25 @@ export class SaleManagerSummary implements ISaleManagerSummary {
   init(_data?: any) {
     if (_data) {
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
     }
   }
 
   static fromJS(data: any): SaleManagerSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleManagerSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleManagerId'] =
+    data = typeof data === "object" ? data : {};
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     return data;
   }
 }
@@ -12109,101 +12111,101 @@ export class Branch implements IBranch {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.rootPriceListId =
-        _data['rootPriceListId'] !== undefined
-          ? _data['rootPriceListId']
+        _data["rootPriceListId"] !== undefined
+          ? _data["rootPriceListId"]
           : <any>null;
       this.canSetFaceValue =
-        _data['canSetFaceValue'] !== undefined
-          ? _data['canSetFaceValue']
+        _data["canSetFaceValue"] !== undefined
+          ? _data["canSetFaceValue"]
           : <any>null;
       this.canSetBuyValue =
-        _data['canSetBuyValue'] !== undefined
-          ? _data['canSetBuyValue']
+        _data["canSetBuyValue"] !== undefined
+          ? _data["canSetBuyValue"]
           : <any>null;
       this.canCreatePaymentOrder =
-        _data['canCreatePaymentOrder'] !== undefined
-          ? _data['canCreatePaymentOrder']
+        _data["canCreatePaymentOrder"] !== undefined
+          ? _data["canCreatePaymentOrder"]
           : <any>null;
       this.canPlaceOrder =
-        _data['canPlaceOrder'] !== undefined
-          ? _data['canPlaceOrder']
+        _data["canPlaceOrder"] !== undefined
+          ? _data["canPlaceOrder"]
           : <any>null;
       this.canCreateGatewayList =
-        _data['canCreateGatewayList'] !== undefined
-          ? _data['canCreateGatewayList']
+        _data["canCreateGatewayList"] !== undefined
+          ? _data["canCreateGatewayList"]
           : <any>null;
-      this.middlePriceList = _data['middlePriceList']
-        ? PriceListSummary.fromJS(_data['middlePriceList'])
+      this.middlePriceList = _data["middlePriceList"]
+        ? PriceListSummary.fromJS(_data["middlePriceList"])
         : <any>null;
-      this.assignedPriceList = _data['assignedPriceList']
-        ? PriceListSummary.fromJS(_data['assignedPriceList'])
+      this.assignedPriceList = _data["assignedPriceList"]
+        ? PriceListSummary.fromJS(_data["assignedPriceList"])
         : <any>null;
-      this.merchant = _data['merchant']
-        ? Merchant.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? Merchant.fromJS(_data["merchant"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): Branch {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Branch();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['branchName'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['rootPriceListId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["rootPriceListId"] =
       this.rootPriceListId !== undefined ? this.rootPriceListId : <any>null;
-    data['canSetFaceValue'] =
+    data["canSetFaceValue"] =
       this.canSetFaceValue !== undefined ? this.canSetFaceValue : <any>null;
-    data['canSetBuyValue'] =
+    data["canSetBuyValue"] =
       this.canSetBuyValue !== undefined ? this.canSetBuyValue : <any>null;
-    data['canCreatePaymentOrder'] =
+    data["canCreatePaymentOrder"] =
       this.canCreatePaymentOrder !== undefined
         ? this.canCreatePaymentOrder
         : <any>null;
-    data['canPlaceOrder'] =
+    data["canPlaceOrder"] =
       this.canPlaceOrder !== undefined ? this.canPlaceOrder : <any>null;
-    data['canCreateGatewayList'] =
+    data["canCreateGatewayList"] =
       this.canCreateGatewayList !== undefined
         ? this.canCreateGatewayList
         : <any>null;
-    data['middlePriceList'] = this.middlePriceList
+    data["middlePriceList"] = this.middlePriceList
       ? this.middlePriceList.toJSON()
       : <any>null;
-    data['assignedPriceList'] = this.assignedPriceList
+    data["assignedPriceList"] = this.assignedPriceList
       ? this.assignedPriceList.toJSON()
       : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
     return data;
   }
 }
@@ -12265,129 +12267,129 @@ export class Merchant implements IMerchant {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.rootBranchId =
-        _data['rootBranchId'] !== undefined ? _data['rootBranchId'] : <any>null;
+        _data["rootBranchId"] !== undefined ? _data["rootBranchId"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
-      this.phoneNumber = _data['phoneNumber']
-        ? Phone.fromJS(_data['phoneNumber'])
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+      this.phoneNumber = _data["phoneNumber"]
+        ? Phone.fromJS(_data["phoneNumber"])
         : <any>null;
-      this.whatsappNumber = _data['whatsappNumber']
-        ? Phone.fromJS(_data['whatsappNumber'])
+      this.whatsappNumber = _data["whatsappNumber"]
+        ? Phone.fromJS(_data["whatsappNumber"])
         : <any>null;
-      this.address = _data['address']
-        ? MerchantAddress.fromJS(_data['address'])
+      this.address = _data["address"]
+        ? MerchantAddress.fromJS(_data["address"])
         : <any>null;
       this.website =
-        _data['website'] !== undefined ? _data['website'] : <any>null;
+        _data["website"] !== undefined ? _data["website"] : <any>null;
       this.walletId =
-        _data['walletId'] !== undefined ? _data['walletId'] : <any>null;
+        _data["walletId"] !== undefined ? _data["walletId"] : <any>null;
       this.financialActivitiesTwoPhaseVerification =
-        _data['financialActivitiesTwoPhaseVerification'] !== undefined
-          ? _data['financialActivitiesTwoPhaseVerification']
+        _data["financialActivitiesTwoPhaseVerification"] !== undefined
+          ? _data["financialActivitiesTwoPhaseVerification"]
           : <any>null;
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
       this.assignedGatewayListId =
-        _data['assignedGatewayListId'] !== undefined
-          ? _data['assignedGatewayListId']
+        _data["assignedGatewayListId"] !== undefined
+          ? _data["assignedGatewayListId"]
           : <any>null;
       this.externalReference =
-        _data['externalReference'] !== undefined
-          ? _data['externalReference']
+        _data["externalReference"] !== undefined
+          ? _data["externalReference"]
           : <any>null;
-      this.exchangeTargetCurrency = _data['exchangeTargetCurrency']
-        ? Currency.fromJS(_data['exchangeTargetCurrency'])
+      this.exchangeTargetCurrency = _data["exchangeTargetCurrency"]
+        ? Currency.fromJS(_data["exchangeTargetCurrency"])
         : new Currency();
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
-      if (Array.isArray(_data['gatewayListSummary'])) {
+      if (Array.isArray(_data["gatewayListSummary"])) {
         this.gatewayListSummary = [] as any;
-        for (let item of _data['gatewayListSummary'])
+        for (let item of _data["gatewayListSummary"])
           this.gatewayListSummary!.push(GatewayListSummary.fromJS(item));
       } else {
         this.gatewayListSummary = <any>null;
       }
       this.invoiceThresholdDay =
-        _data['invoiceThresholdDay'] !== undefined
-          ? _data['invoiceThresholdDay']
+        _data["invoiceThresholdDay"] !== undefined
+          ? _data["invoiceThresholdDay"]
           : <any>null;
       this.timeZone =
-        _data['timeZone'] !== undefined ? _data['timeZone'] : <any>null;
+        _data["timeZone"] !== undefined ? _data["timeZone"] : <any>null;
     }
   }
 
   static fromJS(data: any): Merchant {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Merchant();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['rootBranchId'] =
+    data["rootBranchId"] =
       this.rootBranchId !== undefined ? this.rootBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['phoneNumber'] = this.phoneNumber
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["phoneNumber"] = this.phoneNumber
       ? this.phoneNumber.toJSON()
       : <any>null;
-    data['whatsappNumber'] = this.whatsappNumber
+    data["whatsappNumber"] = this.whatsappNumber
       ? this.whatsappNumber.toJSON()
       : <any>null;
-    data['address'] = this.address ? this.address.toJSON() : <any>null;
-    data['website'] = this.website !== undefined ? this.website : <any>null;
-    data['walletId'] = this.walletId !== undefined ? this.walletId : <any>null;
-    data['financialActivitiesTwoPhaseVerification'] =
+    data["address"] = this.address ? this.address.toJSON() : <any>null;
+    data["website"] = this.website !== undefined ? this.website : <any>null;
+    data["walletId"] = this.walletId !== undefined ? this.walletId : <any>null;
+    data["financialActivitiesTwoPhaseVerification"] =
       this.financialActivitiesTwoPhaseVerification !== undefined
         ? this.financialActivitiesTwoPhaseVerification
         : <any>null;
-    data['creditWalletId'] =
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['assignedGatewayListId'] =
+    data["assignedGatewayListId"] =
       this.assignedGatewayListId !== undefined
         ? this.assignedGatewayListId
         : <any>null;
-    data['externalReference'] =
+    data["externalReference"] =
       this.externalReference !== undefined ? this.externalReference : <any>null;
-    data['exchangeTargetCurrency'] = this.exchangeTargetCurrency
+    data["exchangeTargetCurrency"] = this.exchangeTargetCurrency
       ? this.exchangeTargetCurrency.toJSON()
       : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
     if (Array.isArray(this.gatewayListSummary)) {
-      data['gatewayListSummary'] = [];
+      data["gatewayListSummary"] = [];
       for (let item of this.gatewayListSummary)
-        data['gatewayListSummary'].push(item.toJSON());
+        data["gatewayListSummary"].push(item.toJSON());
     }
-    data['invoiceThresholdDay'] =
+    data["invoiceThresholdDay"] =
       this.invoiceThresholdDay !== undefined
         ? this.invoiceThresholdDay
         : <any>null;
-    data['timeZone'] = this.timeZone !== undefined ? this.timeZone : <any>null;
+    data["timeZone"] = this.timeZone !== undefined ? this.timeZone : <any>null;
     return data;
   }
 }
@@ -12432,23 +12434,23 @@ export class Phone implements IPhone {
   init(_data?: any) {
     if (_data) {
       this.countryCode =
-        _data['countryCode'] !== undefined ? _data['countryCode'] : <any>null;
-      this.number = _data['number'] !== undefined ? _data['number'] : <any>null;
+        _data["countryCode"] !== undefined ? _data["countryCode"] : <any>null;
+      this.number = _data["number"] !== undefined ? _data["number"] : <any>null;
     }
   }
 
   static fromJS(data: any): Phone {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Phone();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['countryCode'] =
+    data = typeof data === "object" ? data : {};
+    data["countryCode"] =
       this.countryCode !== undefined ? this.countryCode : <any>null;
-    data['number'] = this.number !== undefined ? this.number : <any>null;
+    data["number"] = this.number !== undefined ? this.number : <any>null;
     return data;
   }
 }
@@ -12477,31 +12479,31 @@ export class MerchantAddress implements IMerchantAddress {
   init(_data?: any) {
     if (_data) {
       this.country =
-        _data['country'] !== undefined ? _data['country'] : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.city = _data['city'] !== undefined ? _data['city'] : <any>null;
+        _data["country"] !== undefined ? _data["country"] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.city = _data["city"] !== undefined ? _data["city"] : <any>null;
       this.rawAddress =
-        _data['rawAddress'] !== undefined ? _data['rawAddress'] : <any>null;
+        _data["rawAddress"] !== undefined ? _data["rawAddress"] : <any>null;
       this.postalCode =
-        _data['postalCode'] !== undefined ? _data['postalCode'] : <any>null;
+        _data["postalCode"] !== undefined ? _data["postalCode"] : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantAddress {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantAddress();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['country'] = this.country !== undefined ? this.country : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['city'] = this.city !== undefined ? this.city : <any>null;
-    data['rawAddress'] =
+    data = typeof data === "object" ? data : {};
+    data["country"] = this.country !== undefined ? this.country : <any>null;
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["city"] = this.city !== undefined ? this.city : <any>null;
+    data["rawAddress"] =
       this.rawAddress !== undefined ? this.rawAddress : <any>null;
-    data['postalCode'] =
+    data["postalCode"] =
       this.postalCode !== undefined ? this.postalCode : <any>null;
     return data;
   }
@@ -12531,28 +12533,28 @@ export class GatewayListSummary implements IGatewayListSummary {
   init(_data?: any) {
     if (_data) {
       this.gatewayListId =
-        _data['gatewayListId'] !== undefined
-          ? _data['gatewayListId']
+        _data["gatewayListId"] !== undefined
+          ? _data["gatewayListId"]
           : <any>null;
       this.gatewayListName =
-        _data['gatewayListName'] !== undefined
-          ? _data['gatewayListName']
+        _data["gatewayListName"] !== undefined
+          ? _data["gatewayListName"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): GatewayListSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new GatewayListSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['gatewayListId'] =
+    data = typeof data === "object" ? data : {};
+    data["gatewayListId"] =
       this.gatewayListId !== undefined ? this.gatewayListId : <any>null;
-    data['gatewayListName'] =
+    data["gatewayListName"] =
       this.gatewayListName !== undefined ? this.gatewayListName : <any>null;
     return data;
   }
@@ -12603,122 +12605,122 @@ export class BuyOrder implements IBuyOrder {
   init(_data?: any) {
     if (_data) {
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
       this.buyOrderExternalId =
-        _data['buyOrderExternalId'] !== undefined
-          ? _data['buyOrderExternalId']
+        _data["buyOrderExternalId"] !== undefined
+          ? _data["buyOrderExternalId"]
           : <any>null;
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.isPhysicalProduct =
-        _data['isPhysicalProduct'] !== undefined
-          ? _data['isPhysicalProduct']
+        _data["isPhysicalProduct"] !== undefined
+          ? _data["isPhysicalProduct"]
           : <any>null;
       this.quantity =
-        _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+        _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
       this.faceValue =
-        _data['faceValue'] !== undefined ? _data['faceValue'] : <any>null;
+        _data["faceValue"] !== undefined ? _data["faceValue"] : <any>null;
       this.buyOrderState =
-        _data['buyOrderState'] !== undefined
-          ? _data['buyOrderState']
+        _data["buyOrderState"] !== undefined
+          ? _data["buyOrderState"]
           : <any>null;
-      this.sellerMerchant = _data['sellerMerchant']
-        ? MerchantSummary.fromJS(_data['sellerMerchant'])
+      this.sellerMerchant = _data["sellerMerchant"]
+        ? MerchantSummary.fromJS(_data["sellerMerchant"])
         : new MerchantSummary();
-      this.buyerMerchant = _data['buyerMerchant']
-        ? MerchantSummary.fromJS(_data['buyerMerchant'])
+      this.buyerMerchant = _data["buyerMerchant"]
+        ? MerchantSummary.fromJS(_data["buyerMerchant"])
         : new MerchantSummary();
-      this.buyOrderDelivery = _data['buyOrderDelivery']
-        ? BuyOrderDelivery.fromJS(_data['buyOrderDelivery'])
+      this.buyOrderDelivery = _data["buyOrderDelivery"]
+        ? BuyOrderDelivery.fromJS(_data["buyOrderDelivery"])
         : <any>null;
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
       this.totalBuyAmount =
-        _data['totalBuyAmount'] !== undefined
-          ? _data['totalBuyAmount']
+        _data["totalBuyAmount"] !== undefined
+          ? _data["totalBuyAmount"]
           : <any>null;
       this.unitBuyAmount =
-        _data['unitBuyAmount'] !== undefined
-          ? _data['unitBuyAmount']
+        _data["unitBuyAmount"] !== undefined
+          ? _data["unitBuyAmount"]
           : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
-      this.productCurrency = _data['productCurrency']
-        ? Currency.fromJS(_data['productCurrency'])
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
+      this.productCurrency = _data["productCurrency"]
+        ? Currency.fromJS(_data["productCurrency"])
         : new Currency();
-      this.buyCurrency = _data['buyCurrency']
-        ? Currency.fromJS(_data['buyCurrency'])
+      this.buyCurrency = _data["buyCurrency"]
+        ? Currency.fromJS(_data["buyCurrency"])
         : new Currency();
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
       this.canDownloadCodes =
-        _data['canDownloadCodes'] !== undefined
-          ? _data['canDownloadCodes']
+        _data["canDownloadCodes"] !== undefined
+          ? _data["canDownloadCodes"]
           : <any>null;
-      this.exchangeCalc = _data['exchangeCalc']
-        ? ExchangeCalc.fromJS(_data['exchangeCalc'])
+      this.exchangeCalc = _data["exchangeCalc"]
+        ? ExchangeCalc.fromJS(_data["exchangeCalc"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['buyOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['buyOrderExternalId'] =
+    data["buyOrderExternalId"] =
       this.buyOrderExternalId !== undefined
         ? this.buyOrderExternalId
         : <any>null;
-    data['productId'] =
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['isPhysicalProduct'] =
+    data["isPhysicalProduct"] =
       this.isPhysicalProduct !== undefined ? this.isPhysicalProduct : <any>null;
-    data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
-    data['faceValue'] =
+    data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
+    data["faceValue"] =
       this.faceValue !== undefined ? this.faceValue : <any>null;
-    data['buyOrderState'] =
+    data["buyOrderState"] =
       this.buyOrderState !== undefined ? this.buyOrderState : <any>null;
-    data['sellerMerchant'] = this.sellerMerchant
+    data["sellerMerchant"] = this.sellerMerchant
       ? this.sellerMerchant.toJSON()
       : <any>null;
-    data['buyerMerchant'] = this.buyerMerchant
+    data["buyerMerchant"] = this.buyerMerchant
       ? this.buyerMerchant.toJSON()
       : <any>null;
-    data['buyOrderDelivery'] = this.buyOrderDelivery
+    data["buyOrderDelivery"] = this.buyOrderDelivery
       ? this.buyOrderDelivery.toJSON()
       : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
-    data['totalBuyAmount'] =
+    data["totalBuyAmount"] =
       this.totalBuyAmount !== undefined ? this.totalBuyAmount : <any>null;
-    data['unitBuyAmount'] =
+    data["unitBuyAmount"] =
       this.unitBuyAmount !== undefined ? this.unitBuyAmount : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
-    data['productCurrency'] = this.productCurrency
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
+    data["productCurrency"] = this.productCurrency
       ? this.productCurrency.toJSON()
       : <any>null;
-    data['buyCurrency'] = this.buyCurrency
+    data["buyCurrency"] = this.buyCurrency
       ? this.buyCurrency.toJSON()
       : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['canDownloadCodes'] =
+    data["canDownloadCodes"] =
       this.canDownloadCodes !== undefined ? this.canDownloadCodes : <any>null;
-    data['exchangeCalc'] = this.exchangeCalc
+    data["exchangeCalc"] = this.exchangeCalc
       ? this.exchangeCalc.toJSON()
       : <any>null;
     return data;
@@ -12749,16 +12751,16 @@ export interface IBuyOrder {
 }
 
 export enum BuyOrderState {
-  Reserved = 'Reserved',
-  Created = 'Created',
-  CreateStockOrder = 'CreateStockOrder',
-  AuthWallet = 'AuthWallet',
-  Failed = 'Failed',
-  Complete = 'Complete',
-  CancelAuthWallet = 'CancelAuthWallet',
-  CompleteStockOrder = 'CompleteStockOrder',
-  CreateActivatePhysicalCardOrder = 'CreateActivatePhysicalCardOrder',
-  CompleteActivatePhysicalCardOrder = 'CompleteActivatePhysicalCardOrder',
+  Reserved = "Reserved",
+  Created = "Created",
+  CreateStockOrder = "CreateStockOrder",
+  AuthWallet = "AuthWallet",
+  Failed = "Failed",
+  Complete = "Complete",
+  CancelAuthWallet = "CancelAuthWallet",
+  CompleteStockOrder = "CompleteStockOrder",
+  CreateActivatePhysicalCardOrder = "CreateActivatePhysicalCardOrder",
+  CompleteActivatePhysicalCardOrder = "CompleteActivatePhysicalCardOrder",
 }
 
 export class MerchantSummary implements IMerchantSummary {
@@ -12778,29 +12780,29 @@ export class MerchantSummary implements IMerchantSummary {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['saleManager'] = this.saleManager
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
     return data;
@@ -12830,31 +12832,31 @@ export class BuyOrderDelivery implements IBuyOrderDelivery {
   init(_data?: any) {
     if (_data) {
       this.deliveryType =
-        _data['deliveryType'] !== undefined ? _data['deliveryType'] : <any>null;
+        _data["deliveryType"] !== undefined ? _data["deliveryType"] : <any>null;
       this.deliveryTypeValue =
-        _data['deliveryTypeValue'] !== undefined
-          ? _data['deliveryTypeValue']
+        _data["deliveryTypeValue"] !== undefined
+          ? _data["deliveryTypeValue"]
           : <any>null;
-      this.deliveredTime = _data['deliveredTime']
-        ? new Date(_data['deliveredTime'].toString())
+      this.deliveredTime = _data["deliveredTime"]
+        ? new Date(_data["deliveredTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrderDelivery {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrderDelivery();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['deliveryType'] =
+    data = typeof data === "object" ? data : {};
+    data["deliveryType"] =
       this.deliveryType !== undefined ? this.deliveryType : <any>null;
-    data['deliveryTypeValue'] =
+    data["deliveryTypeValue"] =
       this.deliveryTypeValue !== undefined ? this.deliveryTypeValue : <any>null;
-    data['deliveredTime'] = this.deliveredTime
+    data["deliveredTime"] = this.deliveredTime
       ? this.deliveredTime.toISOString()
       : <any>null;
     return data;
@@ -12868,9 +12870,9 @@ export interface IBuyOrderDelivery {
 }
 
 export enum BuyOrderDeliveryType {
-  Email = 'Email',
-  Sms = 'Sms',
-  WhatsApp = 'WhatsApp',
+  Email = "Email",
+  Sms = "Sms",
+  WhatsApp = "WhatsApp",
 }
 
 export class ExchangeCalc implements IExchangeCalc {
@@ -12895,41 +12897,41 @@ export class ExchangeCalc implements IExchangeCalc {
 
   init(_data?: any) {
     if (_data) {
-      this.baseCurrency = _data['baseCurrency']
-        ? Currency.fromJS(_data['baseCurrency'])
+      this.baseCurrency = _data["baseCurrency"]
+        ? Currency.fromJS(_data["baseCurrency"])
         : new Currency();
       this.baseAmount =
-        _data['baseAmount'] !== undefined ? _data['baseAmount'] : <any>null;
-      this.targetCurrency = _data['targetCurrency']
-        ? Currency.fromJS(_data['targetCurrency'])
+        _data["baseAmount"] !== undefined ? _data["baseAmount"] : <any>null;
+      this.targetCurrency = _data["targetCurrency"]
+        ? Currency.fromJS(_data["targetCurrency"])
         : new Currency();
       this.targetAmount =
-        _data['targetAmount'] !== undefined ? _data['targetAmount'] : <any>null;
+        _data["targetAmount"] !== undefined ? _data["targetAmount"] : <any>null;
       this.exchangeRate =
-        _data['exchangeRate'] !== undefined ? _data['exchangeRate'] : <any>null;
+        _data["exchangeRate"] !== undefined ? _data["exchangeRate"] : <any>null;
     }
   }
 
   static fromJS(data: any): ExchangeCalc {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ExchangeCalc();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['baseCurrency'] = this.baseCurrency
+    data = typeof data === "object" ? data : {};
+    data["baseCurrency"] = this.baseCurrency
       ? this.baseCurrency.toJSON()
       : <any>null;
-    data['baseAmount'] =
+    data["baseAmount"] =
       this.baseAmount !== undefined ? this.baseAmount : <any>null;
-    data['targetCurrency'] = this.targetCurrency
+    data["targetCurrency"] = this.targetCurrency
       ? this.targetCurrency.toJSON()
       : <any>null;
-    data['targetAmount'] =
+    data["targetAmount"] =
       this.targetAmount !== undefined ? this.targetAmount : <any>null;
-    data['exchangeRate'] =
+    data["exchangeRate"] =
       this.exchangeRate !== undefined ? this.exchangeRate : <any>null;
     return data;
   }
@@ -12962,35 +12964,35 @@ export class SaleBranches implements ISaleBranches {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.currencyName =
-        _data['currencyName'] !== undefined ? _data['currencyName'] : <any>null;
+        _data["currencyName"] !== undefined ? _data["currencyName"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
       this.saleAmount =
-        _data['saleAmount'] !== undefined ? _data['saleAmount'] : <any>null;
+        _data["saleAmount"] !== undefined ? _data["saleAmount"] : <any>null;
     }
   }
 
   static fromJS(data: any): SaleBranches {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleBranches();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currencyName'] =
+    data["currencyName"] =
       this.currencyName !== undefined ? this.currencyName : <any>null;
-    data['branchName'] =
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
-    data['saleAmount'] =
+    data["saleAmount"] =
       this.saleAmount !== undefined ? this.saleAmount : <any>null;
     return data;
   }
@@ -13023,39 +13025,39 @@ export class SaleReturnOrder implements ISaleReturnOrder {
   init(_data?: any) {
     if (_data) {
       this.rollBackOrderId =
-        _data['rollBackOrderId'] !== undefined
-          ? _data['rollBackOrderId']
+        _data["rollBackOrderId"] !== undefined
+          ? _data["rollBackOrderId"]
           : <any>null;
-      this.buyOrder = _data['buyOrder']
-        ? BuyOrderSummary.fromJS(_data['buyOrder'])
+      this.buyOrder = _data["buyOrder"]
+        ? BuyOrderSummary.fromJS(_data["buyOrder"])
         : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): SaleReturnOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleReturnOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['rollBackOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["rollBackOrderId"] =
       this.rollBackOrderId !== undefined ? this.rollBackOrderId : <any>null;
-    data['buyOrder'] = this.buyOrder ? this.buyOrder.toJSON() : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['createdTime'] = this.createdTime
+    data["buyOrder"] = this.buyOrder ? this.buyOrder.toJSON() : <any>null;
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -13088,38 +13090,38 @@ export class BuyOrderSummary implements IBuyOrderSummary {
   init(_data?: any) {
     if (_data) {
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.buyOrderExternalId =
-        _data['buyOrderExternalId'] !== undefined
-          ? _data['buyOrderExternalId']
+        _data["buyOrderExternalId"] !== undefined
+          ? _data["buyOrderExternalId"]
           : <any>null;
       this.buyOrderState =
-        _data['buyOrderState'] !== undefined
-          ? _data['buyOrderState']
+        _data["buyOrderState"] !== undefined
+          ? _data["buyOrderState"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): BuyOrderSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyOrderSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['buyOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['buyOrderExternalId'] =
+    data["buyOrderExternalId"] =
       this.buyOrderExternalId !== undefined
         ? this.buyOrderExternalId
         : <any>null;
-    data['buyOrderState'] =
+    data["buyOrderState"] =
       this.buyOrderState !== undefined ? this.buyOrderState : <any>null;
     return data;
   }
@@ -13133,12 +13135,12 @@ export interface IBuyOrderSummary {
 }
 
 export enum SaleReturnOrderState {
-  Reserved = 'Reserved',
-  Created = 'Created',
-  CancelStockOrder = 'CancelStockOrder',
-  CompleteCancelStockOrder = 'CompleteCancelStockOrder',
-  VoidWallet = 'VoidWallet',
-  Failed = 'Failed',
+  Reserved = "Reserved",
+  Created = "Created",
+  CancelStockOrder = "CancelStockOrder",
+  CompleteCancelStockOrder = "CompleteCancelStockOrder",
+  VoidWallet = "VoidWallet",
+  Failed = "Failed",
 }
 
 export class Category implements ICategory {
@@ -13163,18 +13165,18 @@ export class Category implements ICategory {
   init(_data?: any) {
     if (_data) {
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.categoryName =
-        _data['categoryName'] !== undefined ? _data['categoryName'] : <any>null;
+        _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.parentCategoryId =
-        _data['parentCategoryId'] !== undefined
-          ? _data['parentCategoryId']
+        _data["parentCategoryId"] !== undefined
+          ? _data["parentCategoryId"]
           : <any>null;
-      if (Array.isArray(_data['categories'])) {
+      if (Array.isArray(_data["categories"])) {
         this.categories = [] as any;
-        for (let item of _data['categories'])
+        for (let item of _data["categories"])
           this.categories!.push(Category.fromJS(item));
       } else {
         this.categories = <any>null;
@@ -13183,24 +13185,24 @@ export class Category implements ICategory {
   }
 
   static fromJS(data: any): Category {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Category();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['categoryId'] =
+    data = typeof data === "object" ? data : {};
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['categoryName'] =
+    data["categoryName"] =
       this.categoryName !== undefined ? this.categoryName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['parentCategoryId'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["parentCategoryId"] =
       this.parentCategoryId !== undefined ? this.parentCategoryId : <any>null;
     if (Array.isArray(this.categories)) {
-      data['categories'] = [];
-      for (let item of this.categories) data['categories'].push(item.toJSON());
+      data["categories"] = [];
+      for (let item of this.categories) data["categories"].push(item.toJSON());
     }
     return data;
   }
@@ -13231,30 +13233,30 @@ export class CreateCategoryRequest implements ICreateCategoryRequest {
   init(_data?: any) {
     if (_data) {
       this.parentCategoryId =
-        _data['parentCategoryId'] !== undefined
-          ? _data['parentCategoryId']
+        _data["parentCategoryId"] !== undefined
+          ? _data["parentCategoryId"]
           : <any>null;
       this.categoryName =
-        _data['categoryName'] !== undefined ? _data['categoryName'] : <any>null;
+        _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreateCategoryRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateCategoryRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['parentCategoryId'] =
+    data = typeof data === "object" ? data : {};
+    data["parentCategoryId"] =
       this.parentCategoryId !== undefined ? this.parentCategoryId : <any>null;
-    data['categoryName'] =
+    data["categoryName"] =
       this.categoryName !== undefined ? this.categoryName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
     return data;
   }
 }
@@ -13280,28 +13282,28 @@ export class UpdateCategoryRequest implements IUpdateCategoryRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.categoryName = _data['categoryName']
-        ? PatchOfString.fromJS(_data['categoryName'])
+      this.categoryName = _data["categoryName"]
+        ? PatchOfString.fromJS(_data["categoryName"])
         : <any>null;
-      this.imageUrl = _data['imageUrl']
-        ? PatchOfUri.fromJS(_data['imageUrl'])
+      this.imageUrl = _data["imageUrl"]
+        ? PatchOfUri.fromJS(_data["imageUrl"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateCategoryRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateCategoryRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['categoryName'] = this.categoryName
+    data = typeof data === "object" ? data : {};
+    data["categoryName"] = this.categoryName
       ? this.categoryName.toJSON()
       : <any>null;
-    data['imageUrl'] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
+    data["imageUrl"] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
     return data;
   }
 }
@@ -13325,20 +13327,20 @@ export class PatchOfString implements IPatchOfString {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfString {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfString();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -13361,20 +13363,20 @@ export class PatchOfUri implements IPatchOfUri {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfUri {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfUri();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -13399,10 +13401,10 @@ export class Wallet implements IWallet {
   init(_data?: any) {
     if (_data) {
       this.walletId =
-        _data['walletId'] !== undefined ? _data['walletId'] : <any>null;
-      if (Array.isArray(_data['currencies'])) {
+        _data["walletId"] !== undefined ? _data["walletId"] : <any>null;
+      if (Array.isArray(_data["currencies"])) {
         this.currencies = [] as any;
-        for (let item of _data['currencies'])
+        for (let item of _data["currencies"])
           this.currencies!.push(CurrencyBalance.fromJS(item));
       } else {
         this.currencies = <any>null;
@@ -13411,18 +13413,18 @@ export class Wallet implements IWallet {
   }
 
   static fromJS(data: any): Wallet {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Wallet();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['walletId'] = this.walletId !== undefined ? this.walletId : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["walletId"] = this.walletId !== undefined ? this.walletId : <any>null;
     if (Array.isArray(this.currencies)) {
-      data['currencies'] = [];
-      for (let item of this.currencies) data['currencies'].push(item.toJSON());
+      data["currencies"] = [];
+      for (let item of this.currencies) data["currencies"].push(item.toJSON());
     }
     return data;
   }
@@ -13453,28 +13455,28 @@ export class CurrencyBalance implements ICurrencyBalance {
   init(_data?: any) {
     if (_data) {
       this.balance =
-        _data['balance'] !== undefined ? _data['balance'] : <any>null;
+        _data["balance"] !== undefined ? _data["balance"] : <any>null;
       this.minBalance =
-        _data['minBalance'] !== undefined ? _data['minBalance'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["minBalance"] !== undefined ? _data["minBalance"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): CurrencyBalance {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CurrencyBalance();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['balance'] = this.balance !== undefined ? this.balance : <any>null;
-    data['minBalance'] =
+    data = typeof data === "object" ? data : {};
+    data["balance"] = this.balance !== undefined ? this.balance : <any>null;
+    data["minBalance"] =
       this.minBalance !== undefined ? this.minBalance : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -13511,57 +13513,57 @@ export class WalletTransaction implements IWalletTransaction {
 
   init(_data?: any) {
     if (_data) {
-      this.supplierMerchant = _data['supplierMerchant']
-        ? MerchantSummary.fromJS(_data['supplierMerchant'])
+      this.supplierMerchant = _data["supplierMerchant"]
+        ? MerchantSummary.fromJS(_data["supplierMerchant"])
         : new MerchantSummary();
-      this.receiverMerchant = _data['receiverMerchant']
-        ? MerchantSummary.fromJS(_data['receiverMerchant'])
+      this.receiverMerchant = _data["receiverMerchant"]
+        ? MerchantSummary.fromJS(_data["receiverMerchant"])
         : new MerchantSummary();
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      this.bank = _data['bank'] ? Bank.fromJS(_data['bank']) : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.bank = _data["bank"] ? Bank.fromJS(_data["bank"]) : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
       this.transferWalletType =
-        _data['transferWalletType'] !== undefined
-          ? _data['transferWalletType']
+        _data["transferWalletType"] !== undefined
+          ? _data["transferWalletType"]
           : <any>null;
       this.transferWalletState =
-        _data['transferWalletState'] !== undefined
-          ? _data['transferWalletState']
+        _data["transferWalletState"] !== undefined
+          ? _data["transferWalletState"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): WalletTransaction {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new WalletTransaction();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['supplierMerchant'] = this.supplierMerchant
+    data = typeof data === "object" ? data : {};
+    data["supplierMerchant"] = this.supplierMerchant
       ? this.supplierMerchant.toJSON()
       : <any>null;
-    data['receiverMerchant'] = this.receiverMerchant
+    data["receiverMerchant"] = this.receiverMerchant
       ? this.receiverMerchant.toJSON()
       : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['bank'] = this.bank ? this.bank.toJSON() : <any>null;
-    data['createdTime'] = this.createdTime
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["bank"] = this.bank ? this.bank.toJSON() : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['transferWalletType'] =
+    data["transferWalletType"] =
       this.transferWalletType !== undefined
         ? this.transferWalletType
         : <any>null;
-    data['transferWalletState'] =
+    data["transferWalletState"] =
       this.transferWalletState !== undefined
         ? this.transferWalletState
         : <any>null;
@@ -13581,29 +13583,29 @@ export interface IWalletTransaction {
 }
 
 export enum TransferWalletType {
-  Charge = 'Charge',
-  Buy = 'Buy',
-  Credit = 'Credit',
-  Payment = 'Payment',
-  Settle = 'Settle',
-  Withdraw = 'Withdraw',
-  Rebate = 'Rebate',
-  SaleReturn = 'SaleReturn',
+  Charge = "Charge",
+  Buy = "Buy",
+  Credit = "Credit",
+  Payment = "Payment",
+  Settle = "Settle",
+  Withdraw = "Withdraw",
+  Rebate = "Rebate",
+  SaleReturn = "SaleReturn",
 }
 
 export enum TransferWalletState {
-  Reserved = 'Reserved',
-  Pending = 'Pending',
-  Failed = 'Failed',
-  Completed = 'Completed',
-  Unverified = 'Unverified',
-  Created = 'Created',
-  Rejecting = 'Rejecting',
+  Reserved = "Reserved",
+  Pending = "Pending",
+  Failed = "Failed",
+  Completed = "Completed",
+  Unverified = "Unverified",
+  Created = "Created",
+  Rejecting = "Rejecting",
 }
 
 export enum CreditTransactionType {
-  Credit = 'Credit',
-  Settle = 'Settle',
+  Credit = "Credit",
+  Settle = "Settle",
 }
 
 export class PutCurrencyExchangeRateRequest
@@ -13625,34 +13627,34 @@ export class PutCurrencyExchangeRateRequest
   init(_data?: any) {
     if (_data) {
       this.baseCurrencyId =
-        _data['baseCurrencyId'] !== undefined
-          ? _data['baseCurrencyId']
+        _data["baseCurrencyId"] !== undefined
+          ? _data["baseCurrencyId"]
           : <any>null;
       this.targetCurrencyId =
-        _data['targetCurrencyId'] !== undefined
-          ? _data['targetCurrencyId']
+        _data["targetCurrencyId"] !== undefined
+          ? _data["targetCurrencyId"]
           : <any>null;
       this.exchangeRateFee =
-        _data['exchangeRateFee'] !== undefined
-          ? _data['exchangeRateFee']
+        _data["exchangeRateFee"] !== undefined
+          ? _data["exchangeRateFee"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): PutCurrencyExchangeRateRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutCurrencyExchangeRateRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['baseCurrencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["baseCurrencyId"] =
       this.baseCurrencyId !== undefined ? this.baseCurrencyId : <any>null;
-    data['targetCurrencyId'] =
+    data["targetCurrencyId"] =
       this.targetCurrencyId !== undefined ? this.targetCurrencyId : <any>null;
-    data['exchangeRateFee'] =
+    data["exchangeRateFee"] =
       this.exchangeRateFee !== undefined ? this.exchangeRateFee : <any>null;
     return data;
   }
@@ -13665,11 +13667,11 @@ export interface IPutCurrencyExchangeRateRequest {
 }
 
 export enum FinancialOrderType {
-  Charge = 'Charge',
-  Withdraw = 'Withdraw',
-  Credit = 'Credit',
-  Settle = 'Settle',
-  Rebate = 'Rebate',
+  Charge = "Charge",
+  Withdraw = "Withdraw",
+  Credit = "Credit",
+  Settle = "Settle",
+  Rebate = "Rebate",
 }
 
 export class FinancialRequest implements IFinancialRequest {
@@ -13691,37 +13693,37 @@ export class FinancialRequest implements IFinancialRequest {
   init(_data?: any) {
     if (_data) {
       this.customerMerchantId =
-        _data['customerMerchantId'] !== undefined
-          ? _data['customerMerchantId']
+        _data["customerMerchantId"] !== undefined
+          ? _data["customerMerchantId"]
           : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.bankId = _data['bankId'] !== undefined ? _data['bankId'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.bankId = _data["bankId"] !== undefined ? _data["bankId"] : <any>null;
     }
   }
 
   static fromJS(data: any): FinancialRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new FinancialRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['customerMerchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["customerMerchantId"] =
       this.customerMerchantId !== undefined
         ? this.customerMerchantId
         : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['description'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['bankId'] = this.bankId !== undefined ? this.bankId : <any>null;
+    data["bankId"] = this.bankId !== undefined ? this.bankId : <any>null;
     return data;
   }
 }
@@ -13766,95 +13768,95 @@ export class FinancialOrder implements IFinancialOrder {
   init(_data?: any) {
     if (_data) {
       this.orderId =
-        _data['orderId'] !== undefined ? _data['orderId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.financialOrderType =
-        _data['financialOrderType'] !== undefined
-          ? _data['financialOrderType']
+        _data["financialOrderType"] !== undefined
+          ? _data["financialOrderType"]
           : <any>null;
       this.financialOrderState =
-        _data['financialOrderState'] !== undefined
-          ? _data['financialOrderState']
+        _data["financialOrderState"] !== undefined
+          ? _data["financialOrderState"]
           : <any>null;
       this.firstVerifierUserId =
-        _data['firstVerifierUserId'] !== undefined
-          ? _data['firstVerifierUserId']
+        _data["firstVerifierUserId"] !== undefined
+          ? _data["firstVerifierUserId"]
           : <any>null;
       this.firstVerifierUserEmail =
-        _data['firstVerifierUserEmail'] !== undefined
-          ? _data['firstVerifierUserEmail']
+        _data["firstVerifierUserEmail"] !== undefined
+          ? _data["firstVerifierUserEmail"]
           : <any>null;
       this.secondVerifierUserId =
-        _data['secondVerifierUserId'] !== undefined
-          ? _data['secondVerifierUserId']
+        _data["secondVerifierUserId"] !== undefined
+          ? _data["secondVerifierUserId"]
           : <any>null;
       this.secondVerifierUserEmail =
-        _data['secondVerifierUserEmail'] !== undefined
-          ? _data['secondVerifierUserEmail']
+        _data["secondVerifierUserEmail"] !== undefined
+          ? _data["secondVerifierUserEmail"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.baseMerchant = _data['baseMerchant']
-        ? MerchantSummary.fromJS(_data['baseMerchant'])
+      this.baseMerchant = _data["baseMerchant"]
+        ? MerchantSummary.fromJS(_data["baseMerchant"])
         : new MerchantSummary();
-      this.targetMerchant = _data['targetMerchant']
-        ? MerchantSummary.fromJS(_data['targetMerchant'])
+      this.targetMerchant = _data["targetMerchant"]
+        ? MerchantSummary.fromJS(_data["targetMerchant"])
         : new MerchantSummary();
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
     }
   }
 
   static fromJS(data: any): FinancialOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new FinancialOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['orderId'] = this.orderId !== undefined ? this.orderId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['financialOrderType'] =
+    data = typeof data === "object" ? data : {};
+    data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["financialOrderType"] =
       this.financialOrderType !== undefined
         ? this.financialOrderType
         : <any>null;
-    data['financialOrderState'] =
+    data["financialOrderState"] =
       this.financialOrderState !== undefined
         ? this.financialOrderState
         : <any>null;
-    data['firstVerifierUserId'] =
+    data["firstVerifierUserId"] =
       this.firstVerifierUserId !== undefined
         ? this.firstVerifierUserId
         : <any>null;
-    data['firstVerifierUserEmail'] =
+    data["firstVerifierUserEmail"] =
       this.firstVerifierUserEmail !== undefined
         ? this.firstVerifierUserEmail
         : <any>null;
-    data['secondVerifierUserId'] =
+    data["secondVerifierUserId"] =
       this.secondVerifierUserId !== undefined
         ? this.secondVerifierUserId
         : <any>null;
-    data['secondVerifierUserEmail'] =
+    data["secondVerifierUserEmail"] =
       this.secondVerifierUserEmail !== undefined
         ? this.secondVerifierUserEmail
         : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['baseMerchant'] = this.baseMerchant
+    data["baseMerchant"] = this.baseMerchant
       ? this.baseMerchant.toJSON()
       : <any>null;
-    data['targetMerchant'] = this.targetMerchant
+    data["targetMerchant"] = this.targetMerchant
       ? this.targetMerchant.toJSON()
       : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
     return data;
   }
@@ -13877,12 +13879,12 @@ export interface IFinancialOrder {
 }
 
 export enum FinancialOrderState {
-  Completed = 'Completed',
-  Failed = 'Failed',
-  Unverified = 'Unverified',
-  Created = 'Created',
-  Rejecting = 'Rejecting',
-  Verifying = 'Verifying',
+  Completed = "Completed",
+  Failed = "Failed",
+  Unverified = "Unverified",
+  Created = "Created",
+  Rejecting = "Rejecting",
+  Verifying = "Verifying",
 }
 
 export class GatewayList implements IGatewayList {
@@ -13907,16 +13909,16 @@ export class GatewayList implements IGatewayList {
   init(_data?: any) {
     if (_data) {
       this.gatewayListId =
-        _data['gatewayListId'] !== undefined
-          ? _data['gatewayListId']
+        _data["gatewayListId"] !== undefined
+          ? _data["gatewayListId"]
           : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.branch = _data['branch']
-        ? BranchLight.fromJS(_data['branch'])
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.branch = _data["branch"]
+        ? BranchLight.fromJS(_data["branch"])
         : new BranchLight();
-      if (Array.isArray(_data['gatewayListPaymentProfiles'])) {
+      if (Array.isArray(_data["gatewayListPaymentProfiles"])) {
         this.gatewayListPaymentProfiles = [] as any;
-        for (let item of _data['gatewayListPaymentProfiles'])
+        for (let item of _data["gatewayListPaymentProfiles"])
           this.gatewayListPaymentProfiles!.push(
             GatewayListPaymentProfile.fromJS(item)
           );
@@ -13927,22 +13929,22 @@ export class GatewayList implements IGatewayList {
   }
 
   static fromJS(data: any): GatewayList {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new GatewayList();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['gatewayListId'] =
+    data = typeof data === "object" ? data : {};
+    data["gatewayListId"] =
       this.gatewayListId !== undefined ? this.gatewayListId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['branch'] = this.branch ? this.branch.toJSON() : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["branch"] = this.branch ? this.branch.toJSON() : <any>null;
     if (Array.isArray(this.gatewayListPaymentProfiles)) {
-      data['gatewayListPaymentProfiles'] = [];
+      data["gatewayListPaymentProfiles"] = [];
       for (let item of this.gatewayListPaymentProfiles)
-        data['gatewayListPaymentProfiles'].push(item.toJSON());
+        data["gatewayListPaymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -13973,29 +13975,29 @@ export class GatewayListPaymentProfile implements IGatewayListPaymentProfile {
 
   init(_data?: any) {
     if (_data) {
-      this.paymentProfile = _data['paymentProfile']
-        ? PaymentProfile.fromJS(_data['paymentProfile'])
+      this.paymentProfile = _data["paymentProfile"]
+        ? PaymentProfile.fromJS(_data["paymentProfile"])
         : new PaymentProfile();
       this.useForSubMerchants =
-        _data['useForSubMerchants'] !== undefined
-          ? _data['useForSubMerchants']
+        _data["useForSubMerchants"] !== undefined
+          ? _data["useForSubMerchants"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): GatewayListPaymentProfile {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new GatewayListPaymentProfile();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentProfile'] = this.paymentProfile
+    data = typeof data === "object" ? data : {};
+    data["paymentProfile"] = this.paymentProfile
       ? this.paymentProfile.toJSON()
       : <any>null;
-    data['useForSubMerchants'] =
+    data["useForSubMerchants"] =
       this.useForSubMerchants !== undefined
         ? this.useForSubMerchants
         : <any>null;
@@ -14034,54 +14036,54 @@ export class PaymentProfile implements IPaymentProfile {
   init(_data?: any) {
     if (_data) {
       this.paymentProfileId =
-        _data['paymentProfileId'] !== undefined
-          ? _data['paymentProfileId']
+        _data["paymentProfileId"] !== undefined
+          ? _data["paymentProfileId"]
           : <any>null;
       this.providerProfileId =
-        _data['providerProfileId'] !== undefined
-          ? _data['providerProfileId']
+        _data["providerProfileId"] !== undefined
+          ? _data["providerProfileId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.minAmount =
-        _data['minAmount'] !== undefined ? _data['minAmount'] : <any>null;
+        _data["minAmount"] !== undefined ? _data["minAmount"] : <any>null;
       this.maxAmount =
-        _data['maxAmount'] !== undefined ? _data['maxAmount'] : <any>null;
+        _data["maxAmount"] !== undefined ? _data["maxAmount"] : <any>null;
       this.imageUri1 =
-        _data['imageUri1'] !== undefined ? _data['imageUri1'] : <any>null;
+        _data["imageUri1"] !== undefined ? _data["imageUri1"] : <any>null;
       this.imageUri2 =
-        _data['imageUri2'] !== undefined ? _data['imageUri2'] : <any>null;
+        _data["imageUri2"] !== undefined ? _data["imageUri2"] : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentProfile {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentProfile();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentProfileId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentProfileId"] =
       this.paymentProfileId !== undefined ? this.paymentProfileId : <any>null;
-    data['providerProfileId'] =
+    data["providerProfileId"] =
       this.providerProfileId !== undefined ? this.providerProfileId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['minAmount'] =
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["minAmount"] =
       this.minAmount !== undefined ? this.minAmount : <any>null;
-    data['maxAmount'] =
+    data["maxAmount"] =
       this.maxAmount !== undefined ? this.maxAmount : <any>null;
-    data['imageUri1'] =
+    data["imageUri1"] =
       this.imageUri1 !== undefined ? this.imageUri1 : <any>null;
-    data['imageUri2'] =
+    data["imageUri2"] =
       this.imageUri2 !== undefined ? this.imageUri2 : <any>null;
     return data;
   }
@@ -14117,10 +14119,10 @@ export class CreateGatewayListRequest implements ICreateGatewayListRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      if (Array.isArray(_data['paymentProfiles'])) {
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      if (Array.isArray(_data["paymentProfiles"])) {
         this.paymentProfiles = [] as any;
-        for (let item of _data['paymentProfiles'])
+        for (let item of _data["paymentProfiles"])
           this.paymentProfiles!.push(PaymentProfileCreateRequest.fromJS(item));
       } else {
         this.paymentProfiles = <any>null;
@@ -14129,19 +14131,19 @@ export class CreateGatewayListRequest implements ICreateGatewayListRequest {
   }
 
   static fromJS(data: any): CreateGatewayListRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateGatewayListRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     if (Array.isArray(this.paymentProfiles)) {
-      data['paymentProfiles'] = [];
+      data["paymentProfiles"] = [];
       for (let item of this.paymentProfiles)
-        data['paymentProfiles'].push(item.toJSON());
+        data["paymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -14170,28 +14172,28 @@ export class PaymentProfileCreateRequest
   init(_data?: any) {
     if (_data) {
       this.paymentProfileId =
-        _data['paymentProfileId'] !== undefined
-          ? _data['paymentProfileId']
+        _data["paymentProfileId"] !== undefined
+          ? _data["paymentProfileId"]
           : <any>null;
       this.useForSubMerchants =
-        _data['useForSubMerchants'] !== undefined
-          ? _data['useForSubMerchants']
+        _data["useForSubMerchants"] !== undefined
+          ? _data["useForSubMerchants"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentProfileCreateRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentProfileCreateRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentProfileId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentProfileId"] =
       this.paymentProfileId !== undefined ? this.paymentProfileId : <any>null;
-    data['useForSubMerchants'] =
+    data["useForSubMerchants"] =
       this.useForSubMerchants !== undefined
         ? this.useForSubMerchants
         : <any>null;
@@ -14222,10 +14224,10 @@ export class PutGatewayListRequest implements IPutGatewayListRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      if (Array.isArray(_data['paymentProfiles'])) {
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      if (Array.isArray(_data["paymentProfiles"])) {
         this.paymentProfiles = [] as any;
-        for (let item of _data['paymentProfiles'])
+        for (let item of _data["paymentProfiles"])
           this.paymentProfiles!.push(PaymentProfileCreateRequest.fromJS(item));
       } else {
         this.paymentProfiles = <any>null;
@@ -14234,19 +14236,19 @@ export class PutGatewayListRequest implements IPutGatewayListRequest {
   }
 
   static fromJS(data: any): PutGatewayListRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PutGatewayListRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     if (Array.isArray(this.paymentProfiles)) {
-      data['paymentProfiles'] = [];
+      data["paymentProfiles"] = [];
       for (let item of this.paymentProfiles)
-        data['paymentProfiles'].push(item.toJSON());
+        data["paymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -14279,41 +14281,41 @@ export class InvoiceSummary implements IInvoiceSummary {
   init(_data?: any) {
     if (_data) {
       this.invoiceId =
-        _data['invoiceId'] !== undefined ? _data['invoiceId'] : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantSummary.fromJS(_data['merchant'])
+        _data["invoiceId"] !== undefined ? _data["invoiceId"] : <any>null;
+      this.merchant = _data["merchant"]
+        ? MerchantSummary.fromJS(_data["merchant"])
         : new MerchantSummary();
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.beginTime = _data['beginTime']
-        ? new Date(_data['beginTime'].toString())
+      this.beginTime = _data["beginTime"]
+        ? new Date(_data["beginTime"].toString())
         : <any>null;
-      this.endTime = _data['endTime']
-        ? new Date(_data['endTime'].toString())
+      this.endTime = _data["endTime"]
+        ? new Date(_data["endTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): InvoiceSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new InvoiceSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['invoiceId'] =
+    data = typeof data === "object" ? data : {};
+    data["invoiceId"] =
       this.invoiceId !== undefined ? this.invoiceId : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['createdTime'] = this.createdTime
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['beginTime'] = this.beginTime
+    data["beginTime"] = this.beginTime
       ? this.beginTime.toISOString()
       : <any>null;
-    data['endTime'] = this.endTime ? this.endTime.toISOString() : <any>null;
+    data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>null;
     return data;
   }
 }
@@ -14350,22 +14352,22 @@ export class Invoice implements IInvoice {
   init(_data?: any) {
     if (_data) {
       this.invoiceId =
-        _data['invoiceId'] !== undefined ? _data['invoiceId'] : <any>null;
-      this.merchant = _data['merchant']
-        ? Merchant.fromJS(_data['merchant'])
+        _data["invoiceId"] !== undefined ? _data["invoiceId"] : <any>null;
+      this.merchant = _data["merchant"]
+        ? Merchant.fromJS(_data["merchant"])
         : new Merchant();
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.beginTime = _data['beginTime']
-        ? new Date(_data['beginTime'].toString())
+      this.beginTime = _data["beginTime"]
+        ? new Date(_data["beginTime"].toString())
         : <any>null;
-      this.endTime = _data['endTime']
-        ? new Date(_data['endTime'].toString())
+      this.endTime = _data["endTime"]
+        ? new Date(_data["endTime"].toString())
         : <any>null;
-      if (Array.isArray(_data['invoiceDetails'])) {
+      if (Array.isArray(_data["invoiceDetails"])) {
         this.invoiceDetails = [] as any;
-        for (let item of _data['invoiceDetails'])
+        for (let item of _data["invoiceDetails"])
           this.invoiceDetails!.push(InvoiceDetail.fromJS(item));
       } else {
         this.invoiceDetails = <any>null;
@@ -14374,28 +14376,28 @@ export class Invoice implements IInvoice {
   }
 
   static fromJS(data: any): Invoice {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Invoice();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['invoiceId'] =
+    data = typeof data === "object" ? data : {};
+    data["invoiceId"] =
       this.invoiceId !== undefined ? this.invoiceId : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['createdTime'] = this.createdTime
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['beginTime'] = this.beginTime
+    data["beginTime"] = this.beginTime
       ? this.beginTime.toISOString()
       : <any>null;
-    data['endTime'] = this.endTime ? this.endTime.toISOString() : <any>null;
+    data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>null;
     if (Array.isArray(this.invoiceDetails)) {
-      data['invoiceDetails'] = [];
+      data["invoiceDetails"] = [];
       for (let item of this.invoiceDetails)
-        data['invoiceDetails'].push(item.toJSON());
+        data["invoiceDetails"].push(item.toJSON());
     }
     return data;
   }
@@ -14426,27 +14428,27 @@ export class InvoiceDetail implements IInvoiceDetail {
   init(_data?: any) {
     if (_data) {
       this.invoiceDetailId =
-        _data['invoiceDetailId'] !== undefined
-          ? _data['invoiceDetailId']
+        _data["invoiceDetailId"] !== undefined
+          ? _data["invoiceDetailId"]
           : <any>null;
-      this.buyOrder = _data['buyOrder']
-        ? BuyOrder.fromJS(_data['buyOrder'])
+      this.buyOrder = _data["buyOrder"]
+        ? BuyOrder.fromJS(_data["buyOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): InvoiceDetail {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new InvoiceDetail();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['invoiceDetailId'] =
+    data = typeof data === "object" ? data : {};
+    data["invoiceDetailId"] =
       this.invoiceDetailId !== undefined ? this.invoiceDetailId : <any>null;
-    data['buyOrder'] = this.buyOrder ? this.buyOrder.toJSON() : <any>null;
+    data["buyOrder"] = this.buyOrder ? this.buyOrder.toJSON() : <any>null;
     return data;
   }
 }
@@ -14477,33 +14479,33 @@ export class MerchantCurrencyLimit implements IMerchantCurrencyLimit {
   init(_data?: any) {
     if (_data) {
       this.currencyLimitId =
-        _data['currencyLimitId'] !== undefined
-          ? _data['currencyLimitId']
+        _data["currencyLimitId"] !== undefined
+          ? _data["currencyLimitId"]
           : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): MerchantCurrencyLimit {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantCurrencyLimit();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyLimitId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyLimitId"] =
       this.currencyLimitId !== undefined ? this.currencyLimitId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -14533,23 +14535,23 @@ export class CreateMerchantCurrencyLimitRequest
   init(_data?: any) {
     if (_data) {
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreateMerchantCurrencyLimitRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateMerchantCurrencyLimitRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
     return data;
   }
 }
@@ -14586,75 +14588,75 @@ export class CreateMerchantRequest implements ICreateMerchantRequest {
   init(_data?: any) {
     if (_data) {
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.externalReference =
-        _data['externalReference'] !== undefined
-          ? _data['externalReference']
+        _data["externalReference"] !== undefined
+          ? _data["externalReference"]
           : <any>null;
       this.priceListId =
-        _data['priceListId'] !== undefined ? _data['priceListId'] : <any>null;
+        _data["priceListId"] !== undefined ? _data["priceListId"] : <any>null;
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
       this.gatewayListId =
-        _data['gatewayListId'] !== undefined
-          ? _data['gatewayListId']
+        _data["gatewayListId"] !== undefined
+          ? _data["gatewayListId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.address = _data['address']
-        ? MerchantAddress.fromJS(_data['address'])
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.address = _data["address"]
+        ? MerchantAddress.fromJS(_data["address"])
         : <any>null;
       this.timeZone =
-        _data['timeZone'] !== undefined ? _data['timeZone'] : <any>null;
+        _data["timeZone"] !== undefined ? _data["timeZone"] : <any>null;
       this.website =
-        _data['website'] !== undefined ? _data['website'] : <any>null;
-      this.phoneNumber = _data['phoneNumber']
-        ? Phone.fromJS(_data['phoneNumber'])
+        _data["website"] !== undefined ? _data["website"] : <any>null;
+      this.phoneNumber = _data["phoneNumber"]
+        ? Phone.fromJS(_data["phoneNumber"])
         : <any>null;
-      this.whatsappNumber = _data['whatsappNumber']
-        ? Phone.fromJS(_data['whatsappNumber'])
+      this.whatsappNumber = _data["whatsappNumber"]
+        ? Phone.fromJS(_data["whatsappNumber"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): CreateMerchantRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateMerchantRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['parentBranchId'] =
+    data = typeof data === "object" ? data : {};
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['externalReference'] =
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["externalReference"] =
       this.externalReference !== undefined ? this.externalReference : <any>null;
-    data['priceListId'] =
+    data["priceListId"] =
       this.priceListId !== undefined ? this.priceListId : <any>null;
-    data['saleManagerId'] =
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['gatewayListId'] =
+    data["gatewayListId"] =
       this.gatewayListId !== undefined ? this.gatewayListId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['address'] = this.address ? this.address.toJSON() : <any>null;
-    data['timeZone'] = this.timeZone !== undefined ? this.timeZone : <any>null;
-    data['website'] = this.website !== undefined ? this.website : <any>null;
-    data['phoneNumber'] = this.phoneNumber
+    data["address"] = this.address ? this.address.toJSON() : <any>null;
+    data["timeZone"] = this.timeZone !== undefined ? this.timeZone : <any>null;
+    data["website"] = this.website !== undefined ? this.website : <any>null;
+    data["phoneNumber"] = this.phoneNumber
       ? this.phoneNumber.toJSON()
       : <any>null;
-    data['whatsappNumber'] = this.whatsappNumber
+    data["whatsappNumber"] = this.whatsappNumber
       ? this.whatsappNumber.toJSON()
       : <any>null;
     return data;
@@ -14699,62 +14701,62 @@ export class UpdateMerchantRequest implements IUpdateMerchantRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.exchangeTargetCurrencyId = _data['exchangeTargetCurrencyId']
-        ? PatchOfInteger.fromJS(_data['exchangeTargetCurrencyId'])
+      this.exchangeTargetCurrencyId = _data["exchangeTargetCurrencyId"]
+        ? PatchOfInteger.fromJS(_data["exchangeTargetCurrencyId"])
         : <any>null;
-      this.invoiceThresholdDay = _data['invoiceThresholdDay']
-        ? PatchOfNullableInteger.fromJS(_data['invoiceThresholdDay'])
+      this.invoiceThresholdDay = _data["invoiceThresholdDay"]
+        ? PatchOfNullableInteger.fromJS(_data["invoiceThresholdDay"])
         : <any>null;
-      this.address = _data['address']
-        ? MerchantAddress.fromJS(_data['address'])
+      this.address = _data["address"]
+        ? MerchantAddress.fromJS(_data["address"])
         : <any>null;
-      this.website = _data['website']
-        ? PatchOfUri.fromJS(_data['website'])
+      this.website = _data["website"]
+        ? PatchOfUri.fromJS(_data["website"])
         : <any>null;
-      this.phoneNumber = _data['phoneNumber']
-        ? PatchOfPhone.fromJS(_data['phoneNumber'])
+      this.phoneNumber = _data["phoneNumber"]
+        ? PatchOfPhone.fromJS(_data["phoneNumber"])
         : <any>null;
-      this.whatsappNumber = _data['whatsappNumber']
-        ? PatchOfPhone.fromJS(_data['whatsappNumber'])
+      this.whatsappNumber = _data["whatsappNumber"]
+        ? PatchOfPhone.fromJS(_data["whatsappNumber"])
         : <any>null;
-      this.email = _data['email']
-        ? PatchOfString.fromJS(_data['email'])
+      this.email = _data["email"]
+        ? PatchOfString.fromJS(_data["email"])
         : <any>null;
-      this.timeZone = _data['timeZone']
-        ? PatchOfString.fromJS(_data['timeZone'])
+      this.timeZone = _data["timeZone"]
+        ? PatchOfString.fromJS(_data["timeZone"])
         : <any>null;
-      this.isActive = _data['isActive']
-        ? PatchOfNullableBoolean.fromJS(_data['isActive'])
+      this.isActive = _data["isActive"]
+        ? PatchOfNullableBoolean.fromJS(_data["isActive"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateMerchantRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateMerchantRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['exchangeTargetCurrencyId'] = this.exchangeTargetCurrencyId
+    data = typeof data === "object" ? data : {};
+    data["exchangeTargetCurrencyId"] = this.exchangeTargetCurrencyId
       ? this.exchangeTargetCurrencyId.toJSON()
       : <any>null;
-    data['invoiceThresholdDay'] = this.invoiceThresholdDay
+    data["invoiceThresholdDay"] = this.invoiceThresholdDay
       ? this.invoiceThresholdDay.toJSON()
       : <any>null;
-    data['address'] = this.address ? this.address.toJSON() : <any>null;
-    data['website'] = this.website ? this.website.toJSON() : <any>null;
-    data['phoneNumber'] = this.phoneNumber
+    data["address"] = this.address ? this.address.toJSON() : <any>null;
+    data["website"] = this.website ? this.website.toJSON() : <any>null;
+    data["phoneNumber"] = this.phoneNumber
       ? this.phoneNumber.toJSON()
       : <any>null;
-    data['whatsappNumber'] = this.whatsappNumber
+    data["whatsappNumber"] = this.whatsappNumber
       ? this.whatsappNumber.toJSON()
       : <any>null;
-    data['email'] = this.email ? this.email.toJSON() : <any>null;
-    data['timeZone'] = this.timeZone ? this.timeZone.toJSON() : <any>null;
-    data['isActive'] = this.isActive ? this.isActive.toJSON() : <any>null;
+    data["email"] = this.email ? this.email.toJSON() : <any>null;
+    data["timeZone"] = this.timeZone ? this.timeZone.toJSON() : <any>null;
+    data["isActive"] = this.isActive ? this.isActive.toJSON() : <any>null;
     return data;
   }
 }
@@ -14785,20 +14787,20 @@ export class PatchOfInteger implements IPatchOfInteger {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfInteger {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfInteger();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -14821,20 +14823,20 @@ export class PatchOfNullableInteger implements IPatchOfNullableInteger {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfNullableInteger {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfNullableInteger();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -14857,20 +14859,20 @@ export class PatchOfPhone implements IPatchOfPhone {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] ? Phone.fromJS(_data['value']) : <any>null;
+      this.value = _data["value"] ? Phone.fromJS(_data["value"]) : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfPhone {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfPhone();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value ? this.value.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value ? this.value.toJSON() : <any>null;
     return data;
   }
 }
@@ -14893,20 +14895,20 @@ export class PatchOfNullableBoolean implements IPatchOfNullableBoolean {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfNullableBoolean {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfNullableBoolean();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -14931,22 +14933,22 @@ export class UpdateMerchantSettingRequest
 
   init(_data?: any) {
     if (_data) {
-      this.canCreatePaymentOrder = _data['canCreatePaymentOrder']
-        ? PatchOfNullableBoolean.fromJS(_data['canCreatePaymentOrder'])
+      this.canCreatePaymentOrder = _data["canCreatePaymentOrder"]
+        ? PatchOfNullableBoolean.fromJS(_data["canCreatePaymentOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateMerchantSettingRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateMerchantSettingRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['canCreatePaymentOrder'] = this.canCreatePaymentOrder
+    data = typeof data === "object" ? data : {};
+    data["canCreatePaymentOrder"] = this.canCreatePaymentOrder
       ? this.canCreatePaymentOrder.toJSON()
       : <any>null;
     return data;
@@ -14985,63 +14987,63 @@ export class PaymentOrder implements IPaymentOrder {
   init(_data?: any) {
     if (_data) {
       this.paymentOrderId =
-        _data['paymentOrderId'] !== undefined
-          ? _data['paymentOrderId']
+        _data["paymentOrderId"] !== undefined
+          ? _data["paymentOrderId"]
           : <any>null;
       this.providerPaymentId =
-        _data['providerPaymentId'] !== undefined
-          ? _data['providerPaymentId']
+        _data["providerPaymentId"] !== undefined
+          ? _data["providerPaymentId"]
           : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantSummary.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantSummary.fromJS(_data["merchant"])
         : new MerchantSummary();
       this.paymentUrl =
-        _data['paymentUrl'] !== undefined ? _data['paymentUrl'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["paymentUrl"] !== undefined ? _data["paymentUrl"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.lastError =
-        _data['lastError'] !== undefined ? _data['lastError'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["lastError"] !== undefined ? _data["lastError"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.paymentOrderState =
-        _data['paymentOrderState'] !== undefined
-          ? _data['paymentOrderState']
+        _data["paymentOrderState"] !== undefined
+          ? _data["paymentOrderState"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentOrder {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentOrder();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentOrderId"] =
       this.paymentOrderId !== undefined ? this.paymentOrderId : <any>null;
-    data['providerPaymentId'] =
+    data["providerPaymentId"] =
       this.providerPaymentId !== undefined ? this.providerPaymentId : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['paymentUrl'] =
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["paymentUrl"] =
       this.paymentUrl !== undefined ? this.paymentUrl : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['lastError'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["lastError"] =
       this.lastError !== undefined ? this.lastError : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['paymentOrderState'] =
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["paymentOrderState"] =
       this.paymentOrderState !== undefined ? this.paymentOrderState : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     return data;
@@ -15062,14 +15064,14 @@ export interface IPaymentOrder {
 }
 
 export enum PaymentOrderState {
-  Created = 'Created',
-  PaymentProviderCreated = 'PaymentProviderCreated',
-  PaymentProviderCaptured = 'PaymentProviderCaptured',
-  PaymentProviderDisputed = 'PaymentProviderDisputed',
-  Reserved = 'Reserved',
-  Captured = 'Captured',
-  Disputed = 'Disputed',
-  Failed = 'Failed',
+  Created = "Created",
+  PaymentProviderCreated = "PaymentProviderCreated",
+  PaymentProviderCaptured = "PaymentProviderCaptured",
+  PaymentProviderDisputed = "PaymentProviderDisputed",
+  Reserved = "Reserved",
+  Captured = "Captured",
+  Disputed = "Disputed",
+  Failed = "Failed",
 }
 
 export class CreatePaymentOrderRequest implements ICreatePaymentOrderRequest {
@@ -15088,29 +15090,29 @@ export class CreatePaymentOrderRequest implements ICreatePaymentOrderRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.returnUrl =
-        _data['returnUrl'] !== undefined ? _data['returnUrl'] : <any>null;
+        _data["returnUrl"] !== undefined ? _data["returnUrl"] : <any>null;
       this.paymentProfileId =
-        _data['paymentProfileId'] !== undefined
-          ? _data['paymentProfileId']
+        _data["paymentProfileId"] !== undefined
+          ? _data["paymentProfileId"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): CreatePaymentOrderRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreatePaymentOrderRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['returnUrl'] =
+    data = typeof data === "object" ? data : {};
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["returnUrl"] =
       this.returnUrl !== undefined ? this.returnUrl : <any>null;
-    data['paymentProfileId'] =
+    data["paymentProfileId"] =
       this.paymentProfileId !== undefined ? this.paymentProfileId : <any>null;
     return data;
   }
@@ -15145,42 +15147,42 @@ export class PaymentOrderSummary implements IPaymentOrderSummary {
   init(_data?: any) {
     if (_data) {
       this.paymentOrderId =
-        _data['paymentOrderId'] !== undefined
-          ? _data['paymentOrderId']
+        _data["paymentOrderId"] !== undefined
+          ? _data["paymentOrderId"]
           : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.paymentOrderState =
-        _data['paymentOrderState'] !== undefined
-          ? _data['paymentOrderState']
+        _data["paymentOrderState"] !== undefined
+          ? _data["paymentOrderState"]
           : <any>null;
       this.stateId =
-        _data['stateId'] !== undefined ? _data['stateId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["stateId"] !== undefined ? _data["stateId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentOrderSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentOrderSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentOrderId"] =
       this.paymentOrderId !== undefined ? this.paymentOrderId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['paymentOrderState'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["paymentOrderState"] =
       this.paymentOrderState !== undefined ? this.paymentOrderState : <any>null;
-    data['stateId'] = this.stateId !== undefined ? this.stateId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["stateId"] = this.stateId !== undefined ? this.stateId : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
     return data;
@@ -15215,36 +15217,36 @@ export class PaymentOrderStateLog implements IPaymentOrderStateLog {
   init(_data?: any) {
     if (_data) {
       this.paymentOrderStateLogId =
-        _data['paymentOrderStateLogId'] !== undefined
-          ? _data['paymentOrderStateLogId']
+        _data["paymentOrderStateLogId"] !== undefined
+          ? _data["paymentOrderStateLogId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
       this.stateId =
-        _data['stateId'] !== undefined ? _data['stateId'] : <any>null;
-      this.error = _data['error'] !== undefined ? _data['error'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["stateId"] !== undefined ? _data["stateId"] : <any>null;
+      this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentOrderStateLog {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentOrderStateLog();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentOrderStateLogId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentOrderStateLogId"] =
       this.paymentOrderStateLogId !== undefined
         ? this.paymentOrderStateLogId
         : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['stateId'] = this.stateId !== undefined ? this.stateId : <any>null;
-    data['error'] = this.error !== undefined ? this.error : <any>null;
-    data['createdTime'] = this.createdTime
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["stateId"] = this.stateId !== undefined ? this.stateId : <any>null;
+    data["error"] = this.error !== undefined ? this.error : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
     return data;
@@ -15280,25 +15282,25 @@ export class PriceList implements IPriceList {
   init(_data?: any) {
     if (_data) {
       this.priceListId =
-        _data['priceListId'] !== undefined ? _data['priceListId'] : <any>null;
+        _data["priceListId"] !== undefined ? _data["priceListId"] : <any>null;
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.priceListName =
-        _data['priceListName'] !== undefined
-          ? _data['priceListName']
+        _data["priceListName"] !== undefined
+          ? _data["priceListName"]
           : <any>null;
-      this.parentPriceList = _data['parentPriceList']
-        ? PriceListSummary.fromJS(_data['parentPriceList'])
+      this.parentPriceList = _data["parentPriceList"]
+        ? PriceListSummary.fromJS(_data["parentPriceList"])
         : <any>null;
       this.assignedBranchId =
-        _data['assignedBranchId'] !== undefined
-          ? _data['assignedBranchId']
+        _data["assignedBranchId"] !== undefined
+          ? _data["assignedBranchId"]
           : <any>null;
-      if (Array.isArray(_data['priceLists'])) {
+      if (Array.isArray(_data["priceLists"])) {
         this.priceLists = [] as any;
-        for (let item of _data['priceLists'])
+        for (let item of _data["priceLists"])
           this.priceLists!.push(PriceList.fromJS(item));
       } else {
         this.priceLists = <any>null;
@@ -15307,29 +15309,29 @@ export class PriceList implements IPriceList {
   }
 
   static fromJS(data: any): PriceList {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceList();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['priceListId'] =
+    data = typeof data === "object" ? data : {};
+    data["priceListId"] =
       this.priceListId !== undefined ? this.priceListId : <any>null;
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['merchantId'] =
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['priceListName'] =
+    data["priceListName"] =
       this.priceListName !== undefined ? this.priceListName : <any>null;
-    data['parentPriceList'] = this.parentPriceList
+    data["parentPriceList"] = this.parentPriceList
       ? this.parentPriceList.toJSON()
       : <any>null;
-    data['assignedBranchId'] =
+    data["assignedBranchId"] =
       this.assignedBranchId !== undefined ? this.assignedBranchId : <any>null;
     if (Array.isArray(this.priceLists)) {
-      data['priceLists'] = [];
-      for (let item of this.priceLists) data['priceLists'].push(item.toJSON());
+      data["priceLists"] = [];
+      for (let item of this.priceLists) data["priceLists"].push(item.toJSON());
     }
     return data;
   }
@@ -15361,28 +15363,28 @@ export class CreatePriceListRequest implements ICreatePriceListRequest {
   init(_data?: any) {
     if (_data) {
       this.priceListName =
-        _data['priceListName'] !== undefined
-          ? _data['priceListName']
+        _data["priceListName"] !== undefined
+          ? _data["priceListName"]
           : <any>null;
       this.parentPriceListId =
-        _data['parentPriceListId'] !== undefined
-          ? _data['parentPriceListId']
+        _data["parentPriceListId"] !== undefined
+          ? _data["parentPriceListId"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): CreatePriceListRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreatePriceListRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['priceListName'] =
+    data = typeof data === "object" ? data : {};
+    data["priceListName"] =
       this.priceListName !== undefined ? this.priceListName : <any>null;
-    data['parentPriceListId'] =
+    data["parentPriceListId"] =
       this.parentPriceListId !== undefined ? this.parentPriceListId : <any>null;
     return data;
   }
@@ -15413,19 +15415,19 @@ export class BuyPrice implements IBuyPrice {
 
   init(_data?: any) {
     if (_data) {
-      this.product = _data['product']
-        ? ProductSummary.fromJS(_data['product'])
+      this.product = _data["product"]
+        ? ProductSummary.fromJS(_data["product"])
         : new ProductSummary();
-      if (Array.isArray(_data['regions'])) {
+      if (Array.isArray(_data["regions"])) {
         this.regions = [] as any;
-        for (let item of _data['regions'])
+        for (let item of _data["regions"])
           this.regions!.push(Region.fromJS(item));
       } else {
         this.regions = <any>null;
       }
-      if (Array.isArray(_data['rules'])) {
+      if (Array.isArray(_data["rules"])) {
         this.rules = [] as any;
-        for (let item of _data['rules'])
+        for (let item of _data["rules"])
           this.rules!.push(BuyPriceRule.fromJS(item));
       } else {
         this.rules = <any>null;
@@ -15434,22 +15436,22 @@ export class BuyPrice implements IBuyPrice {
   }
 
   static fromJS(data: any): BuyPrice {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyPrice();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['product'] = this.product ? this.product.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["product"] = this.product ? this.product.toJSON() : <any>null;
     if (Array.isArray(this.regions)) {
-      data['regions'] = [];
-      for (let item of this.regions) data['regions'].push(item.toJSON());
+      data["regions"] = [];
+      for (let item of this.regions) data["regions"].push(item.toJSON());
     }
     if (Array.isArray(this.rules)) {
-      data['rules'] = [];
-      for (let item of this.rules) data['rules'].push(item.toJSON());
+      data["rules"] = [];
+      for (let item of this.rules) data["rules"].push(item.toJSON());
     }
     return data;
   }
@@ -15487,52 +15489,52 @@ export class ProductSummary implements IProductSummary {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
       this.providerSku =
-        _data['providerSku'] !== undefined ? _data['providerSku'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["providerSku"] !== undefined ? _data["providerSku"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.isPhysical =
-        _data['isPhysical'] !== undefined ? _data['isPhysical'] : <any>null;
+        _data["isPhysical"] !== undefined ? _data["isPhysical"] : <any>null;
       this.hasDescription =
-        _data['hasDescription'] !== undefined
-          ? _data['hasDescription']
+        _data["hasDescription"] !== undefined
+          ? _data["hasDescription"]
           : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): ProductSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['providerSku'] =
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["providerSku"] =
       this.providerSku !== undefined ? this.providerSku : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['isPhysical'] =
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["isPhysical"] =
       this.isPhysical !== undefined ? this.isPhysical : <any>null;
-    data['hasDescription'] =
+    data["hasDescription"] =
       this.hasDescription !== undefined ? this.hasDescription : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -15567,27 +15569,27 @@ export class Region implements IRegion {
   init(_data?: any) {
     if (_data) {
       this.regionId =
-        _data['regionId'] !== undefined ? _data['regionId'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.code = _data['code'] !== undefined ? _data['code'] : <any>null;
+        _data["regionId"] !== undefined ? _data["regionId"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.code = _data["code"] !== undefined ? _data["code"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
     }
   }
 
   static fromJS(data: any): Region {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Region();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['regionId'] = this.regionId !== undefined ? this.regionId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['code'] = this.code !== undefined ? this.code : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["regionId"] = this.regionId !== undefined ? this.regionId : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["code"] = this.code !== undefined ? this.code : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
     return data;
   }
 }
@@ -15623,44 +15625,44 @@ export class BuyPriceRule implements IBuyPriceRule {
 
   init(_data?: any) {
     if (_data) {
-      this.faceValue = _data['faceValue']
-        ? PriceRange.fromJS(_data['faceValue'])
+      this.faceValue = _data["faceValue"]
+        ? PriceRange.fromJS(_data["faceValue"])
         : new PriceRange();
       this.priceValue =
-        _data['priceValue'] !== undefined ? _data['priceValue'] : <any>null;
+        _data["priceValue"] !== undefined ? _data["priceValue"] : <any>null;
       this.consumerTax =
-        _data['consumerTax'] !== undefined ? _data['consumerTax'] : <any>null;
+        _data["consumerTax"] !== undefined ? _data["consumerTax"] : <any>null;
       this.consumerFee =
-        _data['consumerFee'] !== undefined ? _data['consumerFee'] : <any>null;
-      this.resellPriceAmount = _data['resellPriceAmount']
-        ? PriceRange.fromJS(_data['resellPriceAmount'])
+        _data["consumerFee"] !== undefined ? _data["consumerFee"] : <any>null;
+      this.resellPriceAmount = _data["resellPriceAmount"]
+        ? PriceRange.fromJS(_data["resellPriceAmount"])
         : new PriceRange();
-      this.consumerPriceAmount = _data['consumerPriceAmount']
-        ? PriceRange.fromJS(_data['consumerPriceAmount'])
+      this.consumerPriceAmount = _data["consumerPriceAmount"]
+        ? PriceRange.fromJS(_data["consumerPriceAmount"])
         : new PriceRange();
     }
   }
 
   static fromJS(data: any): BuyPriceRule {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BuyPriceRule();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['faceValue'] = this.faceValue ? this.faceValue.toJSON() : <any>null;
-    data['priceValue'] =
+    data = typeof data === "object" ? data : {};
+    data["faceValue"] = this.faceValue ? this.faceValue.toJSON() : <any>null;
+    data["priceValue"] =
       this.priceValue !== undefined ? this.priceValue : <any>null;
-    data['consumerTax'] =
+    data["consumerTax"] =
       this.consumerTax !== undefined ? this.consumerTax : <any>null;
-    data['consumerFee'] =
+    data["consumerFee"] =
       this.consumerFee !== undefined ? this.consumerFee : <any>null;
-    data['resellPriceAmount'] = this.resellPriceAmount
+    data["resellPriceAmount"] = this.resellPriceAmount
       ? this.resellPriceAmount.toJSON()
       : <any>null;
-    data['consumerPriceAmount'] = this.consumerPriceAmount
+    data["consumerPriceAmount"] = this.consumerPriceAmount
       ? this.consumerPriceAmount.toJSON()
       : <any>null;
     return data;
@@ -15693,28 +15695,28 @@ export class PriceRange implements IPriceRange {
 
   init(_data?: any) {
     if (_data) {
-      this.start = _data['start'] !== undefined ? _data['start'] : <any>null;
-      this.end = _data['end'] !== undefined ? _data['end'] : <any>null;
+      this.start = _data["start"] !== undefined ? _data["start"] : <any>null;
+      this.end = _data["end"] !== undefined ? _data["end"] : <any>null;
       this.endValue =
-        _data['endValue'] !== undefined ? _data['endValue'] : <any>null;
+        _data["endValue"] !== undefined ? _data["endValue"] : <any>null;
       this.isEndless =
-        _data['isEndless'] !== undefined ? _data['isEndless'] : <any>null;
+        _data["isEndless"] !== undefined ? _data["isEndless"] : <any>null;
     }
   }
 
   static fromJS(data: any): PriceRange {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRange();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['start'] = this.start !== undefined ? this.start : <any>null;
-    data['end'] = this.end !== undefined ? this.end : <any>null;
-    data['endValue'] = this.endValue !== undefined ? this.endValue : <any>null;
-    data['isEndless'] =
+    data = typeof data === "object" ? data : {};
+    data["start"] = this.start !== undefined ? this.start : <any>null;
+    data["end"] = this.end !== undefined ? this.end : <any>null;
+    data["endValue"] = this.endValue !== undefined ? this.endValue : <any>null;
+    data["isEndless"] =
       this.isEndless !== undefined ? this.isEndless : <any>null;
     return data;
   }
@@ -15746,10 +15748,10 @@ export class PriceView implements IPriceView {
 
   init(_data?: any) {
     if (_data) {
-      this.price = _data['price'] ? Price.fromJS(_data['price']) : new Price();
-      if (Array.isArray(_data['priceResults'])) {
+      this.price = _data["price"] ? Price.fromJS(_data["price"]) : new Price();
+      if (Array.isArray(_data["priceResults"])) {
         this.priceResults = [] as any;
-        for (let item of _data['priceResults'])
+        for (let item of _data["priceResults"])
           this.priceResults!.push(PriceResult.fromJS(item));
       } else {
         this.priceResults = <any>null;
@@ -15758,19 +15760,19 @@ export class PriceView implements IPriceView {
   }
 
   static fromJS(data: any): PriceView {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceView();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['price'] = this.price ? this.price.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["price"] = this.price ? this.price.toJSON() : <any>null;
     if (Array.isArray(this.priceResults)) {
-      data['priceResults'] = [];
+      data["priceResults"] = [];
       for (let item of this.priceResults)
-        data['priceResults'].push(item.toJSON());
+        data["priceResults"].push(item.toJSON());
     }
     return data;
   }
@@ -15804,23 +15806,23 @@ export class Price implements IPrice {
 
   init(_data?: any) {
     if (_data) {
-      this.product = _data['product']
-        ? ProductSummary.fromJS(_data['product'])
+      this.product = _data["product"]
+        ? ProductSummary.fromJS(_data["product"])
         : new ProductSummary();
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      if (Array.isArray(_data['regions'])) {
+      if (Array.isArray(_data["regions"])) {
         this.regions = [] as any;
-        for (let item of _data['regions'])
+        for (let item of _data["regions"])
           this.regions!.push(Region.fromJS(item));
       } else {
         this.regions = <any>null;
       }
-      this.isRoot = _data['isRoot'] !== undefined ? _data['isRoot'] : <any>null;
-      if (Array.isArray(_data['rules'])) {
+      this.isRoot = _data["isRoot"] !== undefined ? _data["isRoot"] : <any>null;
+      if (Array.isArray(_data["rules"])) {
         this.rules = [] as any;
-        for (let item of _data['rules'])
+        for (let item of _data["rules"])
           this.rules!.push(PriceRule.fromJS(item));
       } else {
         this.rules = <any>null;
@@ -15829,24 +15831,24 @@ export class Price implements IPrice {
   }
 
   static fromJS(data: any): Price {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Price();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['product'] = this.product ? this.product.toJSON() : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["product"] = this.product ? this.product.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     if (Array.isArray(this.regions)) {
-      data['regions'] = [];
-      for (let item of this.regions) data['regions'].push(item.toJSON());
+      data["regions"] = [];
+      for (let item of this.regions) data["regions"].push(item.toJSON());
     }
-    data['isRoot'] = this.isRoot !== undefined ? this.isRoot : <any>null;
+    data["isRoot"] = this.isRoot !== undefined ? this.isRoot : <any>null;
     if (Array.isArray(this.rules)) {
-      data['rules'] = [];
-      for (let item of this.rules) data['rules'].push(item.toJSON());
+      data["rules"] = [];
+      for (let item of this.rules) data["rules"].push(item.toJSON());
     }
     return data;
   }
@@ -15886,53 +15888,53 @@ export class PriceRule implements IPriceRule {
 
   init(_data?: any) {
     if (_data) {
-      this.faceValue = _data['faceValue']
-        ? PriceRange.fromJS(_data['faceValue'])
+      this.faceValue = _data["faceValue"]
+        ? PriceRange.fromJS(_data["faceValue"])
         : new PriceRange();
       this.priceValueMode =
-        _data['priceValueMode'] !== undefined
-          ? _data['priceValueMode']
+        _data["priceValueMode"] !== undefined
+          ? _data["priceValueMode"]
           : <any>null;
       this.priceValue =
-        _data['priceValue'] !== undefined ? _data['priceValue'] : <any>null;
-      this.step = _data['step'] !== undefined ? _data['step'] : <any>null;
+        _data["priceValue"] !== undefined ? _data["priceValue"] : <any>null;
+      this.step = _data["step"] !== undefined ? _data["step"] : <any>null;
       this.minBenefit =
-        _data['minBenefit'] !== undefined ? _data['minBenefit'] : <any>null;
+        _data["minBenefit"] !== undefined ? _data["minBenefit"] : <any>null;
       this.consumerTax =
-        _data['consumerTax'] !== undefined ? _data['consumerTax'] : <any>null;
+        _data["consumerTax"] !== undefined ? _data["consumerTax"] : <any>null;
       this.consumerFee =
-        _data['consumerFee'] !== undefined ? _data['consumerFee'] : <any>null;
+        _data["consumerFee"] !== undefined ? _data["consumerFee"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
-      this.permission = _data['permission']
-        ? PriceRulePermission.fromJS(_data['permission'])
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+      this.permission = _data["permission"]
+        ? PriceRulePermission.fromJS(_data["permission"])
         : new PriceRulePermission();
     }
   }
 
   static fromJS(data: any): PriceRule {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRule();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['faceValue'] = this.faceValue ? this.faceValue.toJSON() : <any>null;
-    data['priceValueMode'] =
+    data = typeof data === "object" ? data : {};
+    data["faceValue"] = this.faceValue ? this.faceValue.toJSON() : <any>null;
+    data["priceValueMode"] =
       this.priceValueMode !== undefined ? this.priceValueMode : <any>null;
-    data['priceValue'] =
+    data["priceValue"] =
       this.priceValue !== undefined ? this.priceValue : <any>null;
-    data['step'] = this.step !== undefined ? this.step : <any>null;
-    data['minBenefit'] =
+    data["step"] = this.step !== undefined ? this.step : <any>null;
+    data["minBenefit"] =
       this.minBenefit !== undefined ? this.minBenefit : <any>null;
-    data['consumerTax'] =
+    data["consumerTax"] =
       this.consumerTax !== undefined ? this.consumerTax : <any>null;
-    data['consumerFee'] =
+    data["consumerFee"] =
       this.consumerFee !== undefined ? this.consumerFee : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['permission'] = this.permission ? this.permission.toJSON() : <any>null;
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["permission"] = this.permission ? this.permission.toJSON() : <any>null;
     return data;
   }
 }
@@ -15972,42 +15974,42 @@ export class PriceRulePermission implements IPriceRulePermission {
   init(_data?: any) {
     if (_data) {
       this.canSetPriceModeToFaceValue =
-        _data['canSetPriceModeToFaceValue'] !== undefined
-          ? _data['canSetPriceModeToFaceValue']
+        _data["canSetPriceModeToFaceValue"] !== undefined
+          ? _data["canSetPriceModeToFaceValue"]
           : <any>null;
       this.minMinBenefit =
-        _data['minMinBenefit'] !== undefined
-          ? _data['minMinBenefit']
+        _data["minMinBenefit"] !== undefined
+          ? _data["minMinBenefit"]
           : <any>null;
       this.maxConsumerFee =
-        _data['maxConsumerFee'] !== undefined
-          ? _data['maxConsumerFee']
+        _data["maxConsumerFee"] !== undefined
+          ? _data["maxConsumerFee"]
           : <any>null;
       this.maxConsumerTax =
-        _data['maxConsumerTax'] !== undefined
-          ? _data['maxConsumerTax']
+        _data["maxConsumerTax"] !== undefined
+          ? _data["maxConsumerTax"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): PriceRulePermission {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRulePermission();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['canSetPriceModeToFaceValue'] =
+    data = typeof data === "object" ? data : {};
+    data["canSetPriceModeToFaceValue"] =
       this.canSetPriceModeToFaceValue !== undefined
         ? this.canSetPriceModeToFaceValue
         : <any>null;
-    data['minMinBenefit'] =
+    data["minMinBenefit"] =
       this.minMinBenefit !== undefined ? this.minMinBenefit : <any>null;
-    data['maxConsumerFee'] =
+    data["maxConsumerFee"] =
       this.maxConsumerFee !== undefined ? this.maxConsumerFee : <any>null;
-    data['maxConsumerTax'] =
+    data["maxConsumerTax"] =
       this.maxConsumerTax !== undefined ? this.maxConsumerTax : <any>null;
     return data;
   }
@@ -16045,29 +16047,29 @@ export class PriceResult implements IPriceResult {
 
   init(_data?: any) {
     if (_data) {
-      this.buyingRule = _data['buyingRule']
-        ? PriceRule.fromJS(_data['buyingRule'])
+      this.buyingRule = _data["buyingRule"]
+        ? PriceRule.fromJS(_data["buyingRule"])
         : <any>null;
-      this.masterRule = _data['masterRule']
-        ? PriceRule.fromJS(_data['masterRule'])
+      this.masterRule = _data["masterRule"]
+        ? PriceRule.fromJS(_data["masterRule"])
         : <any>null;
-      this.rule = _data['rule']
-        ? PriceRule.fromJS(_data['rule'])
+      this.rule = _data["rule"]
+        ? PriceRule.fromJS(_data["rule"])
         : new PriceRule();
-      this.buyingPriceAmount = _data['buyingPriceAmount']
-        ? PriceRange.fromJS(_data['buyingPriceAmount'])
+      this.buyingPriceAmount = _data["buyingPriceAmount"]
+        ? PriceRange.fromJS(_data["buyingPriceAmount"])
         : <any>null;
-      this.resellPriceAmount = _data['resellPriceAmount']
-        ? PriceRange.fromJS(_data['resellPriceAmount'])
+      this.resellPriceAmount = _data["resellPriceAmount"]
+        ? PriceRange.fromJS(_data["resellPriceAmount"])
         : <any>null;
-      this.consumerPriceAmount = _data['consumerPriceAmount']
-        ? PriceRange.fromJS(_data['consumerPriceAmount'])
+      this.consumerPriceAmount = _data["consumerPriceAmount"]
+        ? PriceRange.fromJS(_data["consumerPriceAmount"])
         : <any>null;
       this.benefit =
-        _data['benefit'] !== undefined ? _data['benefit'] : <any>null;
-      if (Array.isArray(_data['errors'])) {
+        _data["benefit"] !== undefined ? _data["benefit"] : <any>null;
+      if (Array.isArray(_data["errors"])) {
         this.errors = [] as any;
-        for (let item of _data['errors'])
+        for (let item of _data["errors"])
           this.errors!.push(PriceRuleError.fromJS(item));
       } else {
         this.errors = <any>null;
@@ -16076,30 +16078,30 @@ export class PriceResult implements IPriceResult {
   }
 
   static fromJS(data: any): PriceResult {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceResult();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['buyingRule'] = this.buyingRule ? this.buyingRule.toJSON() : <any>null;
-    data['masterRule'] = this.masterRule ? this.masterRule.toJSON() : <any>null;
-    data['rule'] = this.rule ? this.rule.toJSON() : <any>null;
-    data['buyingPriceAmount'] = this.buyingPriceAmount
+    data = typeof data === "object" ? data : {};
+    data["buyingRule"] = this.buyingRule ? this.buyingRule.toJSON() : <any>null;
+    data["masterRule"] = this.masterRule ? this.masterRule.toJSON() : <any>null;
+    data["rule"] = this.rule ? this.rule.toJSON() : <any>null;
+    data["buyingPriceAmount"] = this.buyingPriceAmount
       ? this.buyingPriceAmount.toJSON()
       : <any>null;
-    data['resellPriceAmount'] = this.resellPriceAmount
+    data["resellPriceAmount"] = this.resellPriceAmount
       ? this.resellPriceAmount.toJSON()
       : <any>null;
-    data['consumerPriceAmount'] = this.consumerPriceAmount
+    data["consumerPriceAmount"] = this.consumerPriceAmount
       ? this.consumerPriceAmount.toJSON()
       : <any>null;
-    data['benefit'] = this.benefit !== undefined ? this.benefit : <any>null;
+    data["benefit"] = this.benefit !== undefined ? this.benefit : <any>null;
     if (Array.isArray(this.errors)) {
-      data['errors'] = [];
-      for (let item of this.errors) data['errors'].push(item.toJSON());
+      data["errors"] = [];
+      for (let item of this.errors) data["errors"].push(item.toJSON());
     }
     return data;
   }
@@ -16132,24 +16134,24 @@ export class PriceRuleError implements IPriceRuleError {
   init(_data?: any) {
     if (_data) {
       this.propertyName =
-        _data['propertyName'] !== undefined ? _data['propertyName'] : <any>null;
+        _data["propertyName"] !== undefined ? _data["propertyName"] : <any>null;
       this.message =
-        _data['message'] !== undefined ? _data['message'] : <any>null;
+        _data["message"] !== undefined ? _data["message"] : <any>null;
     }
   }
 
   static fromJS(data: any): PriceRuleError {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PriceRuleError();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['propertyName'] =
+    data = typeof data === "object" ? data : {};
+    data["propertyName"] =
       this.propertyName !== undefined ? this.propertyName : <any>null;
-    data['message'] = this.message !== undefined ? this.message : <any>null;
+    data["message"] = this.message !== undefined ? this.message : <any>null;
     return data;
   }
 }
@@ -16178,10 +16180,10 @@ export class ProductPriceRule implements IProductPriceRule {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
-      if (Array.isArray(_data['rules'])) {
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
+      if (Array.isArray(_data["rules"])) {
         this.rules = [] as any;
-        for (let item of _data['rules'])
+        for (let item of _data["rules"])
           this.rules!.push(PriceRule.fromJS(item));
       } else {
         this.rules = <any>null;
@@ -16190,19 +16192,19 @@ export class ProductPriceRule implements IProductPriceRule {
   }
 
   static fromJS(data: any): ProductPriceRule {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductPriceRule();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
     if (Array.isArray(this.rules)) {
-      data['rules'] = [];
-      for (let item of this.rules) data['rules'].push(item.toJSON());
+      data["rules"] = [];
+      for (let item of this.rules) data["rules"].push(item.toJSON());
     }
     return data;
   }
@@ -16243,72 +16245,72 @@ export class Product implements IProduct {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
-      if (Array.isArray(_data['regions'])) {
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
+      if (Array.isArray(_data["regions"])) {
         this.regions = [] as any;
-        for (let item of _data['regions'])
+        for (let item of _data["regions"])
           this.regions!.push(Region.fromJS(item));
       } else {
         this.regions = <any>null;
       }
       this.providerSku =
-        _data['providerSku'] !== undefined ? _data['providerSku'] : <any>null;
+        _data["providerSku"] !== undefined ? _data["providerSku"] : <any>null;
       this.canPreOrder =
-        _data['canPreOrder'] !== undefined ? _data['canPreOrder'] : <any>null;
+        _data["canPreOrder"] !== undefined ? _data["canPreOrder"] : <any>null;
       this.canImmediate =
-        _data['canImmediate'] !== undefined ? _data['canImmediate'] : <any>null;
+        _data["canImmediate"] !== undefined ? _data["canImmediate"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.isPhysical =
-        _data['isPhysical'] !== undefined ? _data['isPhysical'] : <any>null;
+        _data["isPhysical"] !== undefined ? _data["isPhysical"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
     }
   }
 
   static fromJS(data: any): Product {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Product();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
     if (Array.isArray(this.regions)) {
-      data['regions'] = [];
-      for (let item of this.regions) data['regions'].push(item.toJSON());
+      data["regions"] = [];
+      for (let item of this.regions) data["regions"].push(item.toJSON());
     }
-    data['providerSku'] =
+    data["providerSku"] =
       this.providerSku !== undefined ? this.providerSku : <any>null;
-    data['canPreOrder'] =
+    data["canPreOrder"] =
       this.canPreOrder !== undefined ? this.canPreOrder : <any>null;
-    data['canImmediate'] =
+    data["canImmediate"] =
       this.canImmediate !== undefined ? this.canImmediate : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['isPhysical'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["isPhysical"] =
       this.isPhysical !== undefined ? this.isPhysical : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['categoryId'] =
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -16350,42 +16352,42 @@ export class CreateProductRequest implements ICreateProductRequest {
   init(_data?: any) {
     if (_data) {
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.providerSku =
-        _data['providerSku'] !== undefined ? _data['providerSku'] : <any>null;
+        _data["providerSku"] !== undefined ? _data["providerSku"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.upc = _data['upc'] !== undefined ? _data['upc'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.upc = _data["upc"] !== undefined ? _data["upc"] : <any>null;
       this.categoryId =
-        _data['categoryId'] !== undefined ? _data['categoryId'] : <any>null;
+        _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreateProductRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateProductRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productName'] =
+    data = typeof data === "object" ? data : {};
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['providerSku'] =
+    data["providerSku"] =
       this.providerSku !== undefined ? this.providerSku : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['upc'] = this.upc !== undefined ? this.upc : <any>null;
-    data['categoryId'] =
+    data["upc"] = this.upc !== undefined ? this.upc : <any>null;
+    data["categoryId"] =
       this.categoryId !== undefined ? this.categoryId : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
     return data;
   }
 }
@@ -16418,40 +16420,40 @@ export class UpdateProductRequest implements IUpdateProductRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.regionIds = _data['regionIds']
-        ? PatchOfInt32Of.fromJS(_data['regionIds'])
+      this.regionIds = _data["regionIds"]
+        ? PatchOfInt32Of.fromJS(_data["regionIds"])
         : <any>null;
-      this.categoryId = _data['categoryId']
-        ? PatchOfInteger.fromJS(_data['categoryId'])
+      this.categoryId = _data["categoryId"]
+        ? PatchOfInteger.fromJS(_data["categoryId"])
         : <any>null;
-      this.imageUrl = _data['imageUrl']
-        ? PatchOfUri.fromJS(_data['imageUrl'])
+      this.imageUrl = _data["imageUrl"]
+        ? PatchOfUri.fromJS(_data["imageUrl"])
         : <any>null;
-      this.productName = _data['productName']
-        ? PatchOfString.fromJS(_data['productName'])
+      this.productName = _data["productName"]
+        ? PatchOfString.fromJS(_data["productName"])
         : <any>null;
-      this.description = _data['description']
-        ? PatchOfString.fromJS(_data['description'])
+      this.description = _data["description"]
+        ? PatchOfString.fromJS(_data["description"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateProductRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateProductRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['regionIds'] = this.regionIds ? this.regionIds.toJSON() : <any>null;
-    data['categoryId'] = this.categoryId ? this.categoryId.toJSON() : <any>null;
-    data['imageUrl'] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
-    data['productName'] = this.productName
+    data = typeof data === "object" ? data : {};
+    data["regionIds"] = this.regionIds ? this.regionIds.toJSON() : <any>null;
+    data["categoryId"] = this.categoryId ? this.categoryId.toJSON() : <any>null;
+    data["imageUrl"] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
+    data["productName"] = this.productName
       ? this.productName.toJSON()
       : <any>null;
-    data['description'] = this.description
+    data["description"] = this.description
       ? this.description.toJSON()
       : <any>null;
     return data;
@@ -16480,9 +16482,9 @@ export class PatchOfInt32Of implements IPatchOfInt32Of {
 
   init(_data?: any) {
     if (_data) {
-      if (Array.isArray(_data['value'])) {
+      if (Array.isArray(_data["value"])) {
         this.value = [] as any;
-        for (let item of _data['value']) this.value!.push(item);
+        for (let item of _data["value"]) this.value!.push(item);
       } else {
         this.value = <any>null;
       }
@@ -16490,17 +16492,17 @@ export class PatchOfInt32Of implements IPatchOfInt32Of {
   }
 
   static fromJS(data: any): PatchOfInt32Of {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfInt32Of();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     if (Array.isArray(this.value)) {
-      data['value'] = [];
-      for (let item of this.value) data['value'].push(item);
+      data["value"] = [];
+      for (let item of this.value) data["value"].push(item);
     }
     return data;
   }
@@ -16532,38 +16534,38 @@ export class ProductItem implements IProductItem {
   init(_data?: any) {
     if (_data) {
       this.productId =
-        _data['productId'] !== undefined ? _data['productId'] : <any>null;
+        _data["productId"] !== undefined ? _data["productId"] : <any>null;
       this.productName =
-        _data['productName'] !== undefined ? _data['productName'] : <any>null;
+        _data["productName"] !== undefined ? _data["productName"] : <any>null;
       this.faceValue =
-        _data['faceValue'] !== undefined ? _data['faceValue'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["faceValue"] !== undefined ? _data["faceValue"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.availableCount =
-        _data['availableCount'] !== undefined
-          ? _data['availableCount']
+        _data["availableCount"] !== undefined
+          ? _data["availableCount"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): ProductItem {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductItem();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['productId'] =
+    data = typeof data === "object" ? data : {};
+    data["productId"] =
       this.productId !== undefined ? this.productId : <any>null;
-    data['productName'] =
+    data["productName"] =
       this.productName !== undefined ? this.productName : <any>null;
-    data['faceValue'] =
+    data["faceValue"] =
       this.faceValue !== undefined ? this.faceValue : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['availableCount'] =
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["availableCount"] =
       this.availableCount !== undefined ? this.availableCount : <any>null;
     return data;
   }
@@ -16593,25 +16595,25 @@ export class CreateRegionRequest implements ICreateRegionRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.code = _data['code'] !== undefined ? _data['code'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.code = _data["code"] !== undefined ? _data["code"] : <any>null;
       this.imageUrl =
-        _data['imageUrl'] !== undefined ? _data['imageUrl'] : <any>null;
+        _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreateRegionRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateRegionRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['code'] = this.code !== undefined ? this.code : <any>null;
-    data['imageUrl'] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["code"] = this.code !== undefined ? this.code : <any>null;
+    data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
     return data;
   }
 }
@@ -16638,30 +16640,30 @@ export class UpdateRegionRequest implements IUpdateRegionRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name']
-        ? PatchOfString.fromJS(_data['name'])
+      this.name = _data["name"]
+        ? PatchOfString.fromJS(_data["name"])
         : <any>null;
-      this.code = _data['code']
-        ? PatchOfString.fromJS(_data['code'])
+      this.code = _data["code"]
+        ? PatchOfString.fromJS(_data["code"])
         : <any>null;
-      this.imageUrl = _data['imageUrl']
-        ? PatchOfUri.fromJS(_data['imageUrl'])
+      this.imageUrl = _data["imageUrl"]
+        ? PatchOfUri.fromJS(_data["imageUrl"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateRegionRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateRegionRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name ? this.name.toJSON() : <any>null;
-    data['code'] = this.code ? this.code.toJSON() : <any>null;
-    data['imageUrl'] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name ? this.name.toJSON() : <any>null;
+    data["code"] = this.code ? this.code.toJSON() : <any>null;
+    data["imageUrl"] = this.imageUrl ? this.imageUrl.toJSON() : <any>null;
     return data;
   }
 }
@@ -16699,41 +16701,41 @@ export class Report implements IReport {
 
   init(_data?: any) {
     if (_data) {
-      this.wallet = _data['wallet']
-        ? Wallet.fromJS(_data['wallet'])
+      this.wallet = _data["wallet"]
+        ? Wallet.fromJS(_data["wallet"])
         : new Wallet();
-      this.credit = _data['credit']
-        ? Wallet.fromJS(_data['credit'])
+      this.credit = _data["credit"]
+        ? Wallet.fromJS(_data["credit"])
         : <any>null;
-      this.customersCreditsAndWallets = _data['customersCreditsAndWallets']
-        ? CustomerCreditAndWallet.fromJS(_data['customersCreditsAndWallets'])
+      this.customersCreditsAndWallets = _data["customersCreditsAndWallets"]
+        ? CustomerCreditAndWallet.fromJS(_data["customersCreditsAndWallets"])
         : <any>null;
-      if (Array.isArray(_data['customersAccounting'])) {
+      if (Array.isArray(_data["customersAccounting"])) {
         this.customersAccounting = [] as any;
-        for (let item of _data['customersAccounting'])
+        for (let item of _data["customersAccounting"])
           this.customersAccounting!.push(CustomerAccountingReport.fromJS(item));
       } else {
         this.customersAccounting = <any>null;
       }
-      if (Array.isArray(_data['officesAccounting'])) {
+      if (Array.isArray(_data["officesAccounting"])) {
         this.officesAccounting = [] as any;
-        for (let item of _data['officesAccounting'])
+        for (let item of _data["officesAccounting"])
           this.officesAccounting!.push(OfficeAccountingReport.fromJS(item));
       } else {
         this.officesAccounting = <any>null;
       }
-      if (Array.isArray(_data['saleManagersAccounting'])) {
+      if (Array.isArray(_data["saleManagersAccounting"])) {
         this.saleManagersAccounting = [] as any;
-        for (let item of _data['saleManagersAccounting'])
+        for (let item of _data["saleManagersAccounting"])
           this.saleManagersAccounting!.push(
             SaleManagerAccountingReport.fromJS(item)
           );
       } else {
         this.saleManagersAccounting = <any>null;
       }
-      if (Array.isArray(_data['topProducts'])) {
+      if (Array.isArray(_data["topProducts"])) {
         this.topProducts = [] as any;
-        for (let item of _data['topProducts'])
+        for (let item of _data["topProducts"])
           this.topProducts!.push(ProductReport.fromJS(item));
       } else {
         this.topProducts = <any>null;
@@ -16742,38 +16744,38 @@ export class Report implements IReport {
   }
 
   static fromJS(data: any): Report {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Report();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['wallet'] = this.wallet ? this.wallet.toJSON() : <any>null;
-    data['credit'] = this.credit ? this.credit.toJSON() : <any>null;
-    data['customersCreditsAndWallets'] = this.customersCreditsAndWallets
+    data = typeof data === "object" ? data : {};
+    data["wallet"] = this.wallet ? this.wallet.toJSON() : <any>null;
+    data["credit"] = this.credit ? this.credit.toJSON() : <any>null;
+    data["customersCreditsAndWallets"] = this.customersCreditsAndWallets
       ? this.customersCreditsAndWallets.toJSON()
       : <any>null;
     if (Array.isArray(this.customersAccounting)) {
-      data['customersAccounting'] = [];
+      data["customersAccounting"] = [];
       for (let item of this.customersAccounting)
-        data['customersAccounting'].push(item.toJSON());
+        data["customersAccounting"].push(item.toJSON());
     }
     if (Array.isArray(this.officesAccounting)) {
-      data['officesAccounting'] = [];
+      data["officesAccounting"] = [];
       for (let item of this.officesAccounting)
-        data['officesAccounting'].push(item.toJSON());
+        data["officesAccounting"].push(item.toJSON());
     }
     if (Array.isArray(this.saleManagersAccounting)) {
-      data['saleManagersAccounting'] = [];
+      data["saleManagersAccounting"] = [];
       for (let item of this.saleManagersAccounting)
-        data['saleManagersAccounting'].push(item.toJSON());
+        data["saleManagersAccounting"].push(item.toJSON());
     }
     if (Array.isArray(this.topProducts)) {
-      data['topProducts'] = [];
+      data["topProducts"] = [];
       for (let item of this.topProducts)
-        data['topProducts'].push(item.toJSON());
+        data["topProducts"].push(item.toJSON());
     }
     return data;
   }
@@ -16804,16 +16806,16 @@ export class CustomerCreditAndWallet implements ICustomerCreditAndWallet {
 
   init(_data?: any) {
     if (_data) {
-      if (Array.isArray(_data['wallet'])) {
+      if (Array.isArray(_data["wallet"])) {
         this.wallet = [] as any;
-        for (let item of _data['wallet'])
+        for (let item of _data["wallet"])
           this.wallet!.push(CurrencyBalance.fromJS(item));
       } else {
         this.wallet = <any>null;
       }
-      if (Array.isArray(_data['credit'])) {
+      if (Array.isArray(_data["credit"])) {
         this.credit = [] as any;
-        for (let item of _data['credit'])
+        for (let item of _data["credit"])
           this.credit!.push(CurrencyBalance.fromJS(item));
       } else {
         this.credit = <any>null;
@@ -16822,21 +16824,21 @@ export class CustomerCreditAndWallet implements ICustomerCreditAndWallet {
   }
 
   static fromJS(data: any): CustomerCreditAndWallet {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CustomerCreditAndWallet();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     if (Array.isArray(this.wallet)) {
-      data['wallet'] = [];
-      for (let item of this.wallet) data['wallet'].push(item.toJSON());
+      data["wallet"] = [];
+      for (let item of this.wallet) data["wallet"].push(item.toJSON());
     }
     if (Array.isArray(this.credit)) {
-      data['credit'] = [];
-      for (let item of this.credit) data['credit'].push(item.toJSON());
+      data["credit"] = [];
+      for (let item of this.credit) data["credit"].push(item.toJSON());
     }
     return data;
   }
@@ -16870,35 +16872,35 @@ export class CustomerAccountingReport implements ICustomerAccountingReport {
   init(_data?: any) {
     if (_data) {
       this.saleAmount =
-        _data['saleAmount'] !== undefined ? _data['saleAmount'] : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["saleAmount"] !== undefined ? _data["saleAmount"] : <any>null;
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      this.customer = _data['customer']
-        ? MerchantSummary.fromJS(_data['customer'])
+      this.customer = _data["customer"]
+        ? MerchantSummary.fromJS(_data["customer"])
         : new MerchantSummary();
-      this.date = _data['date']
-        ? new Date(_data['date'].toString())
+      this.date = _data["date"]
+        ? new Date(_data["date"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): CustomerAccountingReport {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CustomerAccountingReport();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleAmount'] =
+    data = typeof data === "object" ? data : {};
+    data["saleAmount"] =
       this.saleAmount !== undefined ? this.saleAmount : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['customer'] = this.customer ? this.customer.toJSON() : <any>null;
-    data['date'] = this.date ? formatDate(this.date) : <any>null;
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["customer"] = this.customer ? this.customer.toJSON() : <any>null;
+    data["date"] = this.date ? formatDate(this.date) : <any>null;
     return data;
   }
 }
@@ -16934,35 +16936,35 @@ export class OfficeAccountingReport implements IOfficeAccountingReport {
   init(_data?: any) {
     if (_data) {
       this.saleAmount =
-        _data['saleAmount'] !== undefined ? _data['saleAmount'] : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["saleAmount"] !== undefined ? _data["saleAmount"] : <any>null;
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      this.branch = _data['branch']
-        ? BranchSummary.fromJS(_data['branch'])
+      this.branch = _data["branch"]
+        ? BranchSummary.fromJS(_data["branch"])
         : new BranchSummary();
-      this.date = _data['date']
-        ? new Date(_data['date'].toString())
+      this.date = _data["date"]
+        ? new Date(_data["date"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): OfficeAccountingReport {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new OfficeAccountingReport();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleAmount'] =
+    data = typeof data === "object" ? data : {};
+    data["saleAmount"] =
       this.saleAmount !== undefined ? this.saleAmount : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['branch'] = this.branch ? this.branch.toJSON() : <any>null;
-    data['date'] = this.date ? formatDate(this.date) : <any>null;
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["branch"] = this.branch ? this.branch.toJSON() : <any>null;
+    data["date"] = this.date ? formatDate(this.date) : <any>null;
     return data;
   }
 }
@@ -16991,23 +16993,23 @@ export class BranchSummary implements IBranchSummary {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
     }
   }
 
   static fromJS(data: any): BranchSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BranchSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['branchName'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
     return data;
   }
@@ -17042,37 +17044,37 @@ export class SaleManagerAccountingReport
   init(_data?: any) {
     if (_data) {
       this.saleAmount =
-        _data['saleAmount'] !== undefined ? _data['saleAmount'] : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+        _data["saleAmount"] !== undefined ? _data["saleAmount"] : <any>null;
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
-      this.saleManager = _data['saleManager']
-        ? SaleManagerSummary.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerSummary.fromJS(_data["saleManager"])
         : <any>null;
-      this.date = _data['date']
-        ? new Date(_data['date'].toString())
+      this.date = _data["date"]
+        ? new Date(_data["date"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): SaleManagerAccountingReport {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleManagerAccountingReport();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleAmount'] =
+    data = typeof data === "object" ? data : {};
+    data["saleAmount"] =
       this.saleAmount !== undefined ? this.saleAmount : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['saleManager'] = this.saleManager
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
-    data['date'] = this.date ? formatDate(this.date) : <any>null;
+    data["date"] = this.date ? formatDate(this.date) : <any>null;
     return data;
   }
 }
@@ -17104,28 +17106,28 @@ export class ProductReport implements IProductReport {
 
   init(_data?: any) {
     if (_data) {
-      this.product = _data['product']
-        ? ProductSummary.fromJS(_data['product'])
+      this.product = _data["product"]
+        ? ProductSummary.fromJS(_data["product"])
         : new ProductSummary();
       this.saleCounts =
-        _data['saleCounts'] !== undefined ? _data['saleCounts'] : <any>null;
-      this.profit = _data['profit'] !== undefined ? _data['profit'] : <any>null;
+        _data["saleCounts"] !== undefined ? _data["saleCounts"] : <any>null;
+      this.profit = _data["profit"] !== undefined ? _data["profit"] : <any>null;
     }
   }
 
   static fromJS(data: any): ProductReport {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ProductReport();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['product'] = this.product ? this.product.toJSON() : <any>null;
-    data['saleCounts'] =
+    data = typeof data === "object" ? data : {};
+    data["product"] = this.product ? this.product.toJSON() : <any>null;
+    data["saleCounts"] =
       this.saleCounts !== undefined ? this.saleCounts : <any>null;
-    data['profit'] = this.profit !== undefined ? this.profit : <any>null;
+    data["profit"] = this.profit !== undefined ? this.profit : <any>null;
     return data;
   }
 }
@@ -17155,28 +17157,28 @@ export class ReportSummary implements IReportSummary {
 
   init(_data?: any) {
     if (_data) {
-      this.currency = _data['currency']
-        ? Currency.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? Currency.fromJS(_data["currency"])
         : new Currency();
       this.saleAmount =
-        _data['saleAmount'] !== undefined ? _data['saleAmount'] : <any>null;
-      this.count = _data['count'] !== undefined ? _data['count'] : <any>null;
+        _data["saleAmount"] !== undefined ? _data["saleAmount"] : <any>null;
+      this.count = _data["count"] !== undefined ? _data["count"] : <any>null;
     }
   }
 
   static fromJS(data: any): ReportSummary {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ReportSummary();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['saleAmount'] =
+    data = typeof data === "object" ? data : {};
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["saleAmount"] =
       this.saleAmount !== undefined ? this.saleAmount : <any>null;
-    data['count'] = this.count !== undefined ? this.count : <any>null;
+    data["count"] = this.count !== undefined ? this.count : <any>null;
     return data;
   }
 }
@@ -17206,34 +17208,34 @@ export class SaleManager implements ISaleManager {
   init(_data?: any) {
     if (_data) {
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.phoneNumber =
-        _data['phoneNumber'] !== undefined ? _data['phoneNumber'] : <any>null;
+        _data["phoneNumber"] !== undefined ? _data["phoneNumber"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
     }
   }
 
   static fromJS(data: any): SaleManager {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleManager();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleManagerId'] =
+    data = typeof data === "object" ? data : {};
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['phoneNumber'] =
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["phoneNumber"] =
       this.phoneNumber !== undefined ? this.phoneNumber : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
     return data;
   }
 }
@@ -17263,27 +17265,27 @@ export class CreateSaleManagerRequest implements ICreateSaleManagerRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
       this.phoneNumber =
-        _data['phoneNumber'] !== undefined ? _data['phoneNumber'] : <any>null;
+        _data["phoneNumber"] !== undefined ? _data["phoneNumber"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreateSaleManagerRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreateSaleManagerRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['phoneNumber'] =
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["phoneNumber"] =
       this.phoneNumber !== undefined ? this.phoneNumber : <any>null;
     return data;
   }
@@ -17313,36 +17315,36 @@ export class UpdateSaleManagerRequest implements IUpdateSaleManagerRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name']
-        ? PatchOfString.fromJS(_data['name'])
+      this.name = _data["name"]
+        ? PatchOfString.fromJS(_data["name"])
         : <any>null;
-      this.email = _data['email']
-        ? PatchOfString.fromJS(_data['email'])
+      this.email = _data["email"]
+        ? PatchOfString.fromJS(_data["email"])
         : <any>null;
-      this.phoneNumber = _data['phoneNumber']
-        ? PatchOfString.fromJS(_data['phoneNumber'])
+      this.phoneNumber = _data["phoneNumber"]
+        ? PatchOfString.fromJS(_data["phoneNumber"])
         : <any>null;
-      this.isActive = _data['isActive']
-        ? PatchOfNullableBoolean.fromJS(_data['isActive'])
+      this.isActive = _data["isActive"]
+        ? PatchOfNullableBoolean.fromJS(_data["isActive"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateSaleManagerRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateSaleManagerRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name ? this.name.toJSON() : <any>null;
-    data['email'] = this.email ? this.email.toJSON() : <any>null;
-    data['phoneNumber'] = this.phoneNumber
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name ? this.name.toJSON() : <any>null;
+    data["email"] = this.email ? this.email.toJSON() : <any>null;
+    data["phoneNumber"] = this.phoneNumber
       ? this.phoneNumber.toJSON()
       : <any>null;
-    data['isActive'] = this.isActive ? this.isActive.toJSON() : <any>null;
+    data["isActive"] = this.isActive ? this.isActive.toJSON() : <any>null;
     return data;
   }
 }
@@ -17373,47 +17375,47 @@ export class SettingModel implements ISettingModel {
   init(_data?: any) {
     if (_data) {
       this.settingId =
-        _data['settingId'] !== undefined ? _data['settingId'] : <any>null;
-      this.startInvoiceDate = _data['startInvoiceDate']
-        ? new Date(_data['startInvoiceDate'].toString())
+        _data["settingId"] !== undefined ? _data["settingId"] : <any>null;
+      this.startInvoiceDate = _data["startInvoiceDate"]
+        ? new Date(_data["startInvoiceDate"].toString())
         : <any>null;
-      this.invoiceDailyTime = _data['invoiceDailyTime']
-        ? new Date(_data['invoiceDailyTime'].toString())
+      this.invoiceDailyTime = _data["invoiceDailyTime"]
+        ? new Date(_data["invoiceDailyTime"].toString())
         : <any>null;
       this.defaultExchangeTargetCurrencyId =
-        _data['defaultExchangeTargetCurrencyId'] !== undefined
-          ? _data['defaultExchangeTargetCurrencyId']
+        _data["defaultExchangeTargetCurrencyId"] !== undefined
+          ? _data["defaultExchangeTargetCurrencyId"]
           : <any>null;
       this.defaultExchangeTargetCurrency = _data[
-        'defaultExchangeTargetCurrency'
+        "defaultExchangeTargetCurrency"
       ]
-        ? CurrencyModel.fromJS(_data['defaultExchangeTargetCurrency'])
+        ? CurrencyModel.fromJS(_data["defaultExchangeTargetCurrency"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): SettingModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SettingModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['settingId'] =
+    data = typeof data === "object" ? data : {};
+    data["settingId"] =
       this.settingId !== undefined ? this.settingId : <any>null;
-    data['startInvoiceDate'] = this.startInvoiceDate
+    data["startInvoiceDate"] = this.startInvoiceDate
       ? this.startInvoiceDate.toISOString()
       : <any>null;
-    data['invoiceDailyTime'] = this.invoiceDailyTime
+    data["invoiceDailyTime"] = this.invoiceDailyTime
       ? this.invoiceDailyTime.toISOString()
       : <any>null;
-    data['defaultExchangeTargetCurrencyId'] =
+    data["defaultExchangeTargetCurrencyId"] =
       this.defaultExchangeTargetCurrencyId !== undefined
         ? this.defaultExchangeTargetCurrencyId
         : <any>null;
-    data['defaultExchangeTargetCurrency'] = this.defaultExchangeTargetCurrency
+    data["defaultExchangeTargetCurrency"] = this.defaultExchangeTargetCurrency
       ? this.defaultExchangeTargetCurrency.toJSON()
       : <any>null;
     return data;
@@ -17449,35 +17451,35 @@ export class CurrencyModel implements ICurrencyModel {
   init(_data?: any) {
     if (_data) {
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.currencyName =
-        _data['currencyName'] !== undefined ? _data['currencyName'] : <any>null;
+        _data["currencyName"] !== undefined ? _data["currencyName"] : <any>null;
       this.isForTest =
-        _data['isForTest'] !== undefined ? _data['isForTest'] : <any>null;
-      if (Array.isArray(_data['payments'])) {
+        _data["isForTest"] !== undefined ? _data["isForTest"] : <any>null;
+      if (Array.isArray(_data["payments"])) {
         this.payments = [] as any;
-        for (let item of _data['payments'])
+        for (let item of _data["payments"])
           this.payments!.push(PaymentOrderModel.fromJS(item));
       } else {
         this.payments = <any>null;
       }
-      if (Array.isArray(_data['ordinaryOrders'])) {
+      if (Array.isArray(_data["ordinaryOrders"])) {
         this.ordinaryOrders = [] as any;
-        for (let item of _data['ordinaryOrders'])
+        for (let item of _data["ordinaryOrders"])
           this.ordinaryOrders!.push(OrdinaryOrderModel.fromJS(item));
       } else {
         this.ordinaryOrders = <any>null;
       }
-      if (Array.isArray(_data['currencyLimits'])) {
+      if (Array.isArray(_data["currencyLimits"])) {
         this.currencyLimits = [] as any;
-        for (let item of _data['currencyLimits'])
+        for (let item of _data["currencyLimits"])
           this.currencyLimits!.push(MerchantCurrencyLimitModel.fromJS(item));
       } else {
         this.currencyLimits = <any>null;
       }
-      if (Array.isArray(_data['paymentProfiles'])) {
+      if (Array.isArray(_data["paymentProfiles"])) {
         this.paymentProfiles = [] as any;
-        for (let item of _data['paymentProfiles'])
+        for (let item of _data["paymentProfiles"])
           this.paymentProfiles!.push(PaymentProfileModel.fromJS(item));
       } else {
         this.paymentProfiles = <any>null;
@@ -17486,38 +17488,38 @@ export class CurrencyModel implements ICurrencyModel {
   }
 
   static fromJS(data: any): CurrencyModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CurrencyModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['currencyId'] =
+    data = typeof data === "object" ? data : {};
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currencyName'] =
+    data["currencyName"] =
       this.currencyName !== undefined ? this.currencyName : <any>null;
-    data['isForTest'] =
+    data["isForTest"] =
       this.isForTest !== undefined ? this.isForTest : <any>null;
     if (Array.isArray(this.payments)) {
-      data['payments'] = [];
-      for (let item of this.payments) data['payments'].push(item.toJSON());
+      data["payments"] = [];
+      for (let item of this.payments) data["payments"].push(item.toJSON());
     }
     if (Array.isArray(this.ordinaryOrders)) {
-      data['ordinaryOrders'] = [];
+      data["ordinaryOrders"] = [];
       for (let item of this.ordinaryOrders)
-        data['ordinaryOrders'].push(item.toJSON());
+        data["ordinaryOrders"].push(item.toJSON());
     }
     if (Array.isArray(this.currencyLimits)) {
-      data['currencyLimits'] = [];
+      data["currencyLimits"] = [];
       for (let item of this.currencyLimits)
-        data['currencyLimits'].push(item.toJSON());
+        data["currencyLimits"].push(item.toJSON());
     }
     if (Array.isArray(this.paymentProfiles)) {
-      data['paymentProfiles'] = [];
+      data["paymentProfiles"] = [];
       for (let item of this.paymentProfiles)
-        data['paymentProfiles'].push(item.toJSON());
+        data["paymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -17561,47 +17563,47 @@ export class PaymentOrderModel implements IPaymentOrderModel {
   init(_data?: any) {
     if (_data) {
       this.paymentOrderId =
-        _data['paymentOrderId'] !== undefined
-          ? _data['paymentOrderId']
+        _data["paymentOrderId"] !== undefined
+          ? _data["paymentOrderId"]
           : <any>null;
       this.providerPaymentId =
-        _data['providerPaymentId'] !== undefined
-          ? _data['providerPaymentId']
+        _data["providerPaymentId"] !== undefined
+          ? _data["providerPaymentId"]
           : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.lastError =
-        _data['lastError'] !== undefined ? _data['lastError'] : <any>null;
+        _data["lastError"] !== undefined ? _data["lastError"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
       this.paymentOrderState =
-        _data['paymentOrderState'] !== undefined
-          ? _data['paymentOrderState']
+        _data["paymentOrderState"] !== undefined
+          ? _data["paymentOrderState"]
           : <any>null;
       this.captureWalletOrderReferenceNumber =
-        _data['captureWalletOrderReferenceNumber'] !== undefined
-          ? _data['captureWalletOrderReferenceNumber']
+        _data["captureWalletOrderReferenceNumber"] !== undefined
+          ? _data["captureWalletOrderReferenceNumber"]
           : <any>null;
       this.disputeWalletOrderReferenceNumber =
-        _data['disputeWalletOrderReferenceNumber'] !== undefined
-          ? _data['disputeWalletOrderReferenceNumber']
+        _data["disputeWalletOrderReferenceNumber"] !== undefined
+          ? _data["disputeWalletOrderReferenceNumber"]
           : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
-      if (Array.isArray(_data['paymentOrderStateLogs'])) {
+      if (Array.isArray(_data["paymentOrderStateLogs"])) {
         this.paymentOrderStateLogs = [] as any;
-        for (let item of _data['paymentOrderStateLogs'])
+        for (let item of _data["paymentOrderStateLogs"])
           this.paymentOrderStateLogs!.push(
             PaymentOrderStateLogModel.fromJS(item)
           );
@@ -17612,47 +17614,47 @@ export class PaymentOrderModel implements IPaymentOrderModel {
   }
 
   static fromJS(data: any): PaymentOrderModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentOrderModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentOrderId"] =
       this.paymentOrderId !== undefined ? this.paymentOrderId : <any>null;
-    data['providerPaymentId'] =
+    data["providerPaymentId"] =
       this.providerPaymentId !== undefined ? this.providerPaymentId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currencyId'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['lastError'] =
+    data["lastError"] =
       this.lastError !== undefined ? this.lastError : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['paymentOrderState'] =
+    data["paymentOrderState"] =
       this.paymentOrderState !== undefined ? this.paymentOrderState : <any>null;
-    data['captureWalletOrderReferenceNumber'] =
+    data["captureWalletOrderReferenceNumber"] =
       this.captureWalletOrderReferenceNumber !== undefined
         ? this.captureWalletOrderReferenceNumber
         : <any>null;
-    data['disputeWalletOrderReferenceNumber'] =
+    data["disputeWalletOrderReferenceNumber"] =
       this.disputeWalletOrderReferenceNumber !== undefined
         ? this.disputeWalletOrderReferenceNumber
         : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     if (Array.isArray(this.paymentOrderStateLogs)) {
-      data['paymentOrderStateLogs'] = [];
+      data["paymentOrderStateLogs"] = [];
       for (let item of this.paymentOrderStateLogs)
-        data['paymentOrderStateLogs'].push(item.toJSON());
+        data["paymentOrderStateLogs"].push(item.toJSON());
     }
     return data;
   }
@@ -17725,151 +17727,151 @@ export class MerchantModel implements IMerchantModel {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantName =
-        _data['merchantName'] !== undefined ? _data['merchantName'] : <any>null;
+        _data["merchantName"] !== undefined ? _data["merchantName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
       this.rootBranchId =
-        _data['rootBranchId'] !== undefined ? _data['rootBranchId'] : <any>null;
+        _data["rootBranchId"] !== undefined ? _data["rootBranchId"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.externalReference =
-        _data['externalReference'] !== undefined
-          ? _data['externalReference']
+        _data["externalReference"] !== undefined
+          ? _data["externalReference"]
           : <any>null;
       this.walletId =
-        _data['walletId'] !== undefined ? _data['walletId'] : <any>null;
+        _data["walletId"] !== undefined ? _data["walletId"] : <any>null;
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
       this.invoiceThresholdDay =
-        _data['invoiceThresholdDay'] !== undefined
-          ? _data['invoiceThresholdDay']
+        _data["invoiceThresholdDay"] !== undefined
+          ? _data["invoiceThresholdDay"]
           : <any>null;
       this.website =
-        _data['website'] !== undefined ? _data['website'] : <any>null;
+        _data["website"] !== undefined ? _data["website"] : <any>null;
       this.phoneNumberCountryCode =
-        _data['phoneNumberCountryCode'] !== undefined
-          ? _data['phoneNumberCountryCode']
+        _data["phoneNumberCountryCode"] !== undefined
+          ? _data["phoneNumberCountryCode"]
           : <any>null;
       this.phoneNumber =
-        _data['phoneNumber'] !== undefined ? _data['phoneNumber'] : <any>null;
+        _data["phoneNumber"] !== undefined ? _data["phoneNumber"] : <any>null;
       this.whatsappNumberCountryCode =
-        _data['whatsappNumberCountryCode'] !== undefined
-          ? _data['whatsappNumberCountryCode']
+        _data["whatsappNumberCountryCode"] !== undefined
+          ? _data["whatsappNumberCountryCode"]
           : <any>null;
       this.whatsappNumber =
-        _data['whatsappNumber'] !== undefined
-          ? _data['whatsappNumber']
+        _data["whatsappNumber"] !== undefined
+          ? _data["whatsappNumber"]
           : <any>null;
       this.exchangeTargetCurrencyId =
-        _data['exchangeTargetCurrencyId'] !== undefined
-          ? _data['exchangeTargetCurrencyId']
+        _data["exchangeTargetCurrencyId"] !== undefined
+          ? _data["exchangeTargetCurrencyId"]
           : <any>null;
       this.assignedGatewayListId =
-        _data['assignedGatewayListId'] !== undefined
-          ? _data['assignedGatewayListId']
+        _data["assignedGatewayListId"] !== undefined
+          ? _data["assignedGatewayListId"]
           : <any>null;
       this.financialActivitiesTwoPhaseVerification =
-        _data['financialActivitiesTwoPhaseVerification'] !== undefined
-          ? _data['financialActivitiesTwoPhaseVerification']
+        _data["financialActivitiesTwoPhaseVerification"] !== undefined
+          ? _data["financialActivitiesTwoPhaseVerification"]
           : <any>null;
       this.timeZone =
-        _data['timeZone'] !== undefined ? _data['timeZone'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["timeZone"] !== undefined ? _data["timeZone"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.address = _data['address']
-        ? MerchantAddressModel.fromJS(_data['address'])
+      this.address = _data["address"]
+        ? MerchantAddressModel.fromJS(_data["address"])
         : <any>null;
-      this.exchangeTargetCurrency = _data['exchangeTargetCurrency']
-        ? CurrencyModel.fromJS(_data['exchangeTargetCurrency'])
+      this.exchangeTargetCurrency = _data["exchangeTargetCurrency"]
+        ? CurrencyModel.fromJS(_data["exchangeTargetCurrency"])
         : <any>null;
-      this.rootBranch = _data['rootBranch']
-        ? BranchModel.fromJS(_data['rootBranch'])
+      this.rootBranch = _data["rootBranch"]
+        ? BranchModel.fromJS(_data["rootBranch"])
         : <any>null;
-      this.saleManager = _data['saleManager']
-        ? SaleManagerModel.fromJS(_data['saleManager'])
+      this.saleManager = _data["saleManager"]
+        ? SaleManagerModel.fromJS(_data["saleManager"])
         : <any>null;
-      if (Array.isArray(_data['merchantCredits'])) {
+      if (Array.isArray(_data["merchantCredits"])) {
         this.merchantCredits = [] as any;
-        for (let item of _data['merchantCredits'])
+        for (let item of _data["merchantCredits"])
           this.merchantCredits!.push(CreditWalletModel.fromJS(item));
       } else {
         this.merchantCredits = <any>null;
       }
-      if (Array.isArray(_data['customerMerchantCredits'])) {
+      if (Array.isArray(_data["customerMerchantCredits"])) {
         this.customerMerchantCredits = [] as any;
-        for (let item of _data['customerMerchantCredits'])
+        for (let item of _data["customerMerchantCredits"])
           this.customerMerchantCredits!.push(CreditWalletModel.fromJS(item));
       } else {
         this.customerMerchantCredits = <any>null;
       }
-      if (Array.isArray(_data['senderMerchantSettleOrders'])) {
+      if (Array.isArray(_data["senderMerchantSettleOrders"])) {
         this.senderMerchantSettleOrders = [] as any;
-        for (let item of _data['senderMerchantSettleOrders'])
+        for (let item of _data["senderMerchantSettleOrders"])
           this.senderMerchantSettleOrders!.push(SettleOrderModel.fromJS(item));
       } else {
         this.senderMerchantSettleOrders = <any>null;
       }
-      if (Array.isArray(_data['receiverMerchantSettleOrders'])) {
+      if (Array.isArray(_data["receiverMerchantSettleOrders"])) {
         this.receiverMerchantSettleOrders = [] as any;
-        for (let item of _data['receiverMerchantSettleOrders'])
+        for (let item of _data["receiverMerchantSettleOrders"])
           this.receiverMerchantSettleOrders!.push(
             SettleOrderModel.fromJS(item)
           );
       } else {
         this.receiverMerchantSettleOrders = <any>null;
       }
-      if (Array.isArray(_data['payments'])) {
+      if (Array.isArray(_data["payments"])) {
         this.payments = [] as any;
-        for (let item of _data['payments'])
+        for (let item of _data["payments"])
           this.payments!.push(PaymentOrderModel.fromJS(item));
       } else {
         this.payments = <any>null;
       }
-      if (Array.isArray(_data['senderMerchantOrdinaryOrders'])) {
+      if (Array.isArray(_data["senderMerchantOrdinaryOrders"])) {
         this.senderMerchantOrdinaryOrders = [] as any;
-        for (let item of _data['senderMerchantOrdinaryOrders'])
+        for (let item of _data["senderMerchantOrdinaryOrders"])
           this.senderMerchantOrdinaryOrders!.push(
             OrdinaryOrderModel.fromJS(item)
           );
       } else {
         this.senderMerchantOrdinaryOrders = <any>null;
       }
-      if (Array.isArray(_data['receiverMerchantOrdinaryOrders'])) {
+      if (Array.isArray(_data["receiverMerchantOrdinaryOrders"])) {
         this.receiverMerchantOrdinaryOrders = [] as any;
-        for (let item of _data['receiverMerchantOrdinaryOrders'])
+        for (let item of _data["receiverMerchantOrdinaryOrders"])
           this.receiverMerchantOrdinaryOrders!.push(
             OrdinaryOrderModel.fromJS(item)
           );
       } else {
         this.receiverMerchantOrdinaryOrders = <any>null;
       }
-      if (Array.isArray(_data['invoices'])) {
+      if (Array.isArray(_data["invoices"])) {
         this.invoices = [] as any;
-        for (let item of _data['invoices'])
+        for (let item of _data["invoices"])
           this.invoices!.push(InvoiceModel.fromJS(item));
       } else {
         this.invoices = <any>null;
       }
-      if (Array.isArray(_data['currencyLimits'])) {
+      if (Array.isArray(_data["currencyLimits"])) {
         this.currencyLimits = [] as any;
-        for (let item of _data['currencyLimits'])
+        for (let item of _data["currencyLimits"])
           this.currencyLimits!.push(MerchantCurrencyLimitModel.fromJS(item));
       } else {
         this.currencyLimits = <any>null;
@@ -17878,119 +17880,119 @@ export class MerchantModel implements IMerchantModel {
   }
 
   static fromJS(data: any): MerchantModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantName'] =
+    data["merchantName"] =
       this.merchantName !== undefined ? this.merchantName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['saleManagerId'] =
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['rootBranchId'] =
+    data["rootBranchId"] =
       this.rootBranchId !== undefined ? this.rootBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['externalReference'] =
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["externalReference"] =
       this.externalReference !== undefined ? this.externalReference : <any>null;
-    data['walletId'] = this.walletId !== undefined ? this.walletId : <any>null;
-    data['creditWalletId'] =
+    data["walletId"] = this.walletId !== undefined ? this.walletId : <any>null;
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['invoiceThresholdDay'] =
+    data["invoiceThresholdDay"] =
       this.invoiceThresholdDay !== undefined
         ? this.invoiceThresholdDay
         : <any>null;
-    data['website'] = this.website !== undefined ? this.website : <any>null;
-    data['phoneNumberCountryCode'] =
+    data["website"] = this.website !== undefined ? this.website : <any>null;
+    data["phoneNumberCountryCode"] =
       this.phoneNumberCountryCode !== undefined
         ? this.phoneNumberCountryCode
         : <any>null;
-    data['phoneNumber'] =
+    data["phoneNumber"] =
       this.phoneNumber !== undefined ? this.phoneNumber : <any>null;
-    data['whatsappNumberCountryCode'] =
+    data["whatsappNumberCountryCode"] =
       this.whatsappNumberCountryCode !== undefined
         ? this.whatsappNumberCountryCode
         : <any>null;
-    data['whatsappNumber'] =
+    data["whatsappNumber"] =
       this.whatsappNumber !== undefined ? this.whatsappNumber : <any>null;
-    data['exchangeTargetCurrencyId'] =
+    data["exchangeTargetCurrencyId"] =
       this.exchangeTargetCurrencyId !== undefined
         ? this.exchangeTargetCurrencyId
         : <any>null;
-    data['assignedGatewayListId'] =
+    data["assignedGatewayListId"] =
       this.assignedGatewayListId !== undefined
         ? this.assignedGatewayListId
         : <any>null;
-    data['financialActivitiesTwoPhaseVerification'] =
+    data["financialActivitiesTwoPhaseVerification"] =
       this.financialActivitiesTwoPhaseVerification !== undefined
         ? this.financialActivitiesTwoPhaseVerification
         : <any>null;
-    data['timeZone'] = this.timeZone !== undefined ? this.timeZone : <any>null;
-    data['createdTime'] = this.createdTime
+    data["timeZone"] = this.timeZone !== undefined ? this.timeZone : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['address'] = this.address ? this.address.toJSON() : <any>null;
-    data['exchangeTargetCurrency'] = this.exchangeTargetCurrency
+    data["address"] = this.address ? this.address.toJSON() : <any>null;
+    data["exchangeTargetCurrency"] = this.exchangeTargetCurrency
       ? this.exchangeTargetCurrency.toJSON()
       : <any>null;
-    data['rootBranch'] = this.rootBranch ? this.rootBranch.toJSON() : <any>null;
-    data['saleManager'] = this.saleManager
+    data["rootBranch"] = this.rootBranch ? this.rootBranch.toJSON() : <any>null;
+    data["saleManager"] = this.saleManager
       ? this.saleManager.toJSON()
       : <any>null;
     if (Array.isArray(this.merchantCredits)) {
-      data['merchantCredits'] = [];
+      data["merchantCredits"] = [];
       for (let item of this.merchantCredits)
-        data['merchantCredits'].push(item.toJSON());
+        data["merchantCredits"].push(item.toJSON());
     }
     if (Array.isArray(this.customerMerchantCredits)) {
-      data['customerMerchantCredits'] = [];
+      data["customerMerchantCredits"] = [];
       for (let item of this.customerMerchantCredits)
-        data['customerMerchantCredits'].push(item.toJSON());
+        data["customerMerchantCredits"].push(item.toJSON());
     }
     if (Array.isArray(this.senderMerchantSettleOrders)) {
-      data['senderMerchantSettleOrders'] = [];
+      data["senderMerchantSettleOrders"] = [];
       for (let item of this.senderMerchantSettleOrders)
-        data['senderMerchantSettleOrders'].push(item.toJSON());
+        data["senderMerchantSettleOrders"].push(item.toJSON());
     }
     if (Array.isArray(this.receiverMerchantSettleOrders)) {
-      data['receiverMerchantSettleOrders'] = [];
+      data["receiverMerchantSettleOrders"] = [];
       for (let item of this.receiverMerchantSettleOrders)
-        data['receiverMerchantSettleOrders'].push(item.toJSON());
+        data["receiverMerchantSettleOrders"].push(item.toJSON());
     }
     if (Array.isArray(this.payments)) {
-      data['payments'] = [];
-      for (let item of this.payments) data['payments'].push(item.toJSON());
+      data["payments"] = [];
+      for (let item of this.payments) data["payments"].push(item.toJSON());
     }
     if (Array.isArray(this.senderMerchantOrdinaryOrders)) {
-      data['senderMerchantOrdinaryOrders'] = [];
+      data["senderMerchantOrdinaryOrders"] = [];
       for (let item of this.senderMerchantOrdinaryOrders)
-        data['senderMerchantOrdinaryOrders'].push(item.toJSON());
+        data["senderMerchantOrdinaryOrders"].push(item.toJSON());
     }
     if (Array.isArray(this.receiverMerchantOrdinaryOrders)) {
-      data['receiverMerchantOrdinaryOrders'] = [];
+      data["receiverMerchantOrdinaryOrders"] = [];
       for (let item of this.receiverMerchantOrdinaryOrders)
-        data['receiverMerchantOrdinaryOrders'].push(item.toJSON());
+        data["receiverMerchantOrdinaryOrders"].push(item.toJSON());
     }
     if (Array.isArray(this.invoices)) {
-      data['invoices'] = [];
-      for (let item of this.invoices) data['invoices'].push(item.toJSON());
+      data["invoices"] = [];
+      for (let item of this.invoices) data["invoices"].push(item.toJSON());
     }
     if (Array.isArray(this.currencyLimits)) {
-      data['currencyLimits'] = [];
+      data["currencyLimits"] = [];
       for (let item of this.currencyLimits)
-        data['currencyLimits'].push(item.toJSON());
+        data["currencyLimits"].push(item.toJSON());
     }
     return data;
   }
@@ -18056,40 +18058,40 @@ export class MerchantAddressModel implements IMerchantAddressModel {
   init(_data?: any) {
     if (_data) {
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.country =
-        _data['country'] !== undefined ? _data['country'] : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.city = _data['city'] !== undefined ? _data['city'] : <any>null;
+        _data["country"] !== undefined ? _data["country"] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.city = _data["city"] !== undefined ? _data["city"] : <any>null;
       this.rawAddress =
-        _data['rawAddress'] !== undefined ? _data['rawAddress'] : <any>null;
+        _data["rawAddress"] !== undefined ? _data["rawAddress"] : <any>null;
       this.postalCode =
-        _data['postalCode'] !== undefined ? _data['postalCode'] : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+        _data["postalCode"] !== undefined ? _data["postalCode"] : <any>null;
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantAddressModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantAddressModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['country'] = this.country !== undefined ? this.country : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['city'] = this.city !== undefined ? this.city : <any>null;
-    data['rawAddress'] =
+    data["country"] = this.country !== undefined ? this.country : <any>null;
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["city"] = this.city !== undefined ? this.city : <any>null;
+    data["rawAddress"] =
       this.rawAddress !== undefined ? this.rawAddress : <any>null;
-    data['postalCode'] =
+    data["postalCode"] =
       this.postalCode !== undefined ? this.postalCode : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
     return data;
   }
 }
@@ -18141,76 +18143,76 @@ export class BranchModel implements IBranchModel {
   init(_data?: any) {
     if (_data) {
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
       this.branchName =
-        _data['branchName'] !== undefined ? _data['branchName'] : <any>null;
+        _data["branchName"] !== undefined ? _data["branchName"] : <any>null;
       this.parentBranchId =
-        _data['parentBranchId'] !== undefined
-          ? _data['parentBranchId']
+        _data["parentBranchId"] !== undefined
+          ? _data["parentBranchId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.rootPriceListId =
-        _data['rootPriceListId'] !== undefined
-          ? _data['rootPriceListId']
+        _data["rootPriceListId"] !== undefined
+          ? _data["rootPriceListId"]
           : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.canSetFaceValue =
-        _data['canSetFaceValue'] !== undefined
-          ? _data['canSetFaceValue']
+        _data["canSetFaceValue"] !== undefined
+          ? _data["canSetFaceValue"]
           : <any>null;
       this.canSetBuyValue =
-        _data['canSetBuyValue'] !== undefined
-          ? _data['canSetBuyValue']
+        _data["canSetBuyValue"] !== undefined
+          ? _data["canSetBuyValue"]
           : <any>null;
       this.canPlaceOrder =
-        _data['canPlaceOrder'] !== undefined
-          ? _data['canPlaceOrder']
+        _data["canPlaceOrder"] !== undefined
+          ? _data["canPlaceOrder"]
           : <any>null;
       this.canCreateGatewayList =
-        _data['canCreateGatewayList'] !== undefined
-          ? _data['canCreateGatewayList']
+        _data["canCreateGatewayList"] !== undefined
+          ? _data["canCreateGatewayList"]
           : <any>null;
       this.canCreatePaymentOrder =
-        _data['canCreatePaymentOrder'] !== undefined
-          ? _data['canCreatePaymentOrder']
+        _data["canCreatePaymentOrder"] !== undefined
+          ? _data["canCreatePaymentOrder"]
           : <any>null;
       this.calculateProfitByStockTotalBuyPrice =
-        _data['calculateProfitByStockTotalBuyPrice'] !== undefined
-          ? _data['calculateProfitByStockTotalBuyPrice']
+        _data["calculateProfitByStockTotalBuyPrice"] !== undefined
+          ? _data["calculateProfitByStockTotalBuyPrice"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      if (Array.isArray(_data['subBranches'])) {
+      if (Array.isArray(_data["subBranches"])) {
         this.subBranches = [] as any;
-        for (let item of _data['subBranches'])
+        for (let item of _data["subBranches"])
           this.subBranches!.push(BranchModel.fromJS(item));
       } else {
         this.subBranches = <any>null;
       }
-      if (Array.isArray(_data['saleManagers'])) {
+      if (Array.isArray(_data["saleManagers"])) {
         this.saleManagers = [] as any;
-        for (let item of _data['saleManagers'])
+        for (let item of _data["saleManagers"])
           this.saleManagers!.push(SaleManagerModel.fromJS(item));
       } else {
         this.saleManagers = <any>null;
       }
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : new MerchantModel();
-      this.parentBranch = _data['parentBranch']
-        ? BranchModel.fromJS(_data['parentBranch'])
+      this.parentBranch = _data["parentBranch"]
+        ? BranchModel.fromJS(_data["parentBranch"])
         : <any>null;
-      if (Array.isArray(_data['gatewayLists'])) {
+      if (Array.isArray(_data["gatewayLists"])) {
         this.gatewayLists = [] as any;
-        for (let item of _data['gatewayLists'])
+        for (let item of _data["gatewayLists"])
           this.gatewayLists!.push(GatewayListModel.fromJS(item));
       } else {
         this.gatewayLists = <any>null;
@@ -18219,68 +18221,68 @@ export class BranchModel implements IBranchModel {
   }
 
   static fromJS(data: any): BranchModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BranchModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['branchName'] =
+    data = typeof data === "object" ? data : {};
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["branchName"] =
       this.branchName !== undefined ? this.branchName : <any>null;
-    data['parentBranchId'] =
+    data["parentBranchId"] =
       this.parentBranchId !== undefined ? this.parentBranchId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['rootPriceListId'] =
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["rootPriceListId"] =
       this.rootPriceListId !== undefined ? this.rootPriceListId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['canSetFaceValue'] =
+    data["canSetFaceValue"] =
       this.canSetFaceValue !== undefined ? this.canSetFaceValue : <any>null;
-    data['canSetBuyValue'] =
+    data["canSetBuyValue"] =
       this.canSetBuyValue !== undefined ? this.canSetBuyValue : <any>null;
-    data['canPlaceOrder'] =
+    data["canPlaceOrder"] =
       this.canPlaceOrder !== undefined ? this.canPlaceOrder : <any>null;
-    data['canCreateGatewayList'] =
+    data["canCreateGatewayList"] =
       this.canCreateGatewayList !== undefined
         ? this.canCreateGatewayList
         : <any>null;
-    data['canCreatePaymentOrder'] =
+    data["canCreatePaymentOrder"] =
       this.canCreatePaymentOrder !== undefined
         ? this.canCreatePaymentOrder
         : <any>null;
-    data['calculateProfitByStockTotalBuyPrice'] =
+    data["calculateProfitByStockTotalBuyPrice"] =
       this.calculateProfitByStockTotalBuyPrice !== undefined
         ? this.calculateProfitByStockTotalBuyPrice
         : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
     if (Array.isArray(this.subBranches)) {
-      data['subBranches'] = [];
+      data["subBranches"] = [];
       for (let item of this.subBranches)
-        data['subBranches'].push(item.toJSON());
+        data["subBranches"].push(item.toJSON());
     }
     if (Array.isArray(this.saleManagers)) {
-      data['saleManagers'] = [];
+      data["saleManagers"] = [];
       for (let item of this.saleManagers)
-        data['saleManagers'].push(item.toJSON());
+        data["saleManagers"].push(item.toJSON());
     }
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['parentBranch'] = this.parentBranch
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["parentBranch"] = this.parentBranch
       ? this.parentBranch.toJSON()
       : <any>null;
     if (Array.isArray(this.gatewayLists)) {
-      data['gatewayLists'] = [];
+      data["gatewayLists"] = [];
       for (let item of this.gatewayLists)
-        data['gatewayLists'].push(item.toJSON());
+        data["gatewayLists"].push(item.toJSON());
     }
     return data;
   }
@@ -18334,30 +18336,30 @@ export class SaleManagerModel implements ISaleManagerModel {
   init(_data?: any) {
     if (_data) {
       this.saleManagerId =
-        _data['saleManagerId'] !== undefined
-          ? _data['saleManagerId']
+        _data["saleManagerId"] !== undefined
+          ? _data["saleManagerId"]
           : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
       this.phoneNumber =
-        _data['phoneNumber'] !== undefined ? _data['phoneNumber'] : <any>null;
+        _data["phoneNumber"] !== undefined ? _data["phoneNumber"] : <any>null;
       this.isActive =
-        _data['isActive'] !== undefined ? _data['isActive'] : <any>null;
+        _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.branch = _data['branch']
-        ? BranchModel.fromJS(_data['branch'])
+      this.branch = _data["branch"]
+        ? BranchModel.fromJS(_data["branch"])
         : <any>null;
-      if (Array.isArray(_data['customers'])) {
+      if (Array.isArray(_data["customers"])) {
         this.customers = [] as any;
-        for (let item of _data['customers'])
+        for (let item of _data["customers"])
           this.customers!.push(MerchantModel.fromJS(item));
       } else {
         this.customers = <any>null;
@@ -18366,33 +18368,33 @@ export class SaleManagerModel implements ISaleManagerModel {
   }
 
   static fromJS(data: any): SaleManagerModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SaleManagerModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['saleManagerId'] =
+    data = typeof data === "object" ? data : {};
+    data["saleManagerId"] =
       this.saleManagerId !== undefined ? this.saleManagerId : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['phoneNumber'] =
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["phoneNumber"] =
       this.phoneNumber !== undefined ? this.phoneNumber : <any>null;
-    data['isActive'] = this.isActive !== undefined ? this.isActive : <any>null;
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['branch'] = this.branch ? this.branch.toJSON() : <any>null;
+    data["branch"] = this.branch ? this.branch.toJSON() : <any>null;
     if (Array.isArray(this.customers)) {
-      data['customers'] = [];
-      for (let item of this.customers) data['customers'].push(item.toJSON());
+      data["customers"] = [];
+      for (let item of this.customers) data["customers"].push(item.toJSON());
     }
     return data;
   }
@@ -18433,24 +18435,24 @@ export class GatewayListModel implements IGatewayListModel {
   init(_data?: any) {
     if (_data) {
       this.gatewayListId =
-        _data['gatewayListId'] !== undefined
-          ? _data['gatewayListId']
+        _data["gatewayListId"] !== undefined
+          ? _data["gatewayListId"]
           : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
       this.branchId =
-        _data['branchId'] !== undefined ? _data['branchId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["branchId"] !== undefined ? _data["branchId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.branch = _data['branch']
-        ? BranchModel.fromJS(_data['branch'])
+      this.branch = _data["branch"]
+        ? BranchModel.fromJS(_data["branch"])
         : <any>null;
-      if (Array.isArray(_data['paymentProfiles'])) {
+      if (Array.isArray(_data["paymentProfiles"])) {
         this.paymentProfiles = [] as any;
-        for (let item of _data['paymentProfiles'])
+        for (let item of _data["paymentProfiles"])
           this.paymentProfiles!.push(
             GatewayListPaymentProfileModel.fromJS(item)
           );
@@ -18461,29 +18463,29 @@ export class GatewayListModel implements IGatewayListModel {
   }
 
   static fromJS(data: any): GatewayListModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new GatewayListModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['gatewayListId'] =
+    data = typeof data === "object" ? data : {};
+    data["gatewayListId"] =
       this.gatewayListId !== undefined ? this.gatewayListId : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['branchId'] = this.branchId !== undefined ? this.branchId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["branchId"] = this.branchId !== undefined ? this.branchId : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['branch'] = this.branch ? this.branch.toJSON() : <any>null;
+    data["branch"] = this.branch ? this.branch.toJSON() : <any>null;
     if (Array.isArray(this.paymentProfiles)) {
-      data['paymentProfiles'] = [];
+      data["paymentProfiles"] = [];
       for (let item of this.paymentProfiles)
-        data['paymentProfiles'].push(item.toJSON());
+        data["paymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -18521,55 +18523,55 @@ export class GatewayListPaymentProfileModel
   init(_data?: any) {
     if (_data) {
       this.gatewayListPaymentProfileId =
-        _data['gatewayListPaymentProfileId'] !== undefined
-          ? _data['gatewayListPaymentProfileId']
+        _data["gatewayListPaymentProfileId"] !== undefined
+          ? _data["gatewayListPaymentProfileId"]
           : <any>null;
       this.gatewayListId =
-        _data['gatewayListId'] !== undefined
-          ? _data['gatewayListId']
+        _data["gatewayListId"] !== undefined
+          ? _data["gatewayListId"]
           : <any>null;
       this.paymentProfileId =
-        _data['paymentProfileId'] !== undefined
-          ? _data['paymentProfileId']
+        _data["paymentProfileId"] !== undefined
+          ? _data["paymentProfileId"]
           : <any>null;
       this.useForSubMerchants =
-        _data['useForSubMerchants'] !== undefined
-          ? _data['useForSubMerchants']
+        _data["useForSubMerchants"] !== undefined
+          ? _data["useForSubMerchants"]
           : <any>null;
-      this.gatewayList = _data['gatewayList']
-        ? GatewayListModel.fromJS(_data['gatewayList'])
+      this.gatewayList = _data["gatewayList"]
+        ? GatewayListModel.fromJS(_data["gatewayList"])
         : <any>null;
-      this.paymentProfile = _data['paymentProfile']
-        ? PaymentProfileModel.fromJS(_data['paymentProfile'])
+      this.paymentProfile = _data["paymentProfile"]
+        ? PaymentProfileModel.fromJS(_data["paymentProfile"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): GatewayListPaymentProfileModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new GatewayListPaymentProfileModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['gatewayListPaymentProfileId'] =
+    data = typeof data === "object" ? data : {};
+    data["gatewayListPaymentProfileId"] =
       this.gatewayListPaymentProfileId !== undefined
         ? this.gatewayListPaymentProfileId
         : <any>null;
-    data['gatewayListId'] =
+    data["gatewayListId"] =
       this.gatewayListId !== undefined ? this.gatewayListId : <any>null;
-    data['paymentProfileId'] =
+    data["paymentProfileId"] =
       this.paymentProfileId !== undefined ? this.paymentProfileId : <any>null;
-    data['useForSubMerchants'] =
+    data["useForSubMerchants"] =
       this.useForSubMerchants !== undefined
         ? this.useForSubMerchants
         : <any>null;
-    data['gatewayList'] = this.gatewayList
+    data["gatewayList"] = this.gatewayList
       ? this.gatewayList.toJSON()
       : <any>null;
-    data['paymentProfile'] = this.paymentProfile
+    data["paymentProfile"] = this.paymentProfile
       ? this.paymentProfile.toJSON()
       : <any>null;
     return data;
@@ -18613,39 +18615,39 @@ export class PaymentProfileModel implements IPaymentProfileModel {
   init(_data?: any) {
     if (_data) {
       this.paymentProfileId =
-        _data['paymentProfileId'] !== undefined
-          ? _data['paymentProfileId']
+        _data["paymentProfileId"] !== undefined
+          ? _data["paymentProfileId"]
           : <any>null;
       this.providerProfileId =
-        _data['providerProfileId'] !== undefined
-          ? _data['providerProfileId']
+        _data["providerProfileId"] !== undefined
+          ? _data["providerProfileId"]
           : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
       this.minAmount =
-        _data['minAmount'] !== undefined ? _data['minAmount'] : <any>null;
+        _data["minAmount"] !== undefined ? _data["minAmount"] : <any>null;
       this.maxAmount =
-        _data['maxAmount'] !== undefined ? _data['maxAmount'] : <any>null;
-      this.type = _data['type'] !== undefined ? _data['type'] : <any>null;
+        _data["maxAmount"] !== undefined ? _data["maxAmount"] : <any>null;
+      this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
       this.imageUri1 =
-        _data['imageUri1'] !== undefined ? _data['imageUri1'] : <any>null;
+        _data["imageUri1"] !== undefined ? _data["imageUri1"] : <any>null;
       this.imageUri2 =
-        _data['imageUri2'] !== undefined ? _data['imageUri2'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["imageUri2"] !== undefined ? _data["imageUri2"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
-      if (Array.isArray(_data['gatewayListPaymentProfiles'])) {
+      if (Array.isArray(_data["gatewayListPaymentProfiles"])) {
         this.gatewayListPaymentProfiles = [] as any;
-        for (let item of _data['gatewayListPaymentProfiles'])
+        for (let item of _data["gatewayListPaymentProfiles"])
           this.gatewayListPaymentProfiles!.push(
             GatewayListPaymentProfileModel.fromJS(item)
           );
@@ -18656,43 +18658,43 @@ export class PaymentProfileModel implements IPaymentProfileModel {
   }
 
   static fromJS(data: any): PaymentProfileModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentProfileModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentProfileId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentProfileId"] =
       this.paymentProfileId !== undefined ? this.paymentProfileId : <any>null;
-    data['providerProfileId'] =
+    data["providerProfileId"] =
       this.providerProfileId !== undefined ? this.providerProfileId : <any>null;
-    data['description'] =
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['minAmount'] =
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["minAmount"] =
       this.minAmount !== undefined ? this.minAmount : <any>null;
-    data['maxAmount'] =
+    data["maxAmount"] =
       this.maxAmount !== undefined ? this.maxAmount : <any>null;
-    data['type'] = this.type !== undefined ? this.type : <any>null;
-    data['imageUri1'] =
+    data["type"] = this.type !== undefined ? this.type : <any>null;
+    data["imageUri1"] =
       this.imageUri1 !== undefined ? this.imageUri1 : <any>null;
-    data['imageUri2'] =
+    data["imageUri2"] =
       this.imageUri2 !== undefined ? this.imageUri2 : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     if (Array.isArray(this.gatewayListPaymentProfiles)) {
-      data['gatewayListPaymentProfiles'] = [];
+      data["gatewayListPaymentProfiles"] = [];
       for (let item of this.gatewayListPaymentProfiles)
-        data['gatewayListPaymentProfiles'].push(item.toJSON());
+        data["gatewayListPaymentProfiles"].push(item.toJSON());
     }
     return data;
   }
@@ -18716,7 +18718,7 @@ export interface IPaymentProfileModel {
 }
 
 export enum PaymentProfileType {
-  PaymentProvider = 'PaymentProvider',
+  PaymentProvider = "PaymentProvider",
 }
 
 export class CreditWalletModel implements ICreditWalletModel {
@@ -18741,32 +18743,32 @@ export class CreditWalletModel implements ICreditWalletModel {
   init(_data?: any) {
     if (_data) {
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.merchantCreditWalletId =
-        _data['merchantCreditWalletId'] !== undefined
-          ? _data['merchantCreditWalletId']
+        _data["merchantCreditWalletId"] !== undefined
+          ? _data["merchantCreditWalletId"]
           : <any>null;
       this.customerMerchantId =
-        _data['customerMerchantId'] !== undefined
-          ? _data['customerMerchantId']
+        _data["customerMerchantId"] !== undefined
+          ? _data["customerMerchantId"]
           : <any>null;
       this.customerMerchantCreditWalletId =
-        _data['customerMerchantCreditWalletId'] !== undefined
-          ? _data['customerMerchantCreditWalletId']
+        _data["customerMerchantCreditWalletId"] !== undefined
+          ? _data["customerMerchantCreditWalletId"]
           : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
-      this.customerMerchant = _data['customerMerchant']
-        ? MerchantModel.fromJS(_data['customerMerchant'])
+      this.customerMerchant = _data["customerMerchant"]
+        ? MerchantModel.fromJS(_data["customerMerchant"])
         : <any>null;
-      if (Array.isArray(_data['walletOrders'])) {
+      if (Array.isArray(_data["walletOrders"])) {
         this.walletOrders = [] as any;
-        for (let item of _data['walletOrders'])
+        for (let item of _data["walletOrders"])
           this.walletOrders!.push(CreditOrderModel.fromJS(item));
       } else {
         this.walletOrders = <any>null;
@@ -18775,38 +18777,38 @@ export class CreditWalletModel implements ICreditWalletModel {
   }
 
   static fromJS(data: any): CreditWalletModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreditWalletModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['creditWalletId'] =
+    data = typeof data === "object" ? data : {};
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['merchantCreditWalletId'] =
+    data["merchantCreditWalletId"] =
       this.merchantCreditWalletId !== undefined
         ? this.merchantCreditWalletId
         : <any>null;
-    data['customerMerchantId'] =
+    data["customerMerchantId"] =
       this.customerMerchantId !== undefined
         ? this.customerMerchantId
         : <any>null;
-    data['customerMerchantCreditWalletId'] =
+    data["customerMerchantCreditWalletId"] =
       this.customerMerchantCreditWalletId !== undefined
         ? this.customerMerchantCreditWalletId
         : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['customerMerchant'] = this.customerMerchant
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["customerMerchant"] = this.customerMerchant
       ? this.customerMerchant.toJSON()
       : <any>null;
     if (Array.isArray(this.walletOrders)) {
-      data['walletOrders'] = [];
+      data["walletOrders"] = [];
       for (let item of this.walletOrders)
-        data['walletOrders'].push(item.toJSON());
+        data["walletOrders"].push(item.toJSON());
     }
     return data;
   }
@@ -18854,55 +18856,55 @@ export class CreditOrderModel implements ICreditOrderModel {
   init(_data?: any) {
     if (_data) {
       this.creditOrderId =
-        _data['creditOrderId'] !== undefined
-          ? _data['creditOrderId']
+        _data["creditOrderId"] !== undefined
+          ? _data["creditOrderId"]
           : <any>null;
       this.mainWalletOrderId =
-        _data['mainWalletOrderId'] !== undefined
-          ? _data['mainWalletOrderId']
+        _data["mainWalletOrderId"] !== undefined
+          ? _data["mainWalletOrderId"]
           : <any>null;
       this.creditWalletOrderId =
-        _data['creditWalletOrderId'] !== undefined
-          ? _data['creditWalletOrderId']
+        _data["creditWalletOrderId"] !== undefined
+          ? _data["creditWalletOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.error = _data['error'] !== undefined ? _data['error'] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.firstVerifierUserId =
-        _data['firstVerifierUserId'] !== undefined
-          ? _data['firstVerifierUserId']
+        _data["firstVerifierUserId"] !== undefined
+          ? _data["firstVerifierUserId"]
           : <any>null;
       this.secondVerifierUserId =
-        _data['secondVerifierUserId'] !== undefined
-          ? _data['secondVerifierUserId']
+        _data["secondVerifierUserId"] !== undefined
+          ? _data["secondVerifierUserId"]
           : <any>null;
       this.createdByUserId =
-        _data['createdByUserId'] !== undefined
-          ? _data['createdByUserId']
+        _data["createdByUserId"] !== undefined
+          ? _data["createdByUserId"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
-      this.creditWallet = _data['creditWallet']
-        ? CreditWalletModel.fromJS(_data['creditWallet'])
+      this.creditWallet = _data["creditWallet"]
+        ? CreditWalletModel.fromJS(_data["creditWallet"])
         : <any>null;
-      if (Array.isArray(_data['creditOrderStateLogs'])) {
+      if (Array.isArray(_data["creditOrderStateLogs"])) {
         this.creditOrderStateLogs = [] as any;
-        for (let item of _data['creditOrderStateLogs'])
+        for (let item of _data["creditOrderStateLogs"])
           this.creditOrderStateLogs!.push(
             CreditOrderStateLogModel.fromJS(item)
           );
@@ -18913,55 +18915,55 @@ export class CreditOrderModel implements ICreditOrderModel {
   }
 
   static fromJS(data: any): CreditOrderModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreditOrderModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['creditOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["creditOrderId"] =
       this.creditOrderId !== undefined ? this.creditOrderId : <any>null;
-    data['mainWalletOrderId'] =
+    data["mainWalletOrderId"] =
       this.mainWalletOrderId !== undefined ? this.mainWalletOrderId : <any>null;
-    data['creditWalletOrderId'] =
+    data["creditWalletOrderId"] =
       this.creditWalletOrderId !== undefined
         ? this.creditWalletOrderId
         : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['error'] = this.error !== undefined ? this.error : <any>null;
-    data['description'] =
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["error"] = this.error !== undefined ? this.error : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['creditWalletId'] =
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['firstVerifierUserId'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["firstVerifierUserId"] =
       this.firstVerifierUserId !== undefined
         ? this.firstVerifierUserId
         : <any>null;
-    data['secondVerifierUserId'] =
+    data["secondVerifierUserId"] =
       this.secondVerifierUserId !== undefined
         ? this.secondVerifierUserId
         : <any>null;
-    data['createdByUserId'] =
+    data["createdByUserId"] =
       this.createdByUserId !== undefined ? this.createdByUserId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['creditWallet'] = this.creditWallet
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["creditWallet"] = this.creditWallet
       ? this.creditWallet.toJSON()
       : <any>null;
     if (Array.isArray(this.creditOrderStateLogs)) {
-      data['creditOrderStateLogs'] = [];
+      data["creditOrderStateLogs"] = [];
       for (let item of this.creditOrderStateLogs)
-        data['creditOrderStateLogs'].push(item.toJSON());
+        data["creditOrderStateLogs"].push(item.toJSON());
     }
     return data;
   }
@@ -19019,45 +19021,45 @@ export class CreditOrderStateLogModel implements ICreditOrderStateLogModel {
   init(_data?: any) {
     if (_data) {
       this.creditOrderStateLogId =
-        _data['creditOrderStateLogId'] !== undefined
-          ? _data['creditOrderStateLogId']
+        _data["creditOrderStateLogId"] !== undefined
+          ? _data["creditOrderStateLogId"]
           : <any>null;
       this.creditOrderId =
-        _data['creditOrderId'] !== undefined
-          ? _data['creditOrderId']
+        _data["creditOrderId"] !== undefined
+          ? _data["creditOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.reason = _data['reason'] !== undefined ? _data['reason'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.reason = _data["reason"] !== undefined ? _data["reason"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.creditOrder = _data['creditOrder']
-        ? CreditOrderModel.fromJS(_data['creditOrder'])
+      this.creditOrder = _data["creditOrder"]
+        ? CreditOrderModel.fromJS(_data["creditOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): CreditOrderStateLogModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreditOrderStateLogModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['creditOrderStateLogId'] =
+    data = typeof data === "object" ? data : {};
+    data["creditOrderStateLogId"] =
       this.creditOrderStateLogId !== undefined
         ? this.creditOrderStateLogId
         : <any>null;
-    data['creditOrderId'] =
+    data["creditOrderId"] =
       this.creditOrderId !== undefined ? this.creditOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['reason'] = this.reason !== undefined ? this.reason : <any>null;
-    data['createdTime'] = this.createdTime
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["reason"] = this.reason !== undefined ? this.reason : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['creditOrder'] = this.creditOrder
+    data["creditOrder"] = this.creditOrder
       ? this.creditOrder.toJSON()
       : <any>null;
     return data;
@@ -19110,77 +19112,77 @@ export class SettleOrderModel implements ISettleOrderModel {
   init(_data?: any) {
     if (_data) {
       this.settleOrderId =
-        _data['settleOrderId'] !== undefined
-          ? _data['settleOrderId']
+        _data["settleOrderId"] !== undefined
+          ? _data["settleOrderId"]
           : <any>null;
       this.creditWalletOrderId =
-        _data['creditWalletOrderId'] !== undefined
-          ? _data['creditWalletOrderId']
+        _data["creditWalletOrderId"] !== undefined
+          ? _data["creditWalletOrderId"]
           : <any>null;
       this.mainWalletOrderId =
-        _data['mainWalletOrderId'] !== undefined
-          ? _data['mainWalletOrderId']
+        _data["mainWalletOrderId"] !== undefined
+          ? _data["mainWalletOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.reason = _data['reason'] !== undefined ? _data['reason'] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.reason = _data["reason"] !== undefined ? _data["reason"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.senderMerchantId =
-        _data['senderMerchantId'] !== undefined
-          ? _data['senderMerchantId']
+        _data["senderMerchantId"] !== undefined
+          ? _data["senderMerchantId"]
           : <any>null;
       this.senderMerchantCreditWalletId =
-        _data['senderMerchantCreditWalletId'] !== undefined
-          ? _data['senderMerchantCreditWalletId']
+        _data["senderMerchantCreditWalletId"] !== undefined
+          ? _data["senderMerchantCreditWalletId"]
           : <any>null;
       this.receiverMerchantId =
-        _data['receiverMerchantId'] !== undefined
-          ? _data['receiverMerchantId']
+        _data["receiverMerchantId"] !== undefined
+          ? _data["receiverMerchantId"]
           : <any>null;
       this.receiverMerchantCreditWalletId =
-        _data['receiverMerchantCreditWalletId'] !== undefined
-          ? _data['receiverMerchantCreditWalletId']
+        _data["receiverMerchantCreditWalletId"] !== undefined
+          ? _data["receiverMerchantCreditWalletId"]
           : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.creditWalletId =
-        _data['creditWalletId'] !== undefined
-          ? _data['creditWalletId']
+        _data["creditWalletId"] !== undefined
+          ? _data["creditWalletId"]
           : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.firstVerifierUserId =
-        _data['firstVerifierUserId'] !== undefined
-          ? _data['firstVerifierUserId']
+        _data["firstVerifierUserId"] !== undefined
+          ? _data["firstVerifierUserId"]
           : <any>null;
       this.secondVerifierUserId =
-        _data['secondVerifierUserId'] !== undefined
-          ? _data['secondVerifierUserId']
+        _data["secondVerifierUserId"] !== undefined
+          ? _data["secondVerifierUserId"]
           : <any>null;
       this.createdByUserId =
-        _data['createdByUserId'] !== undefined
-          ? _data['createdByUserId']
+        _data["createdByUserId"] !== undefined
+          ? _data["createdByUserId"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.senderMerchant = _data['senderMerchant']
-        ? MerchantModel.fromJS(_data['senderMerchant'])
+      this.senderMerchant = _data["senderMerchant"]
+        ? MerchantModel.fromJS(_data["senderMerchant"])
         : <any>null;
-      this.receiverMerchant = _data['receiverMerchant']
-        ? MerchantModel.fromJS(_data['receiverMerchant'])
+      this.receiverMerchant = _data["receiverMerchant"]
+        ? MerchantModel.fromJS(_data["receiverMerchant"])
         : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
-      this.creditWallet = _data['creditWallet']
-        ? CreditWalletModel.fromJS(_data['creditWallet'])
+      this.creditWallet = _data["creditWallet"]
+        ? CreditWalletModel.fromJS(_data["creditWallet"])
         : <any>null;
-      if (Array.isArray(_data['settleOrderStateLogs'])) {
+      if (Array.isArray(_data["settleOrderStateLogs"])) {
         this.settleOrderStateLogs = [] as any;
-        for (let item of _data['settleOrderStateLogs'])
+        for (let item of _data["settleOrderStateLogs"])
           this.settleOrderStateLogs!.push(
             SettleOrderStateLogModel.fromJS(item)
           );
@@ -19191,75 +19193,75 @@ export class SettleOrderModel implements ISettleOrderModel {
   }
 
   static fromJS(data: any): SettleOrderModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SettleOrderModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['settleOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["settleOrderId"] =
       this.settleOrderId !== undefined ? this.settleOrderId : <any>null;
-    data['creditWalletOrderId'] =
+    data["creditWalletOrderId"] =
       this.creditWalletOrderId !== undefined
         ? this.creditWalletOrderId
         : <any>null;
-    data['mainWalletOrderId'] =
+    data["mainWalletOrderId"] =
       this.mainWalletOrderId !== undefined ? this.mainWalletOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['reason'] = this.reason !== undefined ? this.reason : <any>null;
-    data['description'] =
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["reason"] = this.reason !== undefined ? this.reason : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['senderMerchantId'] =
+    data["senderMerchantId"] =
       this.senderMerchantId !== undefined ? this.senderMerchantId : <any>null;
-    data['senderMerchantCreditWalletId'] =
+    data["senderMerchantCreditWalletId"] =
       this.senderMerchantCreditWalletId !== undefined
         ? this.senderMerchantCreditWalletId
         : <any>null;
-    data['receiverMerchantId'] =
+    data["receiverMerchantId"] =
       this.receiverMerchantId !== undefined
         ? this.receiverMerchantId
         : <any>null;
-    data['receiverMerchantCreditWalletId'] =
+    data["receiverMerchantCreditWalletId"] =
       this.receiverMerchantCreditWalletId !== undefined
         ? this.receiverMerchantCreditWalletId
         : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['creditWalletId'] =
+    data["creditWalletId"] =
       this.creditWalletId !== undefined ? this.creditWalletId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['firstVerifierUserId'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["firstVerifierUserId"] =
       this.firstVerifierUserId !== undefined
         ? this.firstVerifierUserId
         : <any>null;
-    data['secondVerifierUserId'] =
+    data["secondVerifierUserId"] =
       this.secondVerifierUserId !== undefined
         ? this.secondVerifierUserId
         : <any>null;
-    data['createdByUserId'] =
+    data["createdByUserId"] =
       this.createdByUserId !== undefined ? this.createdByUserId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['senderMerchant'] = this.senderMerchant
+    data["senderMerchant"] = this.senderMerchant
       ? this.senderMerchant.toJSON()
       : <any>null;
-    data['receiverMerchant'] = this.receiverMerchant
+    data["receiverMerchant"] = this.receiverMerchant
       ? this.receiverMerchant.toJSON()
       : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['creditWallet'] = this.creditWallet
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["creditWallet"] = this.creditWallet
       ? this.creditWallet.toJSON()
       : <any>null;
     if (Array.isArray(this.settleOrderStateLogs)) {
-      data['settleOrderStateLogs'] = [];
+      data["settleOrderStateLogs"] = [];
       for (let item of this.settleOrderStateLogs)
-        data['settleOrderStateLogs'].push(item.toJSON());
+        data["settleOrderStateLogs"].push(item.toJSON());
     }
     return data;
   }
@@ -19321,45 +19323,45 @@ export class SettleOrderStateLogModel implements ISettleOrderStateLogModel {
   init(_data?: any) {
     if (_data) {
       this.settleOrderStateLogId =
-        _data['settleOrderStateLogId'] !== undefined
-          ? _data['settleOrderStateLogId']
+        _data["settleOrderStateLogId"] !== undefined
+          ? _data["settleOrderStateLogId"]
           : <any>null;
       this.settleOrderId =
-        _data['settleOrderId'] !== undefined
-          ? _data['settleOrderId']
+        _data["settleOrderId"] !== undefined
+          ? _data["settleOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.error = _data['error'] !== undefined ? _data['error'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.settleOrder = _data['settleOrder']
-        ? SettleOrderModel.fromJS(_data['settleOrder'])
+      this.settleOrder = _data["settleOrder"]
+        ? SettleOrderModel.fromJS(_data["settleOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): SettleOrderStateLogModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SettleOrderStateLogModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['settleOrderStateLogId'] =
+    data = typeof data === "object" ? data : {};
+    data["settleOrderStateLogId"] =
       this.settleOrderStateLogId !== undefined
         ? this.settleOrderStateLogId
         : <any>null;
-    data['settleOrderId'] =
+    data["settleOrderId"] =
       this.settleOrderId !== undefined ? this.settleOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['error'] = this.error !== undefined ? this.error : <any>null;
-    data['createdTime'] = this.createdTime
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["error"] = this.error !== undefined ? this.error : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['settleOrder'] = this.settleOrder
+    data["settleOrder"] = this.settleOrder
       ? this.settleOrder.toJSON()
       : <any>null;
     return data;
@@ -19411,66 +19413,66 @@ export class OrdinaryOrderModel implements IOrdinaryOrderModel {
   init(_data?: any) {
     if (_data) {
       this.ordinaryOrderId =
-        _data['ordinaryOrderId'] !== undefined
-          ? _data['ordinaryOrderId']
+        _data["ordinaryOrderId"] !== undefined
+          ? _data["ordinaryOrderId"]
           : <any>null;
       this.walletOrderId =
-        _data['walletOrderId'] !== undefined
-          ? _data['walletOrderId']
+        _data["walletOrderId"] !== undefined
+          ? _data["walletOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
       this.ordinaryOrderType =
-        _data['ordinaryOrderType'] !== undefined
-          ? _data['ordinaryOrderType']
+        _data["ordinaryOrderType"] !== undefined
+          ? _data["ordinaryOrderType"]
           : <any>null;
-      this.reason = _data['reason'] !== undefined ? _data['reason'] : <any>null;
+      this.reason = _data["reason"] !== undefined ? _data["reason"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
       this.receiverMerchantId =
-        _data['receiverMerchantId'] !== undefined
-          ? _data['receiverMerchantId']
+        _data["receiverMerchantId"] !== undefined
+          ? _data["receiverMerchantId"]
           : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.bankId = _data['bankId'] !== undefined ? _data['bankId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.bankId = _data["bankId"] !== undefined ? _data["bankId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.firstVerifierUserId =
-        _data['firstVerifierUserId'] !== undefined
-          ? _data['firstVerifierUserId']
+        _data["firstVerifierUserId"] !== undefined
+          ? _data["firstVerifierUserId"]
           : <any>null;
       this.secondVerifierUserId =
-        _data['secondVerifierUserId'] !== undefined
-          ? _data['secondVerifierUserId']
+        _data["secondVerifierUserId"] !== undefined
+          ? _data["secondVerifierUserId"]
           : <any>null;
       this.createdByUserId =
-        _data['createdByUserId'] !== undefined
-          ? _data['createdByUserId']
+        _data["createdByUserId"] !== undefined
+          ? _data["createdByUserId"]
           : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
       this.modifiedByUserId =
-        _data['modifiedByUserId'] !== undefined
-          ? _data['modifiedByUserId']
+        _data["modifiedByUserId"] !== undefined
+          ? _data["modifiedByUserId"]
           : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
-      this.receiverMerchant = _data['receiverMerchant']
-        ? MerchantModel.fromJS(_data['receiverMerchant'])
+      this.receiverMerchant = _data["receiverMerchant"]
+        ? MerchantModel.fromJS(_data["receiverMerchant"])
         : <any>null;
-      this.bank = _data['bank'] ? BankModel.fromJS(_data['bank']) : <any>null;
-      if (Array.isArray(_data['ordinaryOrderStateLogs'])) {
+      this.bank = _data["bank"] ? BankModel.fromJS(_data["bank"]) : <any>null;
+      if (Array.isArray(_data["ordinaryOrderStateLogs"])) {
         this.ordinaryOrderStateLogs = [] as any;
-        for (let item of _data['ordinaryOrderStateLogs'])
+        for (let item of _data["ordinaryOrderStateLogs"])
           this.ordinaryOrderStateLogs!.push(
             OrdinaryOrderStateLogModel.fromJS(item)
           );
@@ -19481,62 +19483,62 @@ export class OrdinaryOrderModel implements IOrdinaryOrderModel {
   }
 
   static fromJS(data: any): OrdinaryOrderModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new OrdinaryOrderModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['ordinaryOrderId'] =
+    data = typeof data === "object" ? data : {};
+    data["ordinaryOrderId"] =
       this.ordinaryOrderId !== undefined ? this.ordinaryOrderId : <any>null;
-    data['walletOrderId'] =
+    data["walletOrderId"] =
       this.walletOrderId !== undefined ? this.walletOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['ordinaryOrderType'] =
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["ordinaryOrderType"] =
       this.ordinaryOrderType !== undefined ? this.ordinaryOrderType : <any>null;
-    data['reason'] = this.reason !== undefined ? this.reason : <any>null;
-    data['description'] =
+    data["reason"] = this.reason !== undefined ? this.reason : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['receiverMerchantId'] =
+    data["receiverMerchantId"] =
       this.receiverMerchantId !== undefined
         ? this.receiverMerchantId
         : <any>null;
-    data['currencyId'] =
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['bankId'] = this.bankId !== undefined ? this.bankId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['firstVerifierUserId'] =
+    data["bankId"] = this.bankId !== undefined ? this.bankId : <any>null;
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["firstVerifierUserId"] =
       this.firstVerifierUserId !== undefined
         ? this.firstVerifierUserId
         : <any>null;
-    data['secondVerifierUserId'] =
+    data["secondVerifierUserId"] =
       this.secondVerifierUserId !== undefined
         ? this.secondVerifierUserId
         : <any>null;
-    data['createdByUserId'] =
+    data["createdByUserId"] =
       this.createdByUserId !== undefined ? this.createdByUserId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['modifiedByUserId'] =
+    data["modifiedByUserId"] =
       this.modifiedByUserId !== undefined ? this.modifiedByUserId : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['receiverMerchant'] = this.receiverMerchant
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["receiverMerchant"] = this.receiverMerchant
       ? this.receiverMerchant.toJSON()
       : <any>null;
-    data['bank'] = this.bank ? this.bank.toJSON() : <any>null;
+    data["bank"] = this.bank ? this.bank.toJSON() : <any>null;
     if (Array.isArray(this.ordinaryOrderStateLogs)) {
-      data['ordinaryOrderStateLogs'] = [];
+      data["ordinaryOrderStateLogs"] = [];
       for (let item of this.ordinaryOrderStateLogs)
-        data['ordinaryOrderStateLogs'].push(item.toJSON());
+        data["ordinaryOrderStateLogs"].push(item.toJSON());
     }
     return data;
   }
@@ -19568,18 +19570,18 @@ export interface IOrdinaryOrderModel {
 }
 
 export enum OrdinaryOrderState {
-  Created = 'Created',
-  Success = 'Success',
-  Fail = 'Fail',
-  AuthWallet = 'AuthWallet',
-  Rejecting = 'Rejecting',
-  Verifying = 'Verifying',
+  Created = "Created",
+  Success = "Success",
+  Fail = "Fail",
+  AuthWallet = "AuthWallet",
+  Rejecting = "Rejecting",
+  Verifying = "Verifying",
 }
 
 export enum OrdinaryOrderType {
-  Charge = 'Charge',
-  Withdraw = 'Withdraw',
-  Rebate = 'Rebate',
+  Charge = "Charge",
+  Withdraw = "Withdraw",
+  Rebate = "Rebate",
 }
 
 export class BankModel implements IBankModel {
@@ -19598,12 +19600,12 @@ export class BankModel implements IBankModel {
 
   init(_data?: any) {
     if (_data) {
-      this.bankId = _data['bankId'] !== undefined ? _data['bankId'] : <any>null;
+      this.bankId = _data["bankId"] !== undefined ? _data["bankId"] : <any>null;
       this.bankName =
-        _data['bankName'] !== undefined ? _data['bankName'] : <any>null;
-      if (Array.isArray(_data['ordinaryOrders'])) {
+        _data["bankName"] !== undefined ? _data["bankName"] : <any>null;
+      if (Array.isArray(_data["ordinaryOrders"])) {
         this.ordinaryOrders = [] as any;
-        for (let item of _data['ordinaryOrders'])
+        for (let item of _data["ordinaryOrders"])
           this.ordinaryOrders!.push(OrdinaryOrderModel.fromJS(item));
       } else {
         this.ordinaryOrders = <any>null;
@@ -19612,20 +19614,20 @@ export class BankModel implements IBankModel {
   }
 
   static fromJS(data: any): BankModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new BankModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['bankId'] = this.bankId !== undefined ? this.bankId : <any>null;
-    data['bankName'] = this.bankName !== undefined ? this.bankName : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["bankId"] = this.bankId !== undefined ? this.bankId : <any>null;
+    data["bankName"] = this.bankName !== undefined ? this.bankName : <any>null;
     if (Array.isArray(this.ordinaryOrders)) {
-      data['ordinaryOrders'] = [];
+      data["ordinaryOrders"] = [];
       for (let item of this.ordinaryOrders)
-        data['ordinaryOrders'].push(item.toJSON());
+        data["ordinaryOrders"].push(item.toJSON());
     }
     return data;
   }
@@ -19657,45 +19659,45 @@ export class OrdinaryOrderStateLogModel implements IOrdinaryOrderStateLogModel {
   init(_data?: any) {
     if (_data) {
       this.ordinaryOrderStateLogId =
-        _data['ordinaryOrderStateLogId'] !== undefined
-          ? _data['ordinaryOrderStateLogId']
+        _data["ordinaryOrderStateLogId"] !== undefined
+          ? _data["ordinaryOrderStateLogId"]
           : <any>null;
       this.ordinaryOrderId =
-        _data['ordinaryOrderId'] !== undefined
-          ? _data['ordinaryOrderId']
+        _data["ordinaryOrderId"] !== undefined
+          ? _data["ordinaryOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.error = _data['error'] !== undefined ? _data['error'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.ordinaryOrder = _data['ordinaryOrder']
-        ? OrdinaryOrderModel.fromJS(_data['ordinaryOrder'])
+      this.ordinaryOrder = _data["ordinaryOrder"]
+        ? OrdinaryOrderModel.fromJS(_data["ordinaryOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): OrdinaryOrderStateLogModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new OrdinaryOrderStateLogModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['ordinaryOrderStateLogId'] =
+    data = typeof data === "object" ? data : {};
+    data["ordinaryOrderStateLogId"] =
       this.ordinaryOrderStateLogId !== undefined
         ? this.ordinaryOrderStateLogId
         : <any>null;
-    data['ordinaryOrderId'] =
+    data["ordinaryOrderId"] =
       this.ordinaryOrderId !== undefined ? this.ordinaryOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['error'] = this.error !== undefined ? this.error : <any>null;
-    data['createdTime'] = this.createdTime
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["error"] = this.error !== undefined ? this.error : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['ordinaryOrder'] = this.ordinaryOrder
+    data["ordinaryOrder"] = this.ordinaryOrder
       ? this.ordinaryOrder.toJSON()
       : <any>null;
     return data;
@@ -19732,24 +19734,24 @@ export class InvoiceModel implements IInvoiceModel {
   init(_data?: any) {
     if (_data) {
       this.invoiceId =
-        _data['invoiceId'] !== undefined ? _data['invoiceId'] : <any>null;
+        _data["invoiceId"] !== undefined ? _data["invoiceId"] : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.beginTime = _data['beginTime']
-        ? new Date(_data['beginTime'].toString())
+      this.beginTime = _data["beginTime"]
+        ? new Date(_data["beginTime"].toString())
         : <any>null;
-      this.endTime = _data['endTime']
-        ? new Date(_data['endTime'].toString())
+      this.endTime = _data["endTime"]
+        ? new Date(_data["endTime"].toString())
         : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
-      if (Array.isArray(_data['invoiceDetails'])) {
+      if (Array.isArray(_data["invoiceDetails"])) {
         this.invoiceDetails = [] as any;
-        for (let item of _data['invoiceDetails'])
+        for (let item of _data["invoiceDetails"])
           this.invoiceDetails!.push(InvoiceDetailModel.fromJS(item));
       } else {
         this.invoiceDetails = <any>null;
@@ -19758,30 +19760,30 @@ export class InvoiceModel implements IInvoiceModel {
   }
 
   static fromJS(data: any): InvoiceModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new InvoiceModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['invoiceId'] =
+    data = typeof data === "object" ? data : {};
+    data["invoiceId"] =
       this.invoiceId !== undefined ? this.invoiceId : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['beginTime'] = this.beginTime
+    data["beginTime"] = this.beginTime
       ? this.beginTime.toISOString()
       : <any>null;
-    data['endTime'] = this.endTime ? this.endTime.toISOString() : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
     if (Array.isArray(this.invoiceDetails)) {
-      data['invoiceDetails'] = [];
+      data["invoiceDetails"] = [];
       for (let item of this.invoiceDetails)
-        data['invoiceDetails'].push(item.toJSON());
+        data["invoiceDetails"].push(item.toJSON());
     }
     return data;
   }
@@ -19815,35 +19817,35 @@ export class InvoiceDetailModel implements IInvoiceDetailModel {
   init(_data?: any) {
     if (_data) {
       this.invoiceDetailId =
-        _data['invoiceDetailId'] !== undefined
-          ? _data['invoiceDetailId']
+        _data["invoiceDetailId"] !== undefined
+          ? _data["invoiceDetailId"]
           : <any>null;
       this.invoiceId =
-        _data['invoiceId'] !== undefined ? _data['invoiceId'] : <any>null;
+        _data["invoiceId"] !== undefined ? _data["invoiceId"] : <any>null;
       this.buyOrderId =
-        _data['buyOrderId'] !== undefined ? _data['buyOrderId'] : <any>null;
-      this.invoice = _data['invoice']
-        ? InvoiceModel.fromJS(_data['invoice'])
+        _data["buyOrderId"] !== undefined ? _data["buyOrderId"] : <any>null;
+      this.invoice = _data["invoice"]
+        ? InvoiceModel.fromJS(_data["invoice"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): InvoiceDetailModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new InvoiceDetailModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['invoiceDetailId'] =
+    data = typeof data === "object" ? data : {};
+    data["invoiceDetailId"] =
       this.invoiceDetailId !== undefined ? this.invoiceDetailId : <any>null;
-    data['invoiceId'] =
+    data["invoiceId"] =
       this.invoiceId !== undefined ? this.invoiceId : <any>null;
-    data['buyOrderId'] =
+    data["buyOrderId"] =
       this.buyOrderId !== undefined ? this.buyOrderId : <any>null;
-    data['invoice'] = this.invoice ? this.invoice.toJSON() : <any>null;
+    data["invoice"] = this.invoice ? this.invoice.toJSON() : <any>null;
     return data;
   }
 }
@@ -19877,55 +19879,55 @@ export class MerchantCurrencyLimitModel implements IMerchantCurrencyLimitModel {
   init(_data?: any) {
     if (_data) {
       this.merchantCurrencyLimitId =
-        _data['merchantCurrencyLimitId'] !== undefined
-          ? _data['merchantCurrencyLimitId']
+        _data["merchantCurrencyLimitId"] !== undefined
+          ? _data["merchantCurrencyLimitId"]
           : <any>null;
       this.merchantId =
-        _data['merchantId'] !== undefined ? _data['merchantId'] : <any>null;
-      this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+        _data["merchantId"] !== undefined ? _data["merchantId"] : <any>null;
+      this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.modifiedTime = _data['modifiedTime']
-        ? new Date(_data['modifiedTime'].toString())
+      this.modifiedTime = _data["modifiedTime"]
+        ? new Date(_data["modifiedTime"].toString())
         : <any>null;
-      this.merchant = _data['merchant']
-        ? MerchantModel.fromJS(_data['merchant'])
+      this.merchant = _data["merchant"]
+        ? MerchantModel.fromJS(_data["merchant"])
         : <any>null;
-      this.currency = _data['currency']
-        ? CurrencyModel.fromJS(_data['currency'])
+      this.currency = _data["currency"]
+        ? CurrencyModel.fromJS(_data["currency"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): MerchantCurrencyLimitModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new MerchantCurrencyLimitModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['merchantCurrencyLimitId'] =
+    data = typeof data === "object" ? data : {};
+    data["merchantCurrencyLimitId"] =
       this.merchantCurrencyLimitId !== undefined
         ? this.merchantCurrencyLimitId
         : <any>null;
-    data['merchantId'] =
+    data["merchantId"] =
       this.merchantId !== undefined ? this.merchantId : <any>null;
-    data['amount'] = this.amount !== undefined ? this.amount : <any>null;
-    data['currencyId'] =
+    data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['createdTime'] = this.createdTime
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['modifiedTime'] = this.modifiedTime
+    data["modifiedTime"] = this.modifiedTime
       ? this.modifiedTime.toISOString()
       : <any>null;
-    data['merchant'] = this.merchant ? this.merchant.toJSON() : <any>null;
-    data['currency'] = this.currency ? this.currency.toJSON() : <any>null;
+    data["merchant"] = this.merchant ? this.merchant.toJSON() : <any>null;
+    data["currency"] = this.currency ? this.currency.toJSON() : <any>null;
     return data;
   }
 }
@@ -19961,45 +19963,45 @@ export class PaymentOrderStateLogModel implements IPaymentOrderStateLogModel {
   init(_data?: any) {
     if (_data) {
       this.paymentOrderStateLogId =
-        _data['paymentOrderStateLogId'] !== undefined
-          ? _data['paymentOrderStateLogId']
+        _data["paymentOrderStateLogId"] !== undefined
+          ? _data["paymentOrderStateLogId"]
           : <any>null;
       this.paymentOrderId =
-        _data['paymentOrderId'] !== undefined
-          ? _data['paymentOrderId']
+        _data["paymentOrderId"] !== undefined
+          ? _data["paymentOrderId"]
           : <any>null;
-      this.state = _data['state'] !== undefined ? _data['state'] : <any>null;
-      this.error = _data['error'] !== undefined ? _data['error'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+      this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+      this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.paymentOrder = _data['paymentOrder']
-        ? PaymentOrderModel.fromJS(_data['paymentOrder'])
+      this.paymentOrder = _data["paymentOrder"]
+        ? PaymentOrderModel.fromJS(_data["paymentOrder"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): PaymentOrderStateLogModel {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PaymentOrderStateLogModel();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['paymentOrderStateLogId'] =
+    data = typeof data === "object" ? data : {};
+    data["paymentOrderStateLogId"] =
       this.paymentOrderStateLogId !== undefined
         ? this.paymentOrderStateLogId
         : <any>null;
-    data['paymentOrderId'] =
+    data["paymentOrderId"] =
       this.paymentOrderId !== undefined ? this.paymentOrderId : <any>null;
-    data['state'] = this.state !== undefined ? this.state : <any>null;
-    data['error'] = this.error !== undefined ? this.error : <any>null;
-    data['createdTime'] = this.createdTime
+    data["state"] = this.state !== undefined ? this.state : <any>null;
+    data["error"] = this.error !== undefined ? this.error : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['paymentOrder'] = this.paymentOrder
+    data["paymentOrder"] = this.paymentOrder
       ? this.paymentOrder.toJSON()
       : <any>null;
     return data;
@@ -20030,28 +20032,28 @@ export class UpdateSettingRequest implements IUpdateSettingRequest {
 
   init(_data?: any) {
     if (_data) {
-      this.startInvoiceDate = _data['startInvoiceDate']
-        ? PatchOfDateTime.fromJS(_data['startInvoiceDate'])
+      this.startInvoiceDate = _data["startInvoiceDate"]
+        ? PatchOfDateTime.fromJS(_data["startInvoiceDate"])
         : <any>null;
-      this.invoiceDailyTime = _data['invoiceDailyTime']
-        ? PatchOfDateTime.fromJS(_data['invoiceDailyTime'])
+      this.invoiceDailyTime = _data["invoiceDailyTime"]
+        ? PatchOfDateTime.fromJS(_data["invoiceDailyTime"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdateSettingRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdateSettingRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['startInvoiceDate'] = this.startInvoiceDate
+    data = typeof data === "object" ? data : {};
+    data["startInvoiceDate"] = this.startInvoiceDate
       ? this.startInvoiceDate.toJSON()
       : <any>null;
-    data['invoiceDailyTime'] = this.invoiceDailyTime
+    data["invoiceDailyTime"] = this.invoiceDailyTime
       ? this.invoiceDailyTime.toJSON()
       : <any>null;
     return data;
@@ -20077,22 +20079,22 @@ export class PatchOfDateTime implements IPatchOfDateTime {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value']
-        ? new Date(_data['value'].toString())
+      this.value = _data["value"]
+        ? new Date(_data["value"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfDateTime {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfDateTime();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value ? this.value.toISOString() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value ? this.value.toISOString() : <any>null;
     return data;
   }
 }
@@ -20125,48 +20127,48 @@ export class CreatePaymentProfileRequest
   init(_data?: any) {
     if (_data) {
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
       this.currencyId =
-        _data['currencyId'] !== undefined ? _data['currencyId'] : <any>null;
+        _data["currencyId"] !== undefined ? _data["currencyId"] : <any>null;
       this.providerProfileId =
-        _data['providerProfileId'] !== undefined
-          ? _data['providerProfileId']
+        _data["providerProfileId"] !== undefined
+          ? _data["providerProfileId"]
           : <any>null;
       this.minAmount =
-        _data['minAmount'] !== undefined ? _data['minAmount'] : <any>null;
+        _data["minAmount"] !== undefined ? _data["minAmount"] : <any>null;
       this.maxAmount =
-        _data['maxAmount'] !== undefined ? _data['maxAmount'] : <any>null;
+        _data["maxAmount"] !== undefined ? _data["maxAmount"] : <any>null;
       this.imageUri1 =
-        _data['imageUri1'] !== undefined ? _data['imageUri1'] : <any>null;
+        _data["imageUri1"] !== undefined ? _data["imageUri1"] : <any>null;
       this.imageUri2 =
-        _data['imageUri2'] !== undefined ? _data['imageUri2'] : <any>null;
+        _data["imageUri2"] !== undefined ? _data["imageUri2"] : <any>null;
     }
   }
 
   static fromJS(data: any): CreatePaymentProfileRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new CreatePaymentProfileRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['description'] =
+    data = typeof data === "object" ? data : {};
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['currencyId'] =
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["currencyId"] =
       this.currencyId !== undefined ? this.currencyId : <any>null;
-    data['providerProfileId'] =
+    data["providerProfileId"] =
       this.providerProfileId !== undefined ? this.providerProfileId : <any>null;
-    data['minAmount'] =
+    data["minAmount"] =
       this.minAmount !== undefined ? this.minAmount : <any>null;
-    data['maxAmount'] =
+    data["maxAmount"] =
       this.maxAmount !== undefined ? this.maxAmount : <any>null;
-    data['imageUri1'] =
+    data["imageUri1"] =
       this.imageUri1 !== undefined ? this.imageUri1 : <any>null;
-    data['imageUri2'] =
+    data["imageUri2"] =
       this.imageUri2 !== undefined ? this.imageUri2 : <any>null;
     return data;
   }
@@ -20204,44 +20206,44 @@ export class UpdatePaymentProfileRequest
 
   init(_data?: any) {
     if (_data) {
-      this.description = _data['description']
-        ? PatchOfString.fromJS(_data['description'])
+      this.description = _data["description"]
+        ? PatchOfString.fromJS(_data["description"])
         : <any>null;
-      this.name = _data['name']
-        ? PatchOfString.fromJS(_data['name'])
+      this.name = _data["name"]
+        ? PatchOfString.fromJS(_data["name"])
         : <any>null;
-      this.minAmount = _data['minAmount']
-        ? PatchOfNullableDecimal.fromJS(_data['minAmount'])
+      this.minAmount = _data["minAmount"]
+        ? PatchOfNullableDecimal.fromJS(_data["minAmount"])
         : <any>null;
-      this.maxAmount = _data['maxAmount']
-        ? PatchOfNullableDecimal.fromJS(_data['maxAmount'])
+      this.maxAmount = _data["maxAmount"]
+        ? PatchOfNullableDecimal.fromJS(_data["maxAmount"])
         : <any>null;
-      this.imageUri1 = _data['imageUri1']
-        ? PatchOfUri.fromJS(_data['imageUri1'])
+      this.imageUri1 = _data["imageUri1"]
+        ? PatchOfUri.fromJS(_data["imageUri1"])
         : <any>null;
-      this.imageUri2 = _data['imageUri2']
-        ? PatchOfUri.fromJS(_data['imageUri2'])
+      this.imageUri2 = _data["imageUri2"]
+        ? PatchOfUri.fromJS(_data["imageUri2"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): UpdatePaymentProfileRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UpdatePaymentProfileRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['description'] = this.description
+    data = typeof data === "object" ? data : {};
+    data["description"] = this.description
       ? this.description.toJSON()
       : <any>null;
-    data['name'] = this.name ? this.name.toJSON() : <any>null;
-    data['minAmount'] = this.minAmount ? this.minAmount.toJSON() : <any>null;
-    data['maxAmount'] = this.maxAmount ? this.maxAmount.toJSON() : <any>null;
-    data['imageUri1'] = this.imageUri1 ? this.imageUri1.toJSON() : <any>null;
-    data['imageUri2'] = this.imageUri2 ? this.imageUri2.toJSON() : <any>null;
+    data["name"] = this.name ? this.name.toJSON() : <any>null;
+    data["minAmount"] = this.minAmount ? this.minAmount.toJSON() : <any>null;
+    data["maxAmount"] = this.maxAmount ? this.maxAmount.toJSON() : <any>null;
+    data["imageUri1"] = this.imageUri1 ? this.imageUri1.toJSON() : <any>null;
+    data["imageUri2"] = this.imageUri2 ? this.imageUri2.toJSON() : <any>null;
     return data;
   }
 }
@@ -20269,20 +20271,20 @@ export class PatchOfNullableDecimal implements IPatchOfNullableDecimal {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
     }
   }
 
   static fromJS(data: any): PatchOfNullableDecimal {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new PatchOfNullableDecimal();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
     return data;
   }
 }
@@ -20310,32 +20312,32 @@ export class ApiKey implements IApiKey {
 
   init(_data?: any) {
     if (_data) {
-      this.accessToken = _data['accessToken']
-        ? Token.fromJS(_data['accessToken'])
+      this.accessToken = _data["accessToken"]
+        ? Token.fromJS(_data["accessToken"])
         : new Token();
-      this.refreshToken = _data['refreshToken']
-        ? Token.fromJS(_data['refreshToken'])
+      this.refreshToken = _data["refreshToken"]
+        ? Token.fromJS(_data["refreshToken"])
         : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
     }
   }
 
   static fromJS(data: any): ApiKey {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ApiKey();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['accessToken'] = this.accessToken
+    data = typeof data === "object" ? data : {};
+    data["accessToken"] = this.accessToken
       ? this.accessToken.toJSON()
       : <any>null;
-    data['refreshToken'] = this.refreshToken
+    data["refreshToken"] = this.refreshToken
       ? this.refreshToken.toJSON()
       : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
     return data;
   }
 }
@@ -20363,32 +20365,32 @@ export class Token implements IToken {
 
   init(_data?: any) {
     if (_data) {
-      this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
-      this.expirationTime = _data['expirationTime']
-        ? new Date(_data['expirationTime'].toString())
+      this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
+      this.expirationTime = _data["expirationTime"]
+        ? new Date(_data["expirationTime"].toString())
         : <any>null;
-      this.scheme = _data['scheme'] !== undefined ? _data['scheme'] : <any>null;
-      this.issuedTime = _data['issuedTime']
-        ? new Date(_data['issuedTime'].toString())
+      this.scheme = _data["scheme"] !== undefined ? _data["scheme"] : <any>null;
+      this.issuedTime = _data["issuedTime"]
+        ? new Date(_data["issuedTime"].toString())
         : <any>null;
     }
   }
 
   static fromJS(data: any): Token {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Token();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['value'] = this.value !== undefined ? this.value : <any>null;
-    data['expirationTime'] = this.expirationTime
+    data = typeof data === "object" ? data : {};
+    data["value"] = this.value !== undefined ? this.value : <any>null;
+    data["expirationTime"] = this.expirationTime
       ? this.expirationTime.toISOString()
       : <any>null;
-    data['scheme'] = this.scheme !== undefined ? this.scheme : <any>null;
-    data['issuedTime'] = this.issuedTime
+    data["scheme"] = this.scheme !== undefined ? this.scheme : <any>null;
+    data["issuedTime"] = this.issuedTime
       ? this.issuedTime.toISOString()
       : <any>null;
     return data;
@@ -20431,79 +20433,79 @@ export class User implements IUser {
 
   init(_data?: any) {
     if (_data) {
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
-      this.email = _data['email'] !== undefined ? _data['email'] : <any>null;
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
+      this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
       this.firstName =
-        _data['firstName'] !== undefined ? _data['firstName'] : <any>null;
+        _data["firstName"] !== undefined ? _data["firstName"] : <any>null;
       this.lastName =
-        _data['lastName'] !== undefined ? _data['lastName'] : <any>null;
+        _data["lastName"] !== undefined ? _data["lastName"] : <any>null;
       this.pictureUrl =
-        _data['pictureUrl'] !== undefined ? _data['pictureUrl'] : <any>null;
-      this.phone = _data['phone'] !== undefined ? _data['phone'] : <any>null;
-      this.createdTime = _data['createdTime']
-        ? new Date(_data['createdTime'].toString())
+        _data["pictureUrl"] !== undefined ? _data["pictureUrl"] : <any>null;
+      this.phone = _data["phone"] !== undefined ? _data["phone"] : <any>null;
+      this.createdTime = _data["createdTime"]
+        ? new Date(_data["createdTime"].toString())
         : <any>null;
-      this.accessedTime = _data['accessedTime']
-        ? new Date(_data['accessedTime'].toString())
+      this.accessedTime = _data["accessedTime"]
+        ? new Date(_data["accessedTime"].toString())
         : <any>null;
       this.authorizationCode =
-        _data['authorizationCode'] !== undefined
-          ? _data['authorizationCode']
+        _data["authorizationCode"] !== undefined
+          ? _data["authorizationCode"]
           : <any>null;
       this.isDisabled =
-        _data['isDisabled'] !== undefined ? _data['isDisabled'] : <any>null;
+        _data["isDisabled"] !== undefined ? _data["isDisabled"] : <any>null;
       this.isEmailVerified =
-        _data['isEmailVerified'] !== undefined
-          ? _data['isEmailVerified']
+        _data["isEmailVerified"] !== undefined
+          ? _data["isEmailVerified"]
           : <any>null;
       this.isPhoneVerified =
-        _data['isPhoneVerified'] !== undefined
-          ? _data['isPhoneVerified']
+        _data["isPhoneVerified"] !== undefined
+          ? _data["isPhoneVerified"]
           : <any>null;
-      this.isBot = _data['isBot'] !== undefined ? _data['isBot'] : <any>null;
+      this.isBot = _data["isBot"] !== undefined ? _data["isBot"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
-      this.exData = _data['exData'] !== undefined ? _data['exData'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
+      this.exData = _data["exData"] !== undefined ? _data["exData"] : <any>null;
     }
   }
 
   static fromJS(data: any): User {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new User();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['email'] = this.email !== undefined ? this.email : <any>null;
-    data['name'] = this.name !== undefined ? this.name : <any>null;
-    data['firstName'] =
+    data = typeof data === "object" ? data : {};
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["email"] = this.email !== undefined ? this.email : <any>null;
+    data["name"] = this.name !== undefined ? this.name : <any>null;
+    data["firstName"] =
       this.firstName !== undefined ? this.firstName : <any>null;
-    data['lastName'] = this.lastName !== undefined ? this.lastName : <any>null;
-    data['pictureUrl'] =
+    data["lastName"] = this.lastName !== undefined ? this.lastName : <any>null;
+    data["pictureUrl"] =
       this.pictureUrl !== undefined ? this.pictureUrl : <any>null;
-    data['phone'] = this.phone !== undefined ? this.phone : <any>null;
-    data['createdTime'] = this.createdTime
+    data["phone"] = this.phone !== undefined ? this.phone : <any>null;
+    data["createdTime"] = this.createdTime
       ? this.createdTime.toISOString()
       : <any>null;
-    data['accessedTime'] = this.accessedTime
+    data["accessedTime"] = this.accessedTime
       ? this.accessedTime.toISOString()
       : <any>null;
-    data['authorizationCode'] =
+    data["authorizationCode"] =
       this.authorizationCode !== undefined ? this.authorizationCode : <any>null;
-    data['isDisabled'] =
+    data["isDisabled"] =
       this.isDisabled !== undefined ? this.isDisabled : <any>null;
-    data['isEmailVerified'] =
+    data["isEmailVerified"] =
       this.isEmailVerified !== undefined ? this.isEmailVerified : <any>null;
-    data['isPhoneVerified'] =
+    data["isPhoneVerified"] =
       this.isPhoneVerified !== undefined ? this.isPhoneVerified : <any>null;
-    data['isBot'] = this.isBot !== undefined ? this.isBot : <any>null;
-    data['description'] =
+    data["isBot"] = this.isBot !== undefined ? this.isBot : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
-    data['exData'] = this.exData !== undefined ? this.exData : <any>null;
+    data["exData"] = this.exData !== undefined ? this.exData : <any>null;
     return data;
   }
 }
@@ -20541,22 +20543,22 @@ export class TeamUpdateBotParam implements ITeamUpdateBotParam {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name']
-        ? PatchOfString.fromJS(_data['name'])
+      this.name = _data["name"]
+        ? PatchOfString.fromJS(_data["name"])
         : <any>null;
     }
   }
 
   static fromJS(data: any): TeamUpdateBotParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamUpdateBotParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name ? this.name.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name ? this.name.toJSON() : <any>null;
     return data;
   }
 }
@@ -20581,26 +20583,26 @@ export class Role implements IRole {
 
   init(_data?: any) {
     if (_data) {
-      this.roleId = _data['roleId'] !== undefined ? _data['roleId'] : <any>null;
+      this.roleId = _data["roleId"] !== undefined ? _data["roleId"] : <any>null;
       this.roleName =
-        _data['roleName'] !== undefined ? _data['roleName'] : <any>null;
+        _data["roleName"] !== undefined ? _data["roleName"] : <any>null;
       this.description =
-        _data['description'] !== undefined ? _data['description'] : <any>null;
+        _data["description"] !== undefined ? _data["description"] : <any>null;
     }
   }
 
   static fromJS(data: any): Role {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new Role();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['roleId'] = this.roleId !== undefined ? this.roleId : <any>null;
-    data['roleName'] = this.roleName !== undefined ? this.roleName : <any>null;
-    data['description'] =
+    data = typeof data === "object" ? data : {};
+    data["roleId"] = this.roleId !== undefined ? this.roleId : <any>null;
+    data["roleName"] = this.roleName !== undefined ? this.roleName : <any>null;
+    data["description"] =
       this.description !== undefined ? this.description : <any>null;
     return data;
   }
@@ -20631,10 +20633,10 @@ export class ListResultOfUserRole implements IListResultOfUserRole {
   init(_data?: any) {
     if (_data) {
       this.totalCount =
-        _data['totalCount'] !== undefined ? _data['totalCount'] : <any>null;
-      if (Array.isArray(_data['items'])) {
+        _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+      if (Array.isArray(_data["items"])) {
         this.items = [] as any;
-        for (let item of _data['items'])
+        for (let item of _data["items"])
           this.items!.push(UserRole.fromJS(item));
       } else {
         this.items = <any>null;
@@ -20643,19 +20645,19 @@ export class ListResultOfUserRole implements IListResultOfUserRole {
   }
 
   static fromJS(data: any): ListResultOfUserRole {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new ListResultOfUserRole();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['totalCount'] =
+    data = typeof data === "object" ? data : {};
+    data["totalCount"] =
       this.totalCount !== undefined ? this.totalCount : <any>null;
     if (Array.isArray(this.items)) {
-      data['items'] = [];
-      for (let item of this.items) data['items'].push(item.toJSON());
+      data["items"] = [];
+      for (let item of this.items) data["items"].push(item.toJSON());
     }
     return data;
   }
@@ -20686,25 +20688,25 @@ export class UserRole2 implements IUserRole2 {
   init(_data?: any) {
     if (_data) {
       this.resourceId =
-        _data['resourceId'] !== undefined ? _data['resourceId'] : <any>null;
-      this.userId = _data['userId'] !== undefined ? _data['userId'] : <any>null;
-      this.role = _data['role'] ? Role.fromJS(_data['role']) : new Role();
+        _data["resourceId"] !== undefined ? _data["resourceId"] : <any>null;
+      this.userId = _data["userId"] !== undefined ? _data["userId"] : <any>null;
+      this.role = _data["role"] ? Role.fromJS(_data["role"]) : new Role();
     }
   }
 
   static fromJS(data: any): UserRole2 {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UserRole2();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['resourceId'] =
+    data = typeof data === "object" ? data : {};
+    data["resourceId"] =
       this.resourceId !== undefined ? this.resourceId : <any>null;
-    data['userId'] = this.userId !== undefined ? this.userId : <any>null;
-    data['role'] = this.role ? this.role.toJSON() : <any>null;
+    data["userId"] = this.userId !== undefined ? this.userId : <any>null;
+    data["role"] = this.role ? this.role.toJSON() : <any>null;
     return data;
   }
 }
@@ -20725,20 +20727,20 @@ export class UserRole extends UserRole2 implements IUserRole {
   override init(_data?: any) {
     super.init(_data);
     if (_data) {
-      this.user = _data['user'] ? User.fromJS(_data['user']) : <any>null;
+      this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>null;
     }
   }
 
   static override fromJS(data: any): UserRole {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new UserRole();
     result.init(data);
     return result;
   }
 
   override toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['user'] = this.user ? this.user.toJSON() : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["user"] = this.user ? this.user.toJSON() : <any>null;
     super.toJSON(data);
     return data;
   }
@@ -20762,20 +20764,20 @@ export class TeamAddBotParam implements ITeamAddBotParam {
 
   init(_data?: any) {
     if (_data) {
-      this.name = _data['name'] !== undefined ? _data['name'] : <any>null;
+      this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
     }
   }
 
   static fromJS(data: any): TeamAddBotParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamAddBotParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name !== undefined ? this.name : <any>null;
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name !== undefined ? this.name : <any>null;
     return data;
   }
 }
@@ -20797,14 +20799,14 @@ export class TeamAddEmailParam implements ITeamAddEmailParam {
   init(_data?: any) {}
 
   static fromJS(data: any): TeamAddEmailParam {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new TeamAddEmailParam();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     return data;
   }
 }
@@ -20827,25 +20829,25 @@ export class SignInRequest implements ISignInRequest {
   init(_data?: any) {
     if (_data) {
       this.idToken =
-        _data['idToken'] !== undefined ? _data['idToken'] : <any>null;
+        _data["idToken"] !== undefined ? _data["idToken"] : <any>null;
       this.refreshTokenType =
-        _data['refreshTokenType'] !== undefined
-          ? _data['refreshTokenType']
+        _data["refreshTokenType"] !== undefined
+          ? _data["refreshTokenType"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): SignInRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SignInRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['idToken'] = this.idToken !== undefined ? this.idToken : <any>null;
-    data['refreshTokenType'] =
+    data = typeof data === "object" ? data : {};
+    data["idToken"] = this.idToken !== undefined ? this.idToken : <any>null;
+    data["refreshTokenType"] =
       this.refreshTokenType !== undefined ? this.refreshTokenType : <any>null;
     return data;
   }
@@ -20857,9 +20859,9 @@ export interface ISignInRequest {
 }
 
 export enum RefreshTokenType {
-  None = 'None',
-  Web = 'Web',
-  App = 'App',
+  None = "None",
+  Web = "Web",
+  App = "App",
 }
 
 export class SignUpRequest implements ISignUpRequest {
@@ -20878,25 +20880,25 @@ export class SignUpRequest implements ISignUpRequest {
   init(_data?: any) {
     if (_data) {
       this.idToken =
-        _data['idToken'] !== undefined ? _data['idToken'] : <any>null;
+        _data["idToken"] !== undefined ? _data["idToken"] : <any>null;
       this.refreshTokenType =
-        _data['refreshTokenType'] !== undefined
-          ? _data['refreshTokenType']
+        _data["refreshTokenType"] !== undefined
+          ? _data["refreshTokenType"]
           : <any>null;
     }
   }
 
   static fromJS(data: any): SignUpRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new SignUpRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['idToken'] = this.idToken !== undefined ? this.idToken : <any>null;
-    data['refreshTokenType'] =
+    data = typeof data === "object" ? data : {};
+    data["idToken"] = this.idToken !== undefined ? this.idToken : <any>null;
+    data["refreshTokenType"] =
       this.refreshTokenType !== undefined ? this.refreshTokenType : <any>null;
     return data;
   }
@@ -20922,20 +20924,20 @@ export class RefreshTokenRequest implements IRefreshTokenRequest {
   init(_data?: any) {
     if (_data) {
       this.refreshToken =
-        _data['refreshToken'] !== undefined ? _data['refreshToken'] : <any>null;
+        _data["refreshToken"] !== undefined ? _data["refreshToken"] : <any>null;
     }
   }
 
   static fromJS(data: any): RefreshTokenRequest {
-    data = typeof data === 'object' ? data : {};
+    data = typeof data === "object" ? data : {};
     let result = new RefreshTokenRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['refreshToken'] =
+    data = typeof data === "object" ? data : {};
+    data["refreshToken"] =
       this.refreshToken !== undefined ? this.refreshToken : <any>null;
     return data;
   }
@@ -20948,10 +20950,10 @@ export interface IRefreshTokenRequest {
 function formatDate(d: Date) {
   return (
     d.getFullYear() +
-    '-' +
-    (d.getMonth() < 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) +
-    '-' +
-    (d.getDate() < 10 ? '0' + d.getDate() : d.getDate())
+    "-" +
+    (d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : d.getMonth() + 1) +
+    "-" +
+    (d.getDate() < 10 ? "0" + d.getDate() : d.getDate())
   );
 }
 
@@ -20984,7 +20986,7 @@ function throwException(
 function blobToText(blob: any): Observable<string> {
   return new Observable<string>((observer: any) => {
     if (!blob) {
-      observer.next('');
+      observer.next("");
       observer.complete();
     } else {
       let reader = new FileReader();
@@ -21041,7 +21043,7 @@ export class ApiException extends Error {
     response?: string
   ): string {
     let serverException = ServerException.tryParse(response);
-    if (serverException) return serverException.Message || '';
+    if (serverException) return serverException.Message || "";
 
     return `${message}\n\nStatus: ${statusCode}\nResponse:\n${response?.substring(
       0,
